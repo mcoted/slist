@@ -77,10 +77,7 @@ namespace slist
 			return;
 		}
 
-		for (node_ptr& node : root->children)
-		{
-			print_node_r(node);
-		}
+		print_node_r(root);
 	}
 
 	void debug_print_node(const node_ptr& root)
@@ -90,10 +87,7 @@ namespace slist
 			return;
 		}
 
-		for (const node_ptr& node : root->children)
-		{
-			debug_print_node_r(node);
-		}
+		debug_print_node_r(root);
 	}
 }
 

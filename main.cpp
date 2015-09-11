@@ -1,9 +1,13 @@
 #include "slist.h"
+#include <iostream>
 
 int main()
 {
-	slist::context context;
-	slist::node_ptr root = slist::parse("(+ 1 2.0 'symbol)('hey)");
-	slist::print_node(root);
-	slist::debug_print_node(root);
+	using namespace slist;
+
+	context ctx;
+	node_ptr root = slist::parse("(+ 1 2.0)");
+	debug_print_node(eval(ctx, root->children[0]));
+	// print_node(root);
+	// debug_print_node(root);
 }

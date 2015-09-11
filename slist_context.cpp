@@ -32,8 +32,14 @@ namespace
 		node_ptr result_node(new node);
 		bool has_floats = false;
 
+		size_t i = 0;
 		for (const auto& child : root_node->children)
 		{
+			if (i++ == 0)
+			{
+				continue; // skip '+'
+			}
+
 			if (child->type == node_type::integer)
 			{
 				intval += std::stoi(child->data);
