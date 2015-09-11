@@ -3,7 +3,7 @@
 int main()
 {
 	slist::context context;
-	slist::tree_ptr tree = slist::parse("(+ 1 2.0 'symbol)('hey)");
-	print_tree(tree);
-	debug_print_tree(tree);
+	slist::node_ptr root = slist::parse("(+ 1 2.0 'symbol)('hey)");
+	slist::print_node(root);
+	slist::debug_print_node(root);
 }

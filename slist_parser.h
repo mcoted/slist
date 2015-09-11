@@ -5,13 +5,12 @@
 
 namespace slist
 {
-	tree_ptr parse(const std::string& str);
-	tree_ptr parse_stream(std::istream& in);
-	tree_ptr parse_file(const std::string& filename);
+	node_ptr parse(const std::string& str);
+	node_ptr parse_stream(std::istream& in);
+	node_ptr parse_file(const std::string& filename);
 
-	void print_tree(const tree_ptr& tree);
-
-	void debug_print_tree(const tree_ptr& tree);
+	void print_node(const node_ptr& root);
+	void debug_print_node(const node_ptr& root);
 }
 
 #endif

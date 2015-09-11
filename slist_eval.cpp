@@ -2,7 +2,7 @@
 
 namespace slist
 {
-	node_ptr eval(const tree_ptr& tree)
+	node_ptr eval(const node_ptr& root)
 	{
 		return nullptr;
 	}

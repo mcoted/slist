@@ -10,9 +10,6 @@ namespace slist
 	struct node;
 	typedef std::shared_ptr<node> node_ptr;
 
-	struct tree;
-	typedef std::shared_ptr<tree> tree_ptr;
-
 	enum class node_type
 	{
 		empty,
@@ -28,11 +25,6 @@ namespace slist
 		node_type type;
 		std::string data;
 		std::vector<node_ptr> children;
-	};
-
-	struct tree
-	{
-		std::vector<node_ptr> roots;
 	};
 }
 

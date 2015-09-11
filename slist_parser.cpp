@@ -14,17 +14,17 @@ namespace
 	slist::node_type find_type(const std::string& str);
 	std::string type_to_string(slist::node_type type);
 
-	void print_node(const slist::node_ptr& node);
-	void debug_print_node(const slist::node_ptr& node, int indent = 0);
+	void print_node_r(const slist::node_ptr& node);
+	void debug_print_node_r(const slist::node_ptr& node, int indent = 0);
 }
 
 namespace slist
 {
-	tree_ptr parse(const std::string& str)
+	node_ptr parse(const std::string& str)
 	{
 		std::istringstream in(str);
 
-		tree_ptr result(new tree);
+		node_ptr result(new node);
 
 		char ch;
 		std::string tok;
@@ -36,7 +36,7 @@ namespace slist
 			if (in && ch == '(')
 			{
 				in.putback(ch);
-				result->roots.push_back(parse_list(in));
+				result->children.push_back(parse_list(in));
 			}
 			else 
 			{
@@ -48,7 +48,7 @@ namespace slist
 		return result;
 	}
 
-	tree_ptr parse_stream(std::istream& in)
+	node_ptr parse_stream(std::istream& in)
 	{
 		const size_t bufsize = 1024;
 		char buf[bufsize];
@@ -64,35 +64,35 @@ namespace slist
 		return parse(str);
 	}
 
-	tree_ptr parse_file(const std::string& filename)
+	node_ptr parse_file(const std::string& filename)
 	{
 		std::ifstream in(filename);
 		return parse_stream(in);
 	}
 
-	void print_tree(const tree_ptr& tree)
+	void print_node(const node_ptr& root)
 	{
-		if (tree == nullptr)
+		if (root == nullptr)
 		{
 			return;
 		}
 
-		for (node_ptr& node : tree->roots)
+		for (node_ptr& node : root->children)
 		{
-			print_node(node);
+			print_node_r(node);
 		}
 	}
 
-	void debug_print_tree(const tree_ptr& tree)
+	void debug_print_node(const node_ptr& root)
 	{
-		if (tree == nullptr)
+		if (root == nullptr)
 		{
 			return;
 		}
 
-		for (const node_ptr& node : tree->roots)
+		for (const node_ptr& node : root->children)
 		{
-			debug_print_node(node);
+			debug_print_node_r(node);
 		}
 	}
 }
@@ -259,7 +259,7 @@ namespace
 		return "<undefined>";
 	}
 
-	void print_node(const slist::node_ptr& node)
+	void print_node_r(const slist::node_ptr& node)
 	{
 		switch (node->type)
 		{
@@ -275,7 +275,7 @@ namespace
 					std::cout << "( ";
 					for (const slist::node_ptr& child : node->children)
 					{
-						print_node(child);
+						print_node_r(child);
 						std::cout << " ";
 					}
 					std::cout << ")\n";
@@ -287,7 +287,7 @@ namespace
 		}
 	}
 
-	void debug_print_node(const slist::node_ptr& node, int indent)
+	void debug_print_node_r(const slist::node_ptr& node, int indent)
 	{
 		if (node == nullptr)
 		{
@@ -313,7 +313,7 @@ namespace
 
 		for (const slist::node_ptr& child_node : node->children)
 		{
-			debug_print_node(child_node, indent+1);
+			debug_print_node_r(child_node, indent+1);
 		}
 	}
 }
