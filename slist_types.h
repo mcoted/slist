@@ -22,10 +22,14 @@ namespace slist
 
 	struct node
 	{
+		node() : type(node_type::empty) { }
 		node_type type;
 		std::string data;
 		std::vector<node_ptr> children;
 	};
+
+	void print_node(const slist::node_ptr& node);
+	void debug_print_node(const slist::node_ptr& node);
 }
 
 #endif

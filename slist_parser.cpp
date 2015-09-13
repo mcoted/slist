@@ -13,9 +13,6 @@ namespace
 	slist::node_ptr parse_token(std::istream& in);
 	slist::node_type find_type(const std::string& str);
 	std::string type_to_string(slist::node_type type);
-
-	void print_node_r(const slist::node_ptr& node);
-	void debug_print_node_r(const slist::node_ptr& node, int indent = 0);
 }
 
 namespace slist
@@ -25,6 +22,7 @@ namespace slist
 		std::istringstream in(str);
 
 		node_ptr result(new node);
+		result->type = node_type::list;
 
 		char ch;
 		std::string tok;
@@ -68,26 +66,6 @@ namespace slist
 	{
 		std::ifstream in(filename);
 		return parse_stream(in);
-	}
-
-	void print_node(const node_ptr& root)
-	{
-		if (root == nullptr)
-		{
-			return;
-		}
-
-		print_node_r(root);
-	}
-
-	void debug_print_node(const node_ptr& root)
-	{
-		if (root == nullptr)
-		{
-			return;
-		}
-
-		debug_print_node_r(root);
 	}
 }
 
@@ -234,80 +212,5 @@ namespace
 		}
 
 		return type;
-	}
-
-	std::string type_to_string(slist::node_type type)
-	{
-		using namespace slist;
-
-		switch (type)
-		{
-			case node_type::empty:   return "empty";
-			case node_type::list:    return "list";
-			case node_type::integer: return "integer";
-			case node_type::number:  return "number";
-			case node_type::string:  return "string";
-			case node_type::symbol:  return "symbol";
-		}
-
-		return "<undefined>";
-	}
-
-	void print_node_r(const slist::node_ptr& node)
-	{
-		switch (node->type)
-		{
-			case slist::node_type::empty:
-			break;
-			case slist::node_type::list:
-				if (node->children.size() == 0)
-				{
-					std::cout << "()\n";
-				}
-				else 
-				{
-					std::cout << "( ";
-					for (const slist::node_ptr& child : node->children)
-					{
-						print_node_r(child);
-						std::cout << " ";
-					}
-					std::cout << ")\n";
-				}
-			break;
-			default:
-				std::cout << node->data;
-			break;
-		}
-	}
-
-	void debug_print_node_r(const slist::node_ptr& node, int indent)
-	{
-		if (node == nullptr)
-		{
-			return;
-		}
-
-		for (int i = 0; i < indent; ++i) 
-		{
-			std::cout << "    ";
-		}
-
-		std::cout << '[' << type_to_string(node->type) << "] ";
-
-		if (node->type == slist::node_type::list)
-		{
-			std::cout << '\n';
-		}
-
-		if (node->data.length() > 0)
-		{
-			std::cout << node->data << '\n';
-		}
-
-		for (const slist::node_ptr& child_node : node->children)
-		{
-			debug_print_node_r(child_node, indent+1);
-		}
 	}
 }
