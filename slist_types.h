@@ -17,6 +17,7 @@ namespace slist
 	{
 		empty,
 		list,
+		boolean,
 		integer,
 		number,
 		string,
@@ -40,7 +41,7 @@ namespace slist
 	struct funcdef
 	{
 		funcdef() : variadic(false) {}
-		
+
 		std::string name;
 
 		typedef std::vector<std::string> arg_list;

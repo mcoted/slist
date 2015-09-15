@@ -142,6 +142,7 @@ namespace
 		{
 			case node_type::empty:   return "empty";
 			case node_type::list:    return "list";
+			case node_type::boolean: return "boolean";
 			case node_type::integer: return "integer";
 			case node_type::number:  return "number";
 			case node_type::string:  return "string";

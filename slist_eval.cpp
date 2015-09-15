@@ -7,7 +7,7 @@ namespace
 	slist::node_ptr eval_list(slist::context& ctx, const slist::node_ptr& root);
 	slist::node_ptr eval_string(slist::context& ctx, const slist::node_ptr& root);
 
-	void bind_args(slist::context& ctx, const slist::funcdef::arg_list& args, const slist::node_ptr& root, bool variadic);
+	bool bind_args(slist::context& ctx, const slist::funcdef::arg_list& args, const slist::node_ptr& root, bool variadic);
 	void unbind_args(slist::context& ctx);
 }
 
@@ -18,6 +18,11 @@ namespace slist
 		std::cout << "EVAL\n";
 		print_node(root);
 
+        if (root == nullptr)
+        {
+            return nullptr;
+        }
+        
 		switch (root->type)
 		{
 			case node_type::list:
@@ -37,6 +42,8 @@ namespace slist
 	void exec(context& ctx, const std::string& str)
 	{
 		auto parse_node = parse(str);
+        std::cout << "EXEC\n" << str << '\n';
+        print_node(parse_node);
 		if (parse_node != nullptr)
 		{
 			for (auto& child : parse_node->children)
@@ -65,13 +72,16 @@ namespace
 		if (it_func != ctx.global_funcs.end())
 		{
 			funcdef_ptr func = it_func->second;
-			bind_args(ctx, func->args, root, func->variadic);
-			std::cout << "Evaluating global func\n";
-			print_node(root);
-			print_node(func->body);
-			auto res = eval(ctx, func->body);
-			unbind_args(ctx);
-			return res;
+			if (bind_args(ctx, func->args, root, func->variadic))
+            {
+                std::cout << "Evaluating global func\n";
+                print_node(root);
+                print_node(func->body);
+                auto res = eval(ctx, func->body);
+                unbind_args(ctx);
+                return res;
+            }
+            return nullptr;
 		}
 
 		// Fallback on native funcs
@@ -98,7 +108,7 @@ namespace
 		return root;
 	}
 
-	void bind_args(slist::context& ctx, const slist::funcdef::arg_list& args, const slist::node_ptr& root, bool variadic)
+	bool bind_args(slist::context& ctx, const slist::funcdef::arg_list& args, const slist::node_ptr& root, bool variadic)
 	{
 		using namespace slist;
 
@@ -107,7 +117,7 @@ namespace
 			if (args.size() != 1)
 			{
 				std::cerr << "Variadic functions should have only one arg\n";
-				return;
+				return false;
 			}
 
 			node::node_vector children;
@@ -115,7 +125,7 @@ namespace
 			{
 				for (int i = 1; i < root->children.size(); ++i)
 				{
-					children[i-1] = eval(ctx, root->children[i]);
+                    children.push_back(eval(ctx, root->children[i]));
 				}
 			}
 
@@ -132,7 +142,7 @@ namespace
 			if (args.size() != root->children.size()+1)
 			{
 				std::cerr << "Unable to bind arguments\n";
-				return;
+				return false;
 			}
 
 			context::var_map map;
@@ -144,6 +154,8 @@ namespace
 			}
 			ctx.variables.push_back(map);
 		}
+        
+        return true;
 	}
 
 	void unbind_args(slist::context& ctx)

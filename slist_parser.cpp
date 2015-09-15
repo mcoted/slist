@@ -114,6 +114,7 @@ namespace
 
 		if (!parsed)
 		{
+            std::cerr << "Parsing failed at char: '" << ch << "'\n";
 			return nullptr;
 		}
 
@@ -124,7 +125,7 @@ namespace
 	{
 		char ch = 0;
 		in >> ch;
-
+        
 		if (in)
 		{
 			in.putback(ch);
@@ -134,7 +135,7 @@ namespace
 			while (true)
 			{
 				in.get(ch);
-			
+
 				if (in && ch != '(' && ch != ')' && !std::isspace(ch))
 				{
 					str += ch;
@@ -163,6 +164,11 @@ namespace
 	{
 		using namespace slist;
 		node_type type = node_type::empty;
+
+		if (str == "true" || str == "false")
+		{
+			return node_type::boolean;
+		}
 
 		int dot_count = 0;
 		bool has_only_digits = false;

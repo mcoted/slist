@@ -6,12 +6,15 @@ namespace
 {
 	const char * builtin___add = 
 	"(define sum (values)"
-	"    (___add (car values) (sum (cdr values))))"
+	"    (if (empty? values)"
+	"        0"
+	"        (___add (car values) (sum (cdr values)))))"
 	"(define (+ . values) (sum values))";
 
 	slist::node_ptr def(slist::context& ctx, const slist::node_ptr& root);
 	slist::node_ptr car(slist::context& ctx, const slist::node_ptr& root);
 	slist::node_ptr cdr(slist::context& ctx, const slist::node_ptr& root);
+	slist::node_ptr iff(slist::context& ctx, const slist::node_ptr& root);
 	slist::node_ptr add(slist::context& ctx, const slist::node_ptr& root);
 }
 
@@ -34,7 +37,7 @@ namespace slist
 			return nullptr;
 		}
 
-		for (int i = variables.size()-1; i >= 0; --i)
+		for (int i = (int)(variables.size()-1); i >= 0; --i)
 		{
 			auto stack = variables[i];
 			auto it = stack.find(name);
@@ -205,6 +208,11 @@ namespace
 		}
 
 		return result;		
+	}
+
+	slist::node_ptr iff(slist::context& ctx, const slist::node_ptr& root)
+	{
+		return nullptr;
 	}
 
 	slist::node_ptr add(slist::context& ctx, const slist::node_ptr& root)
