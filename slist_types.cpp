@@ -10,6 +10,18 @@ namespace
 
 namespace slist
 {
+	bool node::to_bool() const 
+	{
+		if (type != node_type::boolean)
+		{
+			std::cerr << "Cannot convert to boolean, invalid type: " << (int)type << '\n';
+			return false;
+		}
+		std::string v = data;
+		std::transform(v.begin(), v.end(), v.begin(), ::tolower);
+		return v == "true";
+	}
+
 	int node::to_int() const 
 	{
 		if (type != node_type::integer) 

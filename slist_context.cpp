@@ -1,5 +1,6 @@
 #include "slist_context.h"
 #include "slist_eval.h"
+#include <algorithm>
 #include <iostream>
 
 namespace
@@ -9,12 +10,14 @@ namespace
 	"    (if (empty? values)"
 	"        0"
 	"        (___add (car values) (sum (cdr values)))))"
+	""
 	"(define (+ . values) (sum values))";
 
 	slist::node_ptr def(slist::context& ctx, const slist::node_ptr& root);
 	slist::node_ptr car(slist::context& ctx, const slist::node_ptr& root);
 	slist::node_ptr cdr(slist::context& ctx, const slist::node_ptr& root);
 	slist::node_ptr iff(slist::context& ctx, const slist::node_ptr& root);
+	slist::node_ptr pty(slist::context& ctx, const slist::node_ptr& root);
 	slist::node_ptr add(slist::context& ctx, const slist::node_ptr& root);
 }
 
@@ -25,6 +28,8 @@ namespace slist
 		native_funcs["define"] = &def;
 		native_funcs["car"]    = &car;
 		native_funcs["cdr"]    = &cdr;
+		native_funcs["if"]     = &iff;
+		native_funcs["empty?"] = &pty;
 		native_funcs["___add"] = &add;
 
 		exec(*this, builtin___add);
@@ -212,7 +217,47 @@ namespace
 
 	slist::node_ptr iff(slist::context& ctx, const slist::node_ptr& root)
 	{
-		return nullptr;
+		using namespace slist;
+
+		if (root->children.size() != 4)
+		{
+			std::cerr << "Invalid 'if' statement\n";
+			return nullptr;
+		}
+
+		auto pred = eval(ctx, root->children[1]);
+		if (pred == nullptr || pred->type != node_type::boolean)
+		{
+			std::cerr << "'empty?' predicate did not evaluate to a boolean value\n";
+			return nullptr;
+		}
+
+		if (pred->to_bool())
+		{
+			return eval(ctx, root->children[2]);
+		}
+
+		return eval(ctx, root->children[3]);
+	}
+
+	slist::node_ptr pty(slist::context& ctx, const slist::node_ptr& root)
+	{
+		using namespace slist;
+
+		if (root->children.size() != 2)
+		{
+			std::cerr << "Invalid 'empty?' statement\n";
+			return nullptr;
+		}
+
+		auto arg = eval(ctx, root->children[1]);
+		bool is_empty = (arg == nullptr) || arg->children.empty();
+
+		node_ptr result(new node);
+		result->type = node_type::boolean;
+		result->data = is_empty ? "true" : "false";
+
+		return result;
 	}
 
 	slist::node_ptr add(slist::context& ctx, const slist::node_ptr& root)

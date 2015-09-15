@@ -139,9 +139,17 @@ namespace
 		}
 		else 
 		{
-			if (args.size() != root->children.size()+1)
+			if (args.size() != root->children.size()-1)
 			{
 				std::cerr << "Unable to bind arguments\n";
+				std::cerr << "Args: ";
+				for (auto& arg : args)
+				{
+					std::cerr << arg << ' ';
+				}
+				std::cerr << '\n';
+				std::cerr << "Node: ";
+				print_node(root);
 				return false;
 			}
 

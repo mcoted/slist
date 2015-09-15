@@ -28,6 +28,7 @@ namespace slist
 	{
 		node() : type(node_type::empty) { }
 
+		bool to_bool() const;
 		int to_int() const;
 		float to_float() const;
 
