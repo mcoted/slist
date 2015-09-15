@@ -3,10 +3,12 @@
 
 #include "slist_types.h"
 #include "slist_context.h"
+#include <string>
 
 namespace slist
 {
 	node_ptr eval(context& ctx, const node_ptr& tree);
+	void     exec(context& ctx, const std::string& str);
 }
 
 #endif
