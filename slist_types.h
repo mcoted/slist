@@ -1,12 +1,15 @@
 #ifndef SLIST_TYPES_H
 #define SLIST_TYPES_H
 
+#include <functional>
 #include <string>
 #include <memory>
 #include <vector>
 
 namespace slist
 {
+	struct context;
+
 	struct node;
 	typedef std::shared_ptr<node> node_ptr;
 
@@ -41,15 +44,21 @@ namespace slist
 
 	struct funcdef
 	{
-		funcdef() : variadic(false) {}
+		funcdef() : variadic(false), is_native(false) {}
 
 		std::string name;
 
 		typedef std::vector<std::string> arg_list;
 		arg_list args;
 		bool variadic;
+		bool is_native;
 
+		// Body of the function (non-native)
 		node_ptr body;
+
+		// Callback (native)
+		typedef std::function<node_ptr(context&, const node_ptr&)> callback;
+		callback native_func;
 	};
 
 	void print_node(const node_ptr& node);

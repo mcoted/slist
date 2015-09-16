@@ -15,9 +15,6 @@ namespace slist
 {
 	node_ptr eval(context& ctx, const node_ptr& root)
 	{
-		std::cout << "EVAL\n";
-		print_node(root);
-
         if (root == nullptr)
         {
             return nullptr;
@@ -42,8 +39,6 @@ namespace slist
 	void exec(context& ctx, const std::string& str)
 	{
 		auto parse_node = parse(str);
-        std::cout << "EXEC\n" << str << '\n';
-        print_node(parse_node);
 		if (parse_node != nullptr)
 		{
 			for (auto& child : parse_node->children)
@@ -72,25 +67,17 @@ namespace
 		if (it_func != ctx.global_funcs.end())
 		{
 			funcdef_ptr func = it_func->second;
-			if (bind_args(ctx, func->args, root, func->variadic))
+        	node_ptr res;
+        	if (func->is_native)
+        	{
+        		res = func->native_func(ctx, root);
+        	}
+        	else if (bind_args(ctx, func->args, root, func->variadic))
             {
-                std::cout << "Evaluating global func\n";
-                print_node(root);
-                print_node(func->body);
-                auto res = eval(ctx, func->body);
+                res = eval(ctx, func->body);
                 unbind_args(ctx);
-                return res;
             }
-            return nullptr;
-		}
-
-		// Fallback on native funcs
-		auto it_nat = ctx.native_funcs.find(op_node->data);
-		if (it_nat != ctx.native_funcs.end())
-		{
-			std::cout << "Evaluating native func\n";
-			print_node(root);
-			return it_nat->second(ctx, root);
+            return res;
 		}
 
 		return root;
@@ -101,8 +88,6 @@ namespace
 		slist::node_ptr var_node = ctx.lookup_variable(root->data);
 		if (var_node != nullptr)
 		{
-			std::cout << "LOOKUP SUCCESS: " << root->data << " -> ";
-			print_node(var_node);
 			return var_node;
 		}
 		return root;
