@@ -67,8 +67,8 @@ namespace
 
 		if (op_node == nullptr)
 		{
-			std::cerr << "First argument of list evaluated to null\n";
-			print_node(root);
+			log_error("First argument of list evaluated to null\n");
+			log_error(root);
 			return nullptr;
 		}
 
@@ -77,8 +77,8 @@ namespace
 			op_node = eval(ctx, op_node);
 			if (op_node->proc == nullptr)
 			{
-				std::cerr << "Error: first argument is not a procedure\n";
-				print_node(root);
+				log_error("Error: first argument is not a procedure\n");
+				log_error(root);
 				return nullptr;
 			}
 			proc = op_node->proc;
@@ -100,8 +100,10 @@ namespace
 
 		if (proc != nullptr)
 		{
-			std::cout << "Evaluating proc:\n";
-			debug_print_funcdef(proc);
+			log_trace("Evaluating Procedure:\n");
+			log_trace(proc);
+			log_trace("\n");
+
 			if (bind_args(ctx, proc->args, root, proc->variadic))
             {
                 node_ptr res = eval(ctx, proc->body);
@@ -131,7 +133,7 @@ namespace
 		{
 			if (args.size() != 1)
 			{
-				std::cerr << "Variadic functions should have only one arg\n";
+				log_error("Variadic functions should have only one arg\n");
 				return false;
 			}
 
@@ -156,19 +158,20 @@ namespace
 		{
 			if (args.size() != root->children.size()-1)
 			{
-				std::cerr << "Unable to bind arguments\n";
-				std::cerr << "Args: ";
+				log_error("Unable to bind arguments\n");
+				log_error("Args: ");
 				for (auto& arg : args)
 				{
-					std::cerr << arg << ' ';
+					log_error(arg + ' ');
 				}
-				std::cerr << '\n';
-				std::cerr << "Node: ";
-				print_node(root);
+				log_error("\n");
+				log_error("Node: ");
+				log_error(root);
+
 				return false;
 			}
 
-			std::cout << "Variable bindings:\n";
+			log_trace("Variable bindings:\n");
 
 			context::var_map map;
 			for (int i = 0; i < args.size(); ++i)
@@ -176,9 +179,12 @@ namespace
 				auto& arg = args[i];
 				node_ptr n = eval(ctx, root->children[i+1]);
 				map[arg] = n;
-				std::cout << arg << ": ";
-				print_node(n);
+				log_trace(arg + ": ");
+				log_trace(n);
 			}
+
+			log_trace("\n\n");
+
 			ctx.variables.push_back(map);
 		}
         

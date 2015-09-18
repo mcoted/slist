@@ -20,6 +20,18 @@ namespace slist
 	void output(const node_ptr& n);
 	void output(const funcdef_ptr& func);	
 
+	void log_warning(const std::string& str);
+	void log_warning(const node_ptr& n);
+	void log_warning(const funcdef_ptr& func);
+
+	void log_error(const std::string& str);
+	void log_error(const node_ptr& n);
+	void log_error(const funcdef_ptr& func);
+
+	void log_trace(const std::string& str);
+	void log_trace(const node_ptr& n);
+	void log_trace(const funcdef_ptr& func);
+
 	void log(const std::string& str, log_level level);
 	void log(const node_ptr& n, log_level level);
 	void log(const funcdef_ptr& func, log_level level);

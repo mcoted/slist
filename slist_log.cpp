@@ -48,6 +48,51 @@ namespace slist
 		log(func, log_level::always);
 	}
 
+	void log_warning(const std::string& str)
+	{
+		log(str, log_level::warning);
+	}
+
+	void log_warning(const node_ptr& n)
+	{
+		log(n, log_level::warning);
+	}
+
+	void log_warning(const funcdef_ptr& func)
+	{
+		log(func, log_level::warning);
+	}
+
+	void log_error(const std::string& str)
+	{
+		log(str, log_level::error);
+	}
+
+	void log_error(const node_ptr& n)
+	{
+		log(n, log_level::error);
+	}
+
+	void log_error(const funcdef_ptr& func)
+	{
+		log(func, log_level::error);
+	}
+
+	void log_trace(const std::string& str)
+	{
+		log(str, log_level::trace);
+	}
+
+	void log_trace(const node_ptr& n)
+	{
+		log(n, log_level::trace);
+	}
+
+	void log_trace(const funcdef_ptr& func)
+	{
+		log(func, log_level::trace);
+	}
+
 	void log(const std::string& str, log_level level)
 	{
 		if (level > global_log_level)
@@ -100,8 +145,6 @@ namespace slist
 				log_internal(n->data, level);
 			break;
 		}
-
-		log_internal("\n", level);
 	}
 
 	void log(const funcdef_ptr& func, log_level level)

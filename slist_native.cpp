@@ -3,7 +3,6 @@
 #include "slist_eval.h"
 #include "slist_log.h"
 #include <algorithm>
-#include <iostream>
 
 namespace slist
 {
@@ -11,7 +10,7 @@ namespace slist
 	{
 		if (root->children.size() < 3)
 		{
-			log("Invalid arguments for 'define'\n", log_level::error);
+			log_error("Invalid arguments for 'define'\n");
 			return nullptr;
 		}
 
@@ -19,8 +18,8 @@ namespace slist
 		if (func_name_args->type != node_type::string &&
 			func_name_args->type != node_type::list)
 		{
-			log("Invalid function name:\n", log_level::error);
-			log(func_name_args, log_level::error);
+			log_error("Invalid function name:\n");
+			log_error(func_name_args);
 			return nullptr;
 		}
 
@@ -59,8 +58,8 @@ namespace slist
 					}
 					if (arg->type != node_type::string)
 					{
-						log("Invalid function argument:\n", log_level::error);
-						log(arg, log_level::error);
+						log_error("Invalid function argument:\n");
+						log_error(arg);
 						return nullptr;
 					}
 					arg_list.push_back(arg->data);
@@ -83,13 +82,10 @@ namespace slist
 	{
 		if (root->children.size() != 3)
 		{
-			std::cerr << "Invalid lambda format\n";
-			print_node(root);
+			log_error("Invalid lambda format\n");
+			log_error(root);
 			return nullptr;
 		}
-
-		std::cout << "LAMBDA\n";
-		print_node(root);
 
 		funcdef::arg_list arg_list;
 
@@ -105,8 +101,8 @@ namespace slist
 				}
 				else 
 				{
-					std::cerr << "Invalid argument:\n";
-					print_node(arg);
+					log_error("Invalid argument:\n");
+					log_error(arg);
 					return nullptr;
 				}
 			}
@@ -117,8 +113,8 @@ namespace slist
 		}
 		else 
 		{
-			std::cerr << "Invalid argument type for lambda\n";
-			print_node(arg_node);
+			log_error("Invalid argument type for lambda\n");
+			log_error(arg_node);
 			return nullptr;
 		}
 
@@ -128,7 +124,8 @@ namespace slist
 		func->variadic = false; // TODO
 		func->body = root->children[2];
 
-		debug_print_funcdef(func);
+		log_trace(func);
+		log_trace("\n");
 
 		root->proc = func;
 
@@ -154,7 +151,7 @@ namespace slist
 			auto list = eval(ctx, root->children[1]);
 			if (list->type != node_type::list)
 			{
-				std::cerr << "'car' expects a list as argument\n";
+				log_error("'car' expects a list as argument\n");
 				return nullptr;
 			}
 
@@ -167,7 +164,7 @@ namespace slist
 		}
 		else 
 		{
-			std::cerr << "Invalid number of arguments to 'car'\n";
+			log_error("Invalid number of arguments to 'car'\n");
 			return nullptr;
 		}
 
@@ -182,7 +179,7 @@ namespace slist
 			auto list = eval(ctx, root->children[1]);
 			if (list->type != node_type::list)
 			{
-				std::cerr << "'cdr' expects a list as argument\n";
+				log_error("'cdr' expects a list as argument\n");
 				return nullptr;
 			}
 
@@ -203,7 +200,7 @@ namespace slist
 		}
 		else 
 		{
-			std::cerr << "Invalid number of arguments to 'cdr'\n";
+			log_error("Invalid number of arguments to 'cdr'\n");
 			return nullptr;
 		}
 
@@ -214,14 +211,14 @@ namespace slist
 	{
 		if (root->children.size() != 4)
 		{
-			std::cerr << "Invalid 'if' statement\n";
+			log_error("Invalid 'if' statement\n");
 			return nullptr;
 		}
 
 		auto pred = eval(ctx, root->children[1]);
 		if (pred == nullptr || pred->type != node_type::boolean)
 		{
-			std::cerr << "'empty?' predicate did not evaluate to a boolean value\n";
+			log_error("'empty?' predicate did not evaluate to a boolean value\n");
 			return nullptr;
 		}
 
@@ -237,12 +234,11 @@ namespace slist
 	{
 		if (root->children.size() != 2)
 		{
-			std::cerr << "Invalid 'empty?' statement\n";
+			log_error("Invalid 'empty?' statement\n");
 			return nullptr;
 		}
 
 		auto arg = eval(ctx, root->children[1]);
-		
 
 		node_ptr result(new node);
 		result->type = node_type::integer;
@@ -255,7 +251,7 @@ namespace slist
 	{
 		if (root->children.size() != 2)
 		{
-			std::cerr << "Invalid 'empty?' statement\n";
+			log_error("Invalid 'empty?' statement\n");
 			return nullptr;
 		}
 
@@ -273,7 +269,7 @@ namespace slist
 	{
 		if (root->children.size() != 3)
 		{
-			std::cerr << "'___add' expects two arguments\n";
+			log_error("'___add' expects two arguments\n");
 			return nullptr;
 		}
 
