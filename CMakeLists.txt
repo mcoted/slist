@@ -5,5 +5,6 @@ add_executable (slist
 				slist_eval.cpp
 				slist_parser.cpp
 				slist_native.cpp
+				slist_log.cpp
 				main.cpp)
 target_compile_features(slist PRIVATE cxx_range_for)

@@ -40,6 +40,9 @@ namespace slist
 
 		typedef std::vector<node_ptr> node_vector;
 		node_vector children;
+
+		// For lambdas
+		funcdef_ptr proc;
 	};
 
 	struct funcdef
@@ -60,6 +63,8 @@ namespace slist
 		typedef std::function<node_ptr(context&, const node_ptr&)> callback;
 		callback native_func;
 	};
+
+	std::string type_to_string(slist::node_type type);
 
 	void print_node(const node_ptr& node);
 	void debug_print_node(const node_ptr& node);

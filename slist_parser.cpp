@@ -1,11 +1,12 @@
 #include "slist_parser.h"
+#include "slist_log.h"
 
 #include <cassert>
 #include <cctype>
 #include <fstream>
-#include <iostream>
 #include <sstream>
 #include <stack>
+#include <iostream>
 
 namespace 
 {
@@ -41,6 +42,11 @@ namespace slist
 				// TODO: throw?
 				break;
 			}
+		}
+
+		if (result->children.size() == 1)
+		{
+			return result->children[0];
 		}
 
 		return result;
@@ -114,7 +120,7 @@ namespace
 
 		if (!parsed)
 		{
-            std::cerr << "Parsing failed at char: '" << ch << "'\n";
+            log(std::string("Parsing failed at char: '") + std::string(&ch, 1) + "'\n", log_level::error);
 			return nullptr;
 		}
 

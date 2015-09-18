@@ -5,7 +5,6 @@ namespace
 {
 	void print_node_r(const slist::node_ptr& node);
 	void debug_print_node_r(const slist::node_ptr& node, int indent);
-	std::string type_to_string(slist::node_type type);
 }
 
 namespace slist
@@ -71,6 +70,24 @@ namespace slist
 
 		std::cout << "Body: ";
 		print_node(func->body);
+	}
+
+		std::string type_to_string(slist::node_type type)
+	{
+		using namespace slist;
+
+		switch (type)
+		{
+			case node_type::empty:   return "empty";
+			case node_type::list:    return "list";
+			case node_type::boolean: return "boolean";
+			case node_type::integer: return "integer";
+			case node_type::number:  return "number";
+			case node_type::string:  return "string";
+			case node_type::symbol:  return "symbol";
+		}
+
+		return "<undefined>";
 	}
 }
 
@@ -144,23 +161,5 @@ namespace
 		{
 			debug_print_node_r(child_node, indent+1);
 		}
-	}
-
-	std::string type_to_string(slist::node_type type)
-	{
-		using namespace slist;
-
-		switch (type)
-		{
-			case node_type::empty:   return "empty";
-			case node_type::list:    return "list";
-			case node_type::boolean: return "boolean";
-			case node_type::integer: return "integer";
-			case node_type::number:  return "number";
-			case node_type::string:  return "string";
-			case node_type::symbol:  return "symbol";
-		}
-
-		return "<undefined>";
 	}
 }

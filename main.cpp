@@ -1,12 +1,17 @@
 #include "slist.h"
-#include <iostream>
 
 int main()
 {
 	using namespace slist;
 
+	node_ptr n = parse("((lambda (x) (+ x 1)) 2)");
+
+	if (get_log_level() >= log_level::trace)
+	{
+		output(n);
+		debug_print_node(n);		
+	}
+
 	context ctx;
-	node_ptr n = parse("(length (list 1 2 3))")->children[0];
-	print_node(n);
-	print_node(eval(ctx, n));
+	output(eval(ctx, n));
 }

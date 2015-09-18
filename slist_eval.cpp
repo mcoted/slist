@@ -1,5 +1,7 @@
 #include "slist_eval.h"
 #include "slist_parser.h"
+#include "slist_log.h"
+
 #include <iostream>
 
 namespace
@@ -60,24 +62,52 @@ namespace
 			return root;
 		}
 
-		auto op_node = root->children[0];
+		node_ptr op_node = eval(ctx, root->children[0]);
+		funcdef_ptr proc;
 
-		// Look for global functions
-		auto it_func = ctx.global_funcs.find(op_node->data);
-		if (it_func != ctx.global_funcs.end())
+		if (op_node == nullptr)
 		{
-			funcdef_ptr func = it_func->second;
-        	node_ptr res;
-        	if (func->is_native)
-        	{
-        		res = func->native_func(ctx, root);
-        	}
-        	else if (bind_args(ctx, func->args, root, func->variadic))
+			std::cerr << "First argument of list evaluated to null\n";
+			print_node(root);
+			return nullptr;
+		}
+
+		if (op_node->type == node_type::list)
+		{
+			op_node = eval(ctx, op_node);
+			if (op_node->proc == nullptr)
+			{
+				std::cerr << "Error: first argument is not a procedure\n";
+				print_node(root);
+				return nullptr;
+			}
+			proc = op_node->proc;
+		}
+		else 
+		{
+			// Look for global functions
+			auto it_func = ctx.global_funcs.find(op_node->data);
+			if (it_func != ctx.global_funcs.end())
+			{
+				proc = it_func->second;
+	        	if (proc->is_native)
+	        	{
+	        		// Execute native procs right away, no need to bind variables
+	        		return proc->native_func(ctx, root);
+	        	}
+			}
+		}
+
+		if (proc != nullptr)
+		{
+			std::cout << "Evaluating proc:\n";
+			debug_print_funcdef(proc);
+			if (bind_args(ctx, proc->args, root, proc->variadic))
             {
-                res = eval(ctx, func->body);
+                node_ptr res = eval(ctx, proc->body);
                 unbind_args(ctx);
+                return res;
             }
-            return res;
 		}
 
 		return root;
@@ -138,12 +168,16 @@ namespace
 				return false;
 			}
 
+			std::cout << "Variable bindings:\n";
+
 			context::var_map map;
 			for (int i = 0; i < args.size(); ++i)
 			{
 				auto& arg = args[i];
 				node_ptr n = eval(ctx, root->children[i+1]);
 				map[arg] = n;
+				std::cout << arg << ": ";
+				print_node(n);
 			}
 			ctx.variables.push_back(map);
 		}

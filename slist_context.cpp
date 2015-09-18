@@ -9,8 +9,16 @@ namespace
 	const char * builtin___add = 
 	"(define (+ . values) (___sum values))"
 	"(define (* . values) (___mul values))"
-	"(define (- x y) (___sub x y))"
-	"(define (/ x y) (___div x y))"
+	""
+	"(define (___sum values)"
+	"    (if (empty? values)"
+	"        0"
+	"        (___add (car values) (___sum (cdr values)))))"
+	""
+	"(define (___mul values)"
+	"    (if (empty? values)"
+	"        1"
+	"        (___mul (car values) (___sum (cdr values)))))"
 	;
 }
 
@@ -20,6 +28,7 @@ namespace slist
 	{
 		// External
 		register_native("define", &___define);
+		register_native("lambda", &___lambda);
 		register_native("list",   &___list);
 		register_native("car",    &___car);
 		register_native("cdr",    &___cdr);

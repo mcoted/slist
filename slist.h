@@ -5,5 +5,5 @@
 #include "slist_context.h"
 #include "slist_parser.h"
 #include "slist_eval.h"
-
+#include "slist_log.h"
 #endif

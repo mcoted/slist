@@ -1,6 +1,7 @@
 #include "slist_native.h"
 #include "slist_context.h"
 #include "slist_eval.h"
+#include "slist_log.h"
 #include <algorithm>
 #include <iostream>
 
@@ -10,7 +11,7 @@ namespace slist
 	{
 		if (root->children.size() < 3)
 		{
-			std::cerr << "Invalid arguments for 'define'\n";
+			log("Invalid arguments for 'define'\n", log_level::error);
 			return nullptr;
 		}
 
@@ -18,8 +19,8 @@ namespace slist
 		if (func_name_args->type != node_type::string &&
 			func_name_args->type != node_type::list)
 		{
-			std::cerr << "Invalid function name:\n";
-			print_node(func_name_args);
+			log("Invalid function name:\n", log_level::error);
+			log(func_name_args, log_level::error);
 			return nullptr;
 		}
 
@@ -30,45 +31,40 @@ namespace slist
 
 		if (func_name_args->type == node_type::list)
 		{
-			// Variadic func
-			if (func_name_args->children.size() != 3                   ||
-				func_name_args->children[1]->data != "."               ||
-				func_name_args->children[0]->type != node_type::string ||
-				func_name_args->children[2]->type != node_type::string)
+			if (func_name_args->children.size() == 3                   &&
+				func_name_args->children[1]->data == "."               &&
+				func_name_args->children[0]->type == node_type::string &&
+				func_name_args->children[2]->type == node_type::string)
 			{
-				std::cerr << "Invalid variadic arguments:\n";
-				print_node(func_name_args);
-				return nullptr;
+				// Variadic func
+				// TODO: Actual variadic arguments support
+				func_name = func_name_args->children[0]->data;
+				body = root->children[2];
+
+				arg_list.push_back(func_name_args->children[2]->data);
+				variadic = true;
 			}
-
-			func_name = func_name_args->children[0]->data;
-			body = root->children[2];
-
-			arg_list.push_back(func_name_args->children[2]->data);
-			variadic = true;
-		}
-		else if (func_name_args->type == node_type::string)
-		{
-			// Normal func
-			func_name = func_name_args->data;
-			auto args = root->children[2];
-			body = root->children[3];
-			if (args->type != node_type::list)
+			else 
 			{
-				std::cerr << "Argument list expected, got:\n";
-				print_node(args);
-				return nullptr;
-			}
+				// Normal func
+				func_name = func_name_args->children[0]->data;
+				body = root->children[2];
 
-			for (auto& arg : args->children)
-			{
-				if (arg->type != node_type::string)
+				int index = 0;
+				for (auto& arg : func_name_args->children)
 				{
-					std::cerr << "Invalid function argument:\n";
-					print_node(arg);
-					return nullptr;
+					if (index++ == 0)
+					{
+						continue; // Skip func name
+					}
+					if (arg->type != node_type::string)
+					{
+						log("Invalid function argument:\n", log_level::error);
+						log(arg, log_level::error);
+						return nullptr;
+					}
+					arg_list.push_back(arg->data);
 				}
-				arg_list.push_back(arg->data);
 			}
 		}
 
@@ -79,6 +75,62 @@ namespace slist
 		func->body = body;
 
 		ctx.global_funcs[func->name] = func;
+
+		return root;
+	}
+
+	node_ptr ___lambda(context& ctx, const node_ptr& root)
+	{
+		if (root->children.size() != 3)
+		{
+			std::cerr << "Invalid lambda format\n";
+			print_node(root);
+			return nullptr;
+		}
+
+		std::cout << "LAMBDA\n";
+		print_node(root);
+
+		funcdef::arg_list arg_list;
+
+		// Parse arguments
+		node_ptr arg_node = root->children[1];
+		if (arg_node->type == node_type::list)
+		{
+			for (auto& arg : arg_node->children)
+			{
+				if (arg->type == node_type::string)
+				{
+					arg_list.push_back(arg->data);
+				}
+				else 
+				{
+					std::cerr << "Invalid argument:\n";
+					print_node(arg);
+					return nullptr;
+				}
+			}
+		}
+		else if (arg_node->type == node_type::string)
+		{
+			// TODO: Variadic
+		}
+		else 
+		{
+			std::cerr << "Invalid argument type for lambda\n";
+			print_node(arg_node);
+			return nullptr;
+		}
+
+		funcdef_ptr func(new funcdef);
+		func->name = root->children[0]->data; // "lambda"
+		func->args = arg_list;
+		func->variadic = false; // TODO
+		func->body = root->children[2];
+
+		debug_print_funcdef(func);
+
+		root->proc = func;
 
 		return root;
 	}
