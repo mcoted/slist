@@ -11,69 +11,60 @@ namespace slist
 		if (root->children.size() < 3)
 		{
 			log_error("Invalid arguments for 'define'\n");
+			log_error(root);
+			log_error("\n");
 			return nullptr;
 		}
 
-		node_ptr func_name_args = root->children[1];
-		if (func_name_args->type != node_type::string &&
-			func_name_args->type != node_type::list)
-		{
-			log_error("Invalid function name:\n");
-			log_error(func_name_args);
-			return nullptr;
-		}
+		node_ptr first = root->children[1];
+		node_ptr second = root->children[2];
 
-		std::string func_name;
-		funcdef::arg_list arg_list;
-		node_ptr body;
-		bool variadic = false;
-
-		if (func_name_args->type == node_type::list)
+		if (first->type == node_type::list)
 		{
-			if (func_name_args->children.size() == 3                   &&
-				func_name_args->children[1]->data == "."               &&
-				func_name_args->children[0]->type == node_type::string &&
-				func_name_args->children[2]->type == node_type::string)
+			// Lambda shortcut
+			node_ptr name = first->children[0];
+
+			funcdef::arg_list arg_list;
+			bool variadic = false;
+
+			// TODO: Support actual variadic functions
+			if (first->children.size() == 3 &&
+				first->children[1]->data == "." &&
+				first->children[2]->type == node_type::string)
 			{
-				// Variadic func
-				// TODO: Actual variadic arguments support
-				func_name = func_name_args->children[0]->data;
-				body = root->children[2];
-
-				arg_list.push_back(func_name_args->children[2]->data);
+				arg_list.push_back(first->children[2]->data);
 				variadic = true;
 			}
 			else 
 			{
-				// Normal func
-				func_name = func_name_args->children[0]->data;
-				body = root->children[2];
-
-				int index = 0;
-				for (auto& arg : func_name_args->children)
+				for (int i = 1; i < first->children.size(); ++i)
 				{
-					if (index++ == 0)
-					{
-						continue; // Skip func name
-					}
+					node_ptr arg = first->children[i];
 					if (arg->type != node_type::string)
 					{
 						log_error("Invalid function argument:\n");
 						log_error(arg);
+						log_error("\n");
 						return nullptr;
 					}
-					arg_list.push_back(arg->data);
-				}
+					arg_list.push_back(arg->data);	
+				}				
 			}
+
+			funcdef_ptr func(new funcdef);
+			func->name = name->data;
+			func->args = arg_list;
+			func->variadic = variadic;
+			func->body = second;
+
+			second->proc = func;
+
+			ctx.global_vars[0][func->name] = second;
 		}
-
-		funcdef_ptr func(new funcdef);
-		func->name = func_name;
-		func->args = arg_list;
-		func->variadic = variadic;
-		func->body = body;
-
-		ctx.global_funcs[func->name] = func;
+		else if (first->type == node_type::string)
+		{
+			ctx.global_vars[0][first->data] = second;
+		}
 
 		return root;
 	}
@@ -157,10 +148,11 @@ namespace slist
 
 			if (list->children.size() == 0)
 			{
+				log_error("'car' of empty list\n");
 				return nullptr;
 			}
 
-			return list->children[0];
+			result = list->children[0];
 		}
 		else 
 		{
@@ -185,6 +177,7 @@ namespace slist
 
 			if (list->children.size() == 0)
 			{
+				log_error("'cdr' of empty list\n");
 				return nullptr;
 			}
 
@@ -192,11 +185,9 @@ namespace slist
 				std::vector<node_ptr>(list->children.begin()+1,
 									  list->children.end());
 
-			node_ptr result(new node);
+			result.reset(new node);
 			result->type = node_type::list;
 			result->children = children;
-
-			return result;
 		}
 		else 
 		{
@@ -204,7 +195,7 @@ namespace slist
 			return nullptr;
 		}
 
-		return result;		
+        return result;
 	}
 
 	node_ptr ___if(context& ctx, const node_ptr& root)
@@ -266,7 +257,7 @@ namespace slist
 	}
 
 	node_ptr ___add(context& ctx, const node_ptr& root)
-	{
+	{		
 		if (root->children.size() != 3)
 		{
 			log_error("'___add' expects two arguments\n");
@@ -274,26 +265,38 @@ namespace slist
 		}
 
 		node_ptr first_val = eval(ctx, root->children[1]);
+		log_trace("___add first arg: ");
+		log_trace(first_val);
+		log_trace("\n");
+
 		if (first_val == nullptr)
 		{
+			log_error("___add: first arg is null\n");
 			return nullptr;
 		}
 
 		node_ptr second_val = eval(ctx, root->children[2]);
 		if (second_val == nullptr)
 		{
+			log_error("___add: second arg is null\n");
 			return nullptr;
 		}
 
 		if (first_val->type != node_type::integer && 
 			first_val->type != node_type::number)
 		{
+			log_error(std::string("___add: invalid first arg type: ") + type_to_string(first_val->type) + "\n");
+			log_error(first_val);
+			log_error("\n");
 			return nullptr;
 		}
 
 		if (second_val->type != node_type::integer && 
 			second_val->type != node_type::number)
 		{
+			log_error(std::string("___add: invalid second arg type: ") + type_to_string(first_val->type) + "\n");
+			log_error(second_val);
+			log_error("\n");
 			return nullptr;
 		}
 

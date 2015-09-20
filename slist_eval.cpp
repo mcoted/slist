@@ -17,25 +17,38 @@ namespace slist
 {
 	node_ptr eval(context& ctx, const node_ptr& root)
 	{
+		log_trace("Eval: ");
+		log_trace(root);
+		log_trace("\n");
+
         if (root == nullptr)
         {
             return nullptr;
         }
         
+        node_ptr result;
+
 		switch (root->type)
 		{
 			case node_type::list:
-				return eval_list(ctx, root);
+				result = eval_list(ctx, root);
+                break;
 			case node_type::string:
-				return eval_string(ctx, root);
+				result =  eval_string(ctx, root);
+                break;
 			case node_type::integer:
 			case node_type::number:
-				return root;
+				result = root;
+                break;
 			default:
 				break;
 		}
 
-		return nullptr;
+		log_trace("Result: ");
+		log_trace(result);
+		log_trace("\n");
+
+		return result;
 	}
 
 	void exec(context& ctx, const std::string& str)
@@ -62,15 +75,8 @@ namespace
 			return root;
 		}
 
-		node_ptr op_node = eval(ctx, root->children[0]);
+		node_ptr op_node = root->children[0];
 		funcdef_ptr proc;
-
-		if (op_node == nullptr)
-		{
-			log_error("First argument of list evaluated to null\n");
-			log_error(root);
-			return nullptr;
-		}
 
 		if (op_node->type == node_type::list)
 		{
@@ -85,12 +91,12 @@ namespace
 		}
 		else 
 		{
-			// Look for global functions
-			auto it_func = ctx.global_funcs.find(op_node->data);
-			if (it_func != ctx.global_funcs.end())
+			// Look for globals
+			node_ptr val = ctx.lookup_variable(op_node->data);
+			if (val != nullptr && val->proc != nullptr)
 			{
-				proc = it_func->second;
-	        	if (proc->is_native)
+				proc = val->proc;
+	        	if (proc != nullptr && proc->is_native)
 	        	{
 	        		// Execute native procs right away, no need to bind variables
 	        		return proc->native_func(ctx, root);
@@ -152,7 +158,7 @@ namespace
 
 			context::var_map map;
 			map[args[0]] = packed_arg;
-			ctx.variables.push_back(map);
+			ctx.global_vars.push_back(map);
 		}
 		else 
 		{
@@ -185,7 +191,7 @@ namespace
 
 			log_trace("\n\n");
 
-			ctx.variables.push_back(map);
+			ctx.global_vars.push_back(map);
 		}
         
         return true;
@@ -193,6 +199,6 @@ namespace
 
 	void unbind_args(slist::context& ctx)
 	{
-		ctx.variables.pop_back();
+		ctx.global_vars.pop_back();
 	}
 }

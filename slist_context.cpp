@@ -1,8 +1,8 @@
 #include "slist_context.h"
 #include "slist_eval.h"
 #include "slist_native.h"
+#include "slist_log.h"
 #include <algorithm>
-#include <iostream>
 
 namespace
 {
@@ -26,6 +26,10 @@ namespace slist
 {
 	context::context()
 	{
+		// Prepare global variables map
+		var_map map;
+		global_vars.push_back(map);
+
 		// External
 		register_native("define", &___define);
 		register_native("lambda", &___lambda);
@@ -39,6 +43,7 @@ namespace slist
 		// Internal
 		register_native("___add", &___add);
 
+		// Execute the builtins script to register the builtin procedures
 		exec(*this, builtin___add);
 	}
 
@@ -47,25 +52,37 @@ namespace slist
 		funcdef_ptr f(new funcdef);
 		f->is_native = true;
 		f->native_func = func;
-		global_funcs[name] = f;
+
+		node_ptr n(new node);
+		n->proc = f;
+
+		global_vars.back()[name] = n;
 	}
 
 	node_ptr context::lookup_variable(const std::string& name)
 	{
-		if (variables.size() == 0)
+		log_trace(std::string("Lookup variable: ") + name + "\n");
+
+		if (global_vars.size() == 0)
 		{
+			log_trace("Not found\n");
 			return nullptr;
 		}
 
-		for (int i = (int)(variables.size()-1); i >= 0; --i)
+		for (int i = (int)(global_vars.size()-1); i >= 0; --i)
 		{
-			auto stack = variables[i];
+			auto stack = global_vars[i];
 			auto it = stack.find(name);
 			if (it != stack.end())
 			{
+				log_trace(name + " = ");
+				log_trace(it->second);
+				log_trace("\n");
 				return it->second;
 			}
 		}
+
+		log_trace("Not found\n");
 
 		return nullptr;
 	}

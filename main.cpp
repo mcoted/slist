@@ -12,7 +12,7 @@ int main(int argc, char **argv)
 
 	parse_arguments(argc, argv);
 
-	node_ptr n = parse("((lambda (x) (+ x 1)) 2)");
+	node_ptr n = parse("(define x 1)\n(+ x 2)");
 
 	if (get_log_level() >= log_level::trace)
 	{
@@ -23,8 +23,11 @@ int main(int argc, char **argv)
 	}
 
 	context ctx;
-	output(eval(ctx, n));
-	output("\n");
+	for (auto& child : n->children)
+	{
+		output(eval(ctx, child));
+		output("\n");		
+	}
 }
 
 namespace
