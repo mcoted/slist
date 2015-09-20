@@ -61,11 +61,11 @@ namespace slist
 
 	node_ptr context::lookup_variable(const std::string& name)
 	{
-		log_trace(std::string("Lookup variable: ") + name + "\n");
+		log_traceln("Lookup variable: " + name);
 
 		if (global_vars.size() == 0)
 		{
-			log_trace("Not found\n");
+			log_traceln("Not found");
 			return nullptr;
 		}
 
@@ -75,14 +75,12 @@ namespace slist
 			auto it = stack.find(name);
 			if (it != stack.end())
 			{
-				log_trace(name + " = ");
-				log_trace(it->second);
-				log_trace("\n");
+				log_traceln(name + " = ", it->second);
 				return it->second;
 			}
 		}
 
-		log_trace("Not found\n");
+		log_traceln("Not found");
 
 		return nullptr;
 	}

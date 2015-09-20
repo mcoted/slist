@@ -10,9 +10,7 @@ namespace slist
 	{
 		if (root->children.size() < 3)
 		{
-			log_error("Invalid arguments for 'define'\n");
-			log_error(root);
-			log_error("\n");
+			log_errorln("Invalid arguments for 'define'\n", root);
 			return nullptr;
 		}
 
@@ -42,9 +40,7 @@ namespace slist
 					node_ptr arg = first->children[i];
 					if (arg->type != node_type::string)
 					{
-						log_error("Invalid function argument:\n");
-						log_error(arg);
-						log_error("\n");
+						log_errorln("Invalid function argument:\n", arg);
 						return nullptr;
 					}
 					arg_list.push_back(arg->data);	
@@ -66,15 +62,14 @@ namespace slist
 			ctx.global_vars[0][first->data] = second;
 		}
 
-		return root;
+		return nullptr;
 	}
 
 	node_ptr ___lambda(context& ctx, const node_ptr& root)
 	{
 		if (root->children.size() != 3)
 		{
-			log_error("Invalid lambda format\n");
-			log_error(root);
+			log_errorln("Invalid lambda format\n", root);
 			return nullptr;
 		}
 
@@ -92,8 +87,7 @@ namespace slist
 				}
 				else 
 				{
-					log_error("Invalid argument:\n");
-					log_error(arg);
+					log_errorln("Invalid argument:\n", arg);
 					return nullptr;
 				}
 			}
@@ -104,8 +98,7 @@ namespace slist
 		}
 		else 
 		{
-			log_error("Invalid argument type for lambda\n");
-			log_error(arg_node);
+			log_error("Invalid argument type for lambda\n", arg_node);
 			return nullptr;
 		}
 
@@ -115,8 +108,7 @@ namespace slist
 		func->variadic = false; // TODO
 		func->body = root->children[2];
 
-		log_trace(func);
-		log_trace("\n");
+		log_traceln("Lambda proc:\n", nullptr, func);
 
 		root->proc = func;
 
@@ -142,13 +134,13 @@ namespace slist
 			auto list = eval(ctx, root->children[1]);
 			if (list->type != node_type::list)
 			{
-				log_error("'car' expects a list as argument\n");
+				log_errorln("'car' expects a list as argument");
 				return nullptr;
 			}
 
 			if (list->children.size() == 0)
 			{
-				log_error("'car' of empty list\n");
+				log_errorln("'car' of empty list");
 				return nullptr;
 			}
 
@@ -156,7 +148,7 @@ namespace slist
 		}
 		else 
 		{
-			log_error("Invalid number of arguments to 'car'\n");
+			log_errorln("Invalid number of arguments to 'car'");
 			return nullptr;
 		}
 
@@ -171,13 +163,13 @@ namespace slist
 			auto list = eval(ctx, root->children[1]);
 			if (list->type != node_type::list)
 			{
-				log_error("'cdr' expects a list as argument\n");
+				log_errorln("'cdr' expects a list as argument");
 				return nullptr;
 			}
 
 			if (list->children.size() == 0)
 			{
-				log_error("'cdr' of empty list\n");
+				log_errorln("'cdr' of empty list");
 				return nullptr;
 			}
 
@@ -191,7 +183,7 @@ namespace slist
 		}
 		else 
 		{
-			log_error("Invalid number of arguments to 'cdr'\n");
+			log_errorln("Invalid number of arguments to 'cdr'");
 			return nullptr;
 		}
 
@@ -202,14 +194,14 @@ namespace slist
 	{
 		if (root->children.size() != 4)
 		{
-			log_error("Invalid 'if' statement\n");
+			log_errorln("Invalid 'if' statement");
 			return nullptr;
 		}
 
 		auto pred = eval(ctx, root->children[1]);
 		if (pred == nullptr || pred->type != node_type::boolean)
 		{
-			log_error("'empty?' predicate did not evaluate to a boolean value\n");
+			log_errorln("'empty?' predicate did not evaluate to a boolean value");
 			return nullptr;
 		}
 
@@ -225,7 +217,7 @@ namespace slist
 	{
 		if (root->children.size() != 2)
 		{
-			log_error("Invalid 'empty?' statement\n");
+			log_errorln("Invalid 'empty?' statement");
 			return nullptr;
 		}
 
@@ -242,7 +234,7 @@ namespace slist
 	{
 		if (root->children.size() != 2)
 		{
-			log_error("Invalid 'empty?' statement\n");
+			log_errorln("Invalid 'empty?' statement");
 			return nullptr;
 		}
 
@@ -260,43 +252,37 @@ namespace slist
 	{		
 		if (root->children.size() != 3)
 		{
-			log_error("'___add' expects two arguments\n");
+			log_errorln("'___add' expects two arguments");
 			return nullptr;
 		}
 
 		node_ptr first_val = eval(ctx, root->children[1]);
-		log_trace("___add first arg: ");
-		log_trace(first_val);
-		log_trace("\n");
+		log_traceln("___add first arg: ", first_val);
 
 		if (first_val == nullptr)
 		{
-			log_error("___add: first arg is null\n");
+			log_errorln("___add: first arg is null");
 			return nullptr;
 		}
 
 		node_ptr second_val = eval(ctx, root->children[2]);
 		if (second_val == nullptr)
 		{
-			log_error("___add: second arg is null\n");
+			log_errorln("___add: second arg is null");
 			return nullptr;
 		}
 
 		if (first_val->type != node_type::integer && 
 			first_val->type != node_type::number)
 		{
-			log_error(std::string("___add: invalid first arg type: ") + type_to_string(first_val->type) + "\n");
-			log_error(first_val);
-			log_error("\n");
+			log_errorln(std::string("___add: invalid first arg type: ") + type_to_string(first_val->type) + "\n", first_val);
 			return nullptr;
 		}
 
 		if (second_val->type != node_type::integer && 
 			second_val->type != node_type::number)
 		{
-			log_error(std::string("___add: invalid second arg type: ") + type_to_string(first_val->type) + "\n");
-			log_error(second_val);
-			log_error("\n");
+			log_errorln(std::string("___add: invalid second arg type: ") + type_to_string(first_val->type) + "\n", second_val);
 			return nullptr;
 		}
 

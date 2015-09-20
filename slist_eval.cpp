@@ -17,9 +17,7 @@ namespace slist
 {
 	node_ptr eval(context& ctx, const node_ptr& root)
 	{
-		log_trace("Eval: ");
-		log_trace(root);
-		log_trace("\n");
+		log_traceln("Eval: ", root);
 
         if (root == nullptr)
         {
@@ -44,9 +42,7 @@ namespace slist
 				break;
 		}
 
-		log_trace("Result: ");
-		log_trace(result);
-		log_trace("\n");
+		log_traceln("Result: ", result);
 
 		return result;
 	}
@@ -83,8 +79,7 @@ namespace
 			op_node = eval(ctx, op_node);
 			if (op_node->proc == nullptr)
 			{
-				log_error("Error: first argument is not a procedure\n");
-				log_error(root);
+				log_errorln("Error: first argument is not a procedure", root);
 				return nullptr;
 			}
 			proc = op_node->proc;
@@ -106,9 +101,7 @@ namespace
 
 		if (proc != nullptr)
 		{
-			log_trace("Evaluating Procedure:\n");
-			log_trace(proc);
-			log_trace("\n");
+			log_traceln("Evaluating Procedure:", nullptr, proc);
 
 			if (bind_args(ctx, proc->args, root, proc->variadic))
             {
@@ -139,7 +132,7 @@ namespace
 		{
 			if (args.size() != 1)
 			{
-				log_error("Variadic functions should have only one arg\n");
+				log_errorln("Variadic functions should have only one arg");
 				return false;
 			}
 
@@ -164,20 +157,19 @@ namespace
 		{
 			if (args.size() != root->children.size()-1)
 			{
-				log_error("Unable to bind arguments\n");
+				log_errorln("Unable to bind arguments");
 				log_error("Args: ");
 				for (auto& arg : args)
 				{
 					log_error(arg + ' ');
 				}
-				log_error("\n");
-				log_error("Node: ");
-				log_error(root);
+				log_errorln("");
+				log_error("Node: ", root);
 
 				return false;
 			}
 
-			log_trace("Variable bindings:\n");
+			log_traceln("Variable bindings:");
 
 			context::var_map map;
 			for (int i = 0; i < args.size(); ++i)
@@ -185,11 +177,11 @@ namespace
 				auto& arg = args[i];
 				node_ptr n = eval(ctx, root->children[i+1]);
 				map[arg] = n;
-				log_trace(arg + ": ");
-				log_trace(n);
+				log_trace(arg + ": ", n);
 			}
 
-			log_trace("\n\n");
+			log_traceln("");
+			log_traceln("");
 
 			ctx.global_vars.push_back(map);
 		}

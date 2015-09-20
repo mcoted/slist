@@ -12,21 +12,23 @@ int main(int argc, char **argv)
 
 	parse_arguments(argc, argv);
 
-	node_ptr n = parse("(define x 1)\n(+ x 2)");
+	node_ptr n = parse("(define x 1)  (+ x 2)");
 
 	if (get_log_level() >= log_level::trace)
 	{
-		output(n);
-		output("\n");
-		debug_print_node(n);		
-		output("\n");
+		log_traceln("");
+		debug_print_node(n);
+		log_traceln("");
 	}
 
 	context ctx;
 	for (auto& child : n->children)
 	{
-		output(eval(ctx, child));
-		output("\n");		
+		auto val = eval(ctx, child);
+		if (val != nullptr)
+		{
+			outputln("", eval(ctx, child));
+		}
 	}
 }
 

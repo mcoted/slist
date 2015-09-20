@@ -33,64 +33,56 @@ namespace slist
 		global_log_level = level;
 	}
 
-	void output(const std::string& str)
+	void output(const std::string& str, node_ptr n, funcdef_ptr f)
 	{
 		log(str, log_level::always);
-	}
-
-	void output(const node_ptr& n)
-	{
 		log(n, log_level::always);
+		log(f, log_level::always);
 	}
 
-	void output(const funcdef_ptr& func)
+	void outputln(const std::string& str, node_ptr n, funcdef_ptr f)
 	{
-		log(func, log_level::always);
+		output(str, n, f);
+		log("\n", log_level::always);
 	}
 
-	void log_warning(const std::string& str)
+	void log_warning(const std::string& str, node_ptr n, funcdef_ptr f)
 	{
 		log(str, log_level::warning);
-	}
-
-	void log_warning(const node_ptr& n)
-	{
 		log(n, log_level::warning);
-	}
+		log(f, log_level::warning);
+	}	
 
-	void log_warning(const funcdef_ptr& func)
+	void log_warningln(const std::string& str, node_ptr n, funcdef_ptr f)
 	{
-		log(func, log_level::warning);
+		log_warning(str, n, f);
+		log("\n", log_level::warning);
 	}
 
-	void log_error(const std::string& str)
+	void log_error(const std::string& str, node_ptr n, funcdef_ptr f)
 	{
 		log(str, log_level::error);
-	}
-
-	void log_error(const node_ptr& n)
-	{
 		log(n, log_level::error);
+		log(f, log_level::error);
 	}
 
-	void log_error(const funcdef_ptr& func)
+	void log_errorln(const std::string& str, node_ptr n, funcdef_ptr f)
 	{
-		log(func, log_level::error);
+		log_error(str, n, f);
+		log("\n", log_level::error);
 	}
 
-	void log_trace(const std::string& str)
+	void log_trace(const std::string& str, node_ptr n, funcdef_ptr f)
 	{
 		log(str, log_level::trace);
-	}
-
-	void log_trace(const node_ptr& n)
-	{
 		log(n, log_level::trace);
+		log(f, log_level::trace);
 	}
 
-	void log_trace(const funcdef_ptr& func)
+	void log_traceln(const std::string& str, node_ptr n, funcdef_ptr f)
 	{
-		log(func, log_level::trace);
+		log_trace(str, n, f);
+		log("\n", log_level::trace);
 	}
 
 	void log(const std::string& str, log_level level)
@@ -105,14 +97,17 @@ namespace slist
 
 	void log(const node_ptr& n, log_level level)
 	{
-		if (level > global_log_level)
+		if (level > global_log_level || n == nullptr)
 		{
 			return;
 		}
 
 		if (n == nullptr)
 		{
-			log_internal("<null>\n", level);
+			if (global_log_level >= log_level::trace)
+			{
+				log_internal("<null>\n", level);
+			}
 			return;
 		}
 
@@ -147,29 +142,29 @@ namespace slist
 		}
 	}
 
-	void log(const funcdef_ptr& func, log_level level)
+	void log(const funcdef_ptr& f, log_level level)
 	{
-		if (level > global_log_level)
+		if (level > global_log_level || f == nullptr)
 		{
 			return;
 		}
 
 		log_internal("Func: ", level);
-		log_internal(func->name+"\n", level);
+		log_internal(f->name+"\n", level);
 
 		log_internal("Args: ", level);
-		for (auto& arg : func->args)
+		for (auto& arg : f->args)
 		{
 			log_internal(arg + " ", level);
 		}
-		if (func->variadic)
+		if (f->variadic)
 		{
 			log_internal(" (variadic)", level);
 		}
 		log_internal("\n", level);
 
 		log_internal("Body: ", level);
-		log(func->body, level);
+		log(f->body, level);
 		log_internal("\n", level);
 	}
 }
