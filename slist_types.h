@@ -3,7 +3,9 @@
 
 #include <functional>
 #include <string>
+#include <unordered_map>
 #include <memory>
+
 #include <vector>
 
 namespace slist
@@ -15,6 +17,9 @@ namespace slist
 
 	struct funcdef;
 	typedef std::shared_ptr<funcdef> funcdef_ptr;
+
+	typedef std::unordered_map<std::string, node_ptr> var_map;
+	typedef std::vector<var_map> var_stack;
 
 	enum class node_type
 	{
@@ -55,6 +60,8 @@ namespace slist
 		arg_list args;
 		bool variadic;
 		bool is_native;
+
+		var_stack local_vars;
 
 		// Body of the function (non-native)
 		node_ptr body;

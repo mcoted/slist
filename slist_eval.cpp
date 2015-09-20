@@ -149,7 +149,7 @@ namespace
 			packed_arg->type = node_type::list;
 			packed_arg->children = children;
 
-			context::var_map map;
+			var_map map;
 			map[args[0]] = packed_arg;
 			ctx.global_vars.push_back(map);
 		}
@@ -171,7 +171,7 @@ namespace
 
 			log_traceln("Variable bindings:");
 
-			context::var_map map;
+			var_map map;
 			for (int i = 0; i < args.size(); ++i)
 			{
 				auto& arg = args[i];
