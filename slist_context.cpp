@@ -54,13 +54,13 @@ namespace slist
 		f->is_native = true;
 		f->native_func = func;
 
-		parse_node_ptr n(new parse_node);
+		node_ptr n(new node);
 		n->proc = f;
 
 		global_vars.back()[name] = n;
 	}
 
-	parse_node_ptr context::lookup_variable(const std::string& name)
+	node_ptr context::lookup_variable(const std::string& name)
 	{
 		log_traceln("Lookup variable: " + name);
 

@@ -12,12 +12,12 @@ int main(int argc, char **argv)
 
 	parse_arguments(argc, argv);
 
-	parse_node_ptr n = parse("(define a (lambda (x) (+ x 1)))  (a 2)");
+	node_ptr n = parse("(define a (lambda (x) (+ x 1)))  (a 2)");
 
 	if (get_log_level() >= log_level::trace)
 	{
 		log_traceln("");
-		debug_print_parse_node(n);
+		debug_print_node(n);
 		log_traceln("");
 	}
 

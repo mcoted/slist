@@ -10,19 +10,19 @@
 
 namespace 
 {
-	slist::parse_node_ptr parse_list(std::istream& in);
-	slist::parse_node_ptr parse_token(std::istream& in);
+	slist::node_ptr parse_list(std::istream& in);
+	slist::node_ptr parse_token(std::istream& in);
 	slist::node_type find_type(const std::string& str);
 	std::string type_to_string(slist::node_type type);
 }
 
 namespace slist
 {
-	parse_node_ptr parse(const std::string& str)
+	node_ptr parse(const std::string& str)
 	{
 		std::istringstream in(str);
 
-		parse_node_ptr result(new parse_node);
+		node_ptr result(new node);
 		result->type = node_type::list;
 
 		char ch;
@@ -52,7 +52,7 @@ namespace slist
 		return result;
 	}
 
-	parse_node_ptr parse_stream(std::istream& in)
+	node_ptr parse_stream(std::istream& in)
 	{
 		const size_t bufsize = 1024;
 		char buf[bufsize];
@@ -68,7 +68,7 @@ namespace slist
 		return parse(str);
 	}
 
-	parse_node_ptr parse_file(const std::string& filename)
+	node_ptr parse_file(const std::string& filename)
 	{
 		std::ifstream in(filename);
 		return parse_stream(in);
@@ -77,10 +77,10 @@ namespace slist
 
 namespace 
 {
-	slist::parse_node_ptr parse_list(std::istream& in)
+	slist::node_ptr parse_list(std::istream& in)
 	{
 		using namespace slist;
-		parse_node_ptr result(new parse_node);
+		node_ptr result(new node);
 		result->type = node_type::list;
 
 		std::string tok;
@@ -102,7 +102,7 @@ namespace
 			if (ch == '(')
 			{
 				in.putback(ch);
-				parse_node_ptr child = parse_list(in);
+				node_ptr child = parse_list(in);
 				result->children.push_back(child);
 			}
 			else if (ch == ')')
@@ -113,7 +113,7 @@ namespace
 			else 
 			{
 				in.putback(ch);
-				slist::parse_node_ptr child = parse_token(in);
+				slist::node_ptr child = parse_token(in);
 				result->children.push_back(child);
 			}
 		}
@@ -127,7 +127,7 @@ namespace
 		return result;
 	}
 
-	slist::parse_node_ptr parse_token(std::istream& in)
+	slist::node_ptr parse_token(std::istream& in)
 	{
 		char ch = 0;
 		in >> ch;
@@ -156,11 +156,11 @@ namespace
 				}
 			}
 
-			slist::parse_node_ptr parse_node(new slist::parse_node);
-			parse_node->data = str;
-			parse_node->type = find_type(str);
+			slist::node_ptr node(new slist::node);
+			node->data = str;
+			node->type = find_type(str);
 
-			return parse_node;
+			return node;
 		}
 
 		return nullptr;

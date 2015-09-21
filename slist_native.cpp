@@ -6,7 +6,7 @@
 
 namespace slist
 {
-	parse_node_ptr ___define(context& ctx, const parse_node_ptr& root)
+	node_ptr ___define(context& ctx, const node_ptr& root)
 	{
 		if (root->children.size() < 3)
 		{
@@ -14,13 +14,13 @@ namespace slist
 			return nullptr;
 		}
 
-		parse_node_ptr first = root->children[1];
-		parse_node_ptr second = root->children[2];
+		node_ptr first = root->children[1];
+		node_ptr second = root->children[2];
 
 		if (first->type == node_type::list)
 		{
 			// Lambda shortcut
-			parse_node_ptr name = first->children[0];
+			node_ptr name = first->children[0];
 
 			funcdef::arg_list arg_list;
 			bool variadic = false;
@@ -37,7 +37,7 @@ namespace slist
 			{
 				for (int i = 1; i < first->children.size(); ++i)
 				{
-					parse_node_ptr arg = first->children[i];
+					node_ptr arg = first->children[i];
 					if (arg->type != node_type::string)
 					{
 						log_errorln("Invalid function argument:\n", arg);
@@ -65,7 +65,7 @@ namespace slist
 		return nullptr;
 	}
 
-	parse_node_ptr ___lambda(context& ctx, const parse_node_ptr& root)
+	node_ptr ___lambda(context& ctx, const node_ptr& root)
 	{
 		if (root->proc != nullptr)
 		{
@@ -81,10 +81,10 @@ namespace slist
 		funcdef::arg_list arg_list;
 
 		// Parse arguments
-		parse_node_ptr arg_parse_node = root->children[1];
-		if (arg_parse_node->type == node_type::list)
+		node_ptr arg_node = root->children[1];
+		if (arg_node->type == node_type::list)
 		{
-			for (auto& arg : arg_parse_node->children)
+			for (auto& arg : arg_node->children)
 			{
 				if (arg->type == node_type::string)
 				{
@@ -97,13 +97,13 @@ namespace slist
 				}
 			}
 		}
-		else if (arg_parse_node->type == node_type::string)
+		else if (arg_node->type == node_type::string)
 		{
 			// TODO: Variadic
 		}
 		else 
 		{
-			log_error("Invalid argument type for lambda\n", arg_parse_node);
+			log_error("Invalid argument type for lambda\n", arg_node);
 			return nullptr;
 		}
 
@@ -120,7 +120,7 @@ namespace slist
 		return root;
 	}
 
-	parse_node_ptr ___cons(context& ctx, const parse_node_ptr& root)
+	node_ptr ___cons(context& ctx, const node_ptr& root)
 	{
 		if (root->children.size() != 3)
 		{
@@ -128,7 +128,7 @@ namespace slist
 			return nullptr;
 		}
 
-		parse_node_ptr result(new parse_node);
+		node_ptr result(new node);
 		result->type = node_type::list;
 		result->children.push_back(root->children[1]);
 		result->children.push_back(root->children[2]);
@@ -136,20 +136,20 @@ namespace slist
 		return result;
 	}
 
-	parse_node_ptr ___list(context& ctx, const parse_node_ptr& root)
+	node_ptr ___list(context& ctx, const node_ptr& root)
 	{
-		auto children = parse_node::parse_node_vector(root->children.begin()+1, root->children.end());
+		auto children = node::node_vector(root->children.begin()+1, root->children.end());
 
-		parse_node_ptr result(new parse_node);
+		node_ptr result(new node);
 		result->type = node_type::list;
 		result->children = children;
 
 		return result;
 	}
 
-	parse_node_ptr ___car(context& ctx, const parse_node_ptr& root)
+	node_ptr ___car(context& ctx, const node_ptr& root)
 	{
-		parse_node_ptr result;
+		node_ptr result;
 		if (root->children.size() == 2)
 		{
 			auto list = eval(ctx, root->children[1]);
@@ -176,9 +176,9 @@ namespace slist
 		return result;
 	}
 
-	parse_node_ptr ___cdr(context& ctx, const parse_node_ptr& root)
+	node_ptr ___cdr(context& ctx, const node_ptr& root)
 	{
-		parse_node_ptr result;
+		node_ptr result;
 		if (root->children.size() == 2)
 		{
 			auto list = eval(ctx, root->children[1]);
@@ -195,10 +195,10 @@ namespace slist
 			}
 
 			auto children = 
-				std::vector<parse_node_ptr>(list->children.begin()+1,
+				std::vector<node_ptr>(list->children.begin()+1,
 									  list->children.end());
 
-			result.reset(new parse_node);
+			result.reset(new node);
 			result->type = node_type::list;
 			result->children = children;
 		}
@@ -211,7 +211,7 @@ namespace slist
         return result;
 	}
 
-	parse_node_ptr ___if(context& ctx, const parse_node_ptr& root)
+	node_ptr ___if(context& ctx, const node_ptr& root)
 	{
 		if (root->children.size() != 4)
 		{
@@ -234,7 +234,7 @@ namespace slist
 		return eval(ctx, root->children[3]);
 	}
 
-	parse_node_ptr ___length(context& ctx, const parse_node_ptr& root)
+	node_ptr ___length(context& ctx, const node_ptr& root)
 	{
 		if (root->children.size() != 2)
 		{
@@ -244,14 +244,14 @@ namespace slist
 
 		auto arg = eval(ctx, root->children[1]);
 
-		parse_node_ptr result(new parse_node);
+		node_ptr result(new node);
 		result->type = node_type::integer;
 		result->data = std::to_string(arg->children.size());
 
 		return result;
 	}
 
-	parse_node_ptr ___empty(context& ctx, const parse_node_ptr& root)
+	node_ptr ___empty(context& ctx, const node_ptr& root)
 	{
 		if (root->children.size() != 2)
 		{
@@ -262,14 +262,14 @@ namespace slist
 		auto arg = eval(ctx, root->children[1]);
 		bool is_empty = (arg == nullptr) || arg->children.empty();
 
-		parse_node_ptr result(new parse_node);
+		node_ptr result(new node);
 		result->type = node_type::boolean;
 		result->data = is_empty ? "true" : "false";
 
 		return result;
 	}
 
-	parse_node_ptr ___add(context& ctx, const parse_node_ptr& root)
+	node_ptr ___add(context& ctx, const node_ptr& root)
 	{		
 		if (root->children.size() != 3)
 		{
@@ -277,7 +277,7 @@ namespace slist
 			return nullptr;
 		}
 
-		parse_node_ptr first_val = eval(ctx, root->children[1]);
+		node_ptr first_val = eval(ctx, root->children[1]);
 		log_traceln("___add first arg: ", first_val);
 
 		if (first_val == nullptr)
@@ -286,7 +286,7 @@ namespace slist
 			return nullptr;
 		}
 
-		parse_node_ptr second_val = eval(ctx, root->children[2]);
+		node_ptr second_val = eval(ctx, root->children[2]);
 		if (second_val == nullptr)
 		{
 			log_errorln("___add: second arg is null");
@@ -307,7 +307,7 @@ namespace slist
 			return nullptr;
 		}
 
-		parse_node_ptr result(new parse_node);
+		node_ptr result(new node);
 		result->type = node_type::integer;
 
 		if (first_val->type == node_type::number ||
