@@ -25,6 +25,7 @@ namespace slist
 	{
 		empty,
 		list,
+		pair,
 		boolean,
 		integer,
 		number,
@@ -45,8 +46,6 @@ namespace slist
 
 		typedef std::vector<node_ptr> node_vector;
 		node_vector children;
-
-		node_ptr next;
 
 		// For lambdas
 		funcdef_ptr proc;

@@ -44,11 +44,6 @@ namespace slist
 			}
 		}
 
-		if (result->children.size() == 1)
-		{
-			return result->children[0];
-		}
-
 		return result;
 	}
 
@@ -120,7 +115,7 @@ namespace
 
 		if (!parsed)
 		{
-            log(std::string("Parsing failed at char: '") + std::string(&ch, 1) + "'\n", log_level::error);
+            log_errorln(std::string("Parsing failed at char: '") + std::string(&ch, 1));
 			return nullptr;
 		}
 

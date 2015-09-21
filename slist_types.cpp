@@ -80,6 +80,7 @@ namespace slist
 		{
 			case node_type::empty:   return "empty";
 			case node_type::list:    return "list";
+			case node_type::pair:    return "pair";
 			case node_type::boolean: return "boolean";
 			case node_type::integer: return "integer";
 			case node_type::number:  return "number";

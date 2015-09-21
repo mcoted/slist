@@ -5,20 +5,10 @@ namespace
 {
 	slist::log_level global_log_level = slist::log_level::warning;
 
-	void log_internal(const std::string& str, slist::log_level level)
-	{
-		using namespace slist;
-		std::ostream *out = nullptr;
-		if (level == log_level::always || level == log_level::trace)
-		{
-			out = &std::cout;
-		}
-		else 
-		{
-			out = &std::cerr;
-		}
-		*out << str;
-	}
+	void log(const std::string& str, slist::log_level level, bool in_pair = false);
+	void log(const slist::node_ptr& n, slist::log_level level, bool in_pair = false);
+	void log(const slist::funcdef_ptr& f, slist::log_level level, bool in_pair = false);
+	void log_internal(const std::string& str, slist::log_level level);
 }
 
 namespace slist
@@ -84,8 +74,11 @@ namespace slist
 		log_trace(str, n, f);
 		log("\n", log_level::trace);
 	}
+}
 
-	void log(const std::string& str, log_level level)
+namespace
+{
+	void log(const std::string& str, slist::log_level level, bool in_pair)
 	{
 		if (level > global_log_level)
 		{
@@ -95,8 +88,10 @@ namespace slist
 		log_internal(str, level);
 	}
 
-	void log(const node_ptr& n, log_level level)
+	void log(const slist::node_ptr& n, slist::log_level level, bool in_pair)
 	{
+		using namespace slist;
+
 		if (level > global_log_level || n == nullptr)
 		{
 			return;
@@ -136,14 +131,37 @@ namespace slist
 					log_internal(")", level);
 				}
 			break;
+			case slist::node_type::pair:
+				if (!in_pair)
+				{
+					log_internal("(", level);
+				}
+				log(n->children[0], level, false);
+				log_internal(" ", level);
+				if (n->children[1]->type == slist::node_type::pair)
+				{
+					log(n->children[1], level, true);
+				}
+				else 
+				{
+					log_internal(". ", level);
+					log(n->children[1], level, true);
+				}
+				if (!in_pair)
+				{
+					log_internal(")", level);
+				}
+				break;
 			default:
 				log_internal(n->data, level);
 			break;
 		}
 	}
 
-	void log(const funcdef_ptr& f, log_level level)
+	void log(const slist::funcdef_ptr& f, slist::log_level level, bool in_pair)
 	{
+		using namespace slist;
+
 		if (level > global_log_level || f == nullptr)
 		{
 			return;
@@ -166,5 +184,20 @@ namespace slist
 		log_internal("Body: ", level);
 		log(f->body, level);
 		log_internal("\n", level);
+	}
+
+	void log_internal(const std::string& str, slist::log_level level)
+	{
+		using namespace slist;
+		std::ostream *out = nullptr;
+		if (level == log_level::always || level == log_level::trace)
+		{
+			out = &std::cout;
+		}
+		else 
+		{
+			out = &std::cerr;
+		}
+        *out << str << std::flush;
 	}
 }

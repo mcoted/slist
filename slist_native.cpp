@@ -129,9 +129,9 @@ namespace slist
 		}
 
 		node_ptr result(new node);
-		result->type = node_type::list;
-		result->children.push_back(root->children[1]);
-		result->children.push_back(root->children[2]);
+		result->type = node_type::pair;
+		result->children.push_back(eval(ctx, root->children[1]));
+		result->children.push_back(eval(ctx, root->children[2]));
 
 		return result;
 	}
@@ -149,6 +149,22 @@ namespace slist
 
 	node_ptr ___car(context& ctx, const node_ptr& root)
 	{
+		if (root->type == node_type::pair)
+		{
+			if (root->children.size() != 2)
+			{
+				log_errorln("Invalid pair: ", root);
+				return nullptr;
+			}
+			return root->children[0];
+		}
+
+		if (root->type != node_type::list)
+		{
+			log_errorln("Invalid argument to 'car': ", root);
+			return nullptr;
+		}
+
 		node_ptr result;
 		if (root->children.size() == 2)
 		{
@@ -178,6 +194,22 @@ namespace slist
 
 	node_ptr ___cdr(context& ctx, const node_ptr& root)
 	{
+		if (root->type == node_type::pair)
+		{
+			if (root->children.size() != 2)
+			{
+				log_errorln("Invalid pair: ", root);
+				return nullptr;
+			}
+			return root->children[1];
+		}
+
+		if (root->type != node_type::list)
+		{
+			log_errorln("Invalid argument to 'car': ", root);
+			return nullptr;
+		}
+
 		node_ptr result;
 		if (root->children.size() == 2)
 		{

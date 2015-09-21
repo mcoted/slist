@@ -27,10 +27,6 @@ namespace slist
 
 	void log_trace(const std::string& str, node_ptr n = nullptr, funcdef_ptr f = nullptr);
 	void log_traceln(const std::string& str, node_ptr n = nullptr, funcdef_ptr f = nullptr);
-
-	void log(const std::string& str, log_level level);
-	void log(const node_ptr& n, log_level level);
-	void log(const funcdef_ptr& f, log_level level);
 }
 
 #endif

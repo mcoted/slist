@@ -12,7 +12,10 @@ int main(int argc, char **argv)
 
 	parse_arguments(argc, argv);
 
-	node_ptr n = parse("(define a (lambda (x) (+ x 1)))  (a 2)");
+	// node_ptr n = parse("(define a (lambda (x) (+ x 1)))  (a 2)");
+	// node_ptr n = parse("(cons 1 2)");
+	node_ptr n = parse("(cons 1 (cons 2 3))");
+	// node_ptr n = parse("(cons (cons 1 2) (cons 3 4))");
 
 	if (get_log_level() >= log_level::trace)
 	{
@@ -27,7 +30,11 @@ int main(int argc, char **argv)
 		auto val = eval(ctx, child);
 		if (val != nullptr)
 		{
-			outputln("", eval(ctx, child));
+            auto r = eval(ctx, child);
+            if (r != nullptr)
+            {
+                outputln("", r);
+            }
 		}
 	}
 }
