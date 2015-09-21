@@ -15,13 +15,16 @@ namespace slist
 	struct parse_node;
 	typedef std::shared_ptr<parse_node> parse_node_ptr;
 
+	struct eval_node;
+	typedef std::shared_ptr<eval_node> eval_node_ptr;
+
 	struct funcdef;
 	typedef std::shared_ptr<funcdef> funcdef_ptr;
 
 	typedef std::unordered_map<std::string, parse_node_ptr> var_map;
 	typedef std::vector<var_map> var_stack;
 
-	enum class parse_node_type
+	enum class node_type
 	{
 		empty,
 		list,
@@ -34,13 +37,13 @@ namespace slist
 
 	struct parse_node
 	{
-		parse_node() : type(parse_node_type::empty) { }
+		parse_node() : type(node_type::empty) { }
 
 		bool to_bool() const;
 		int to_int() const;
 		float to_float() const;
 
-		parse_node_type type;
+		node_type type;
 		std::string data;
 
 		typedef std::vector<parse_node_ptr> parse_node_vector;
@@ -50,6 +53,13 @@ namespace slist
 
 		// For lambdas
 		funcdef_ptr proc;
+	};
+
+	struct eval_node
+	{
+		node_type type;
+		std::string data;
+		eval_node_ptr next;
 	};
 
 	struct funcdef
@@ -73,7 +83,7 @@ namespace slist
 		callback native_func;
 	};
 
-	std::string type_to_string(slist::parse_node_type type);
+	std::string type_to_string(slist::node_type type);
 
 	void print_parse_node(const parse_node_ptr& parse_node);
 	void debug_print_parse_node(const parse_node_ptr& parse_node);

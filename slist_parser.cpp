@@ -12,8 +12,8 @@ namespace
 {
 	slist::parse_node_ptr parse_list(std::istream& in);
 	slist::parse_node_ptr parse_token(std::istream& in);
-	slist::parse_node_type find_type(const std::string& str);
-	std::string type_to_string(slist::parse_node_type type);
+	slist::node_type find_type(const std::string& str);
+	std::string type_to_string(slist::node_type type);
 }
 
 namespace slist
@@ -23,7 +23,7 @@ namespace slist
 		std::istringstream in(str);
 
 		parse_node_ptr result(new parse_node);
-		result->type = parse_node_type::list;
+		result->type = node_type::list;
 
 		char ch;
 		std::string tok;
@@ -81,7 +81,7 @@ namespace
 	{
 		using namespace slist;
 		parse_node_ptr result(new parse_node);
-		result->type = parse_node_type::list;
+		result->type = node_type::list;
 
 		std::string tok;
 		char ch = 0;
@@ -166,14 +166,14 @@ namespace
 		return nullptr;
 	}
 
-	slist::parse_node_type find_type(const std::string& str)
+	slist::node_type find_type(const std::string& str)
 	{
 		using namespace slist;
-		parse_node_type type = parse_node_type::empty;
+		node_type type = node_type::empty;
 
 		if (str == "true" || str == "false")
 		{
-			return parse_node_type::boolean;
+			return node_type::boolean;
 		}
 
 		int dot_count = 0;
@@ -208,19 +208,19 @@ namespace
 
 		if (has_only_digits && dot_count == 1)
 		{
-			type = parse_node_type::number;
+			type = node_type::number;
 		}
 		else if (has_only_digits && dot_count == 0)
 		{
-			type = parse_node_type::integer;
+			type = node_type::integer;
 		}
 		else if (is_symbol)
 		{
-			type = parse_node_type::symbol;
+			type = node_type::symbol;
 		}
 		else 
 		{
-			type = parse_node_type::string;
+			type = node_type::string;
 		}
 
 		return type;

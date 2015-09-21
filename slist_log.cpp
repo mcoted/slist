@@ -113,9 +113,9 @@ namespace slist
 
 		switch (n->type)
 		{
-			case slist::parse_node_type::empty:
+			case slist::node_type::empty:
 			break;
-			case slist::parse_node_type::list:
+			case slist::node_type::list:
 				if (n->children.size() == 0)
 				{
 					log_internal("()", level);

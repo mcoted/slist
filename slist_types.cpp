@@ -11,7 +11,7 @@ namespace slist
 {
 	bool parse_node::to_bool() const 
 	{
-		if (type != parse_node_type::boolean)
+		if (type != node_type::boolean)
 		{
 			std::cerr << "Cannot convert to boolean, invalid type: " << (int)type << '\n';
 			return false;
@@ -23,7 +23,7 @@ namespace slist
 
 	int parse_node::to_int() const 
 	{
-		if (type != parse_node_type::integer) 
+		if (type != node_type::integer) 
 		{
 			std::cerr << "Cannot convert parse_node to int, invalid type: " << (int)type << '\n';
 			return 0;
@@ -33,8 +33,8 @@ namespace slist
 
 	float parse_node::to_float() const
 	{
-		if (type != parse_node_type::integer && 
-			type != parse_node_type::number)
+		if (type != node_type::integer && 
+			type != node_type::number)
 		{
 			std::cerr << "Cannot convert parse_node to float, invalid type: " << (int)type << '\n';
 			return 0;			
@@ -72,19 +72,19 @@ namespace slist
 		print_parse_node(func->body);
 	}
 
-		std::string type_to_string(slist::parse_node_type type)
+		std::string type_to_string(slist::node_type type)
 	{
 		using namespace slist;
 
 		switch (type)
 		{
-			case parse_node_type::empty:   return "empty";
-			case parse_node_type::list:    return "list";
-			case parse_node_type::boolean: return "boolean";
-			case parse_node_type::integer: return "integer";
-			case parse_node_type::number:  return "number";
-			case parse_node_type::string:  return "string";
-			case parse_node_type::symbol:  return "symbol";
+			case node_type::empty:   return "empty";
+			case node_type::list:    return "list";
+			case node_type::boolean: return "boolean";
+			case node_type::integer: return "integer";
+			case node_type::number:  return "number";
+			case node_type::string:  return "string";
+			case node_type::symbol:  return "symbol";
 		}
 
 		return "<undefined>";
@@ -103,9 +103,9 @@ namespace
 
 		switch (parse_node->type)
 		{
-			case slist::parse_node_type::empty:
+			case slist::node_type::empty:
 			break;
-			case slist::parse_node_type::list:
+			case slist::node_type::list:
 				if (parse_node->children.size() == 0)
 				{
 					std::cout << "()";
@@ -147,7 +147,7 @@ namespace
 
 		std::cout << '[' << type_to_string(parse_node->type) << "] ";
 
-		if (parse_node->type == slist::parse_node_type::list)
+		if (parse_node->type == slist::node_type::list)
 		{
 			std::cout << '\n';
 		}

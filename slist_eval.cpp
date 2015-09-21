@@ -28,14 +28,14 @@ namespace slist
 
 		switch (root->type)
 		{
-			case parse_node_type::list:
+			case node_type::list:
 				result = eval_list(ctx, root);
                 break;
-			case parse_node_type::string:
+			case node_type::string:
 				result =  eval_string(ctx, root);
                 break;
-			case parse_node_type::integer:
-			case parse_node_type::number:
+			case node_type::integer:
+			case node_type::number:
 				result = root;
                 break;
 			default:
@@ -76,7 +76,7 @@ namespace
 		parse_node_ptr op_parse_node = root->children[0];
 		funcdef_ptr proc;
 
-		if (op_parse_node->type == parse_node_type::list)
+		if (op_parse_node->type == node_type::list)
 		{
 			op_parse_node = eval(ctx, op_parse_node);
 			if (op_parse_node->proc == nullptr)
@@ -148,7 +148,7 @@ namespace
 			}
 
 			parse_node_ptr packed_arg(new parse_node);
-			packed_arg->type = parse_node_type::list;
+			packed_arg->type = node_type::list;
 			packed_arg->children = children;
 
 			var_map map;

@@ -17,7 +17,7 @@ namespace slist
 		parse_node_ptr first = root->children[1];
 		parse_node_ptr second = root->children[2];
 
-		if (first->type == parse_node_type::list)
+		if (first->type == node_type::list)
 		{
 			// Lambda shortcut
 			parse_node_ptr name = first->children[0];
@@ -28,7 +28,7 @@ namespace slist
 			// TODO: Support actual variadic functions
 			if (first->children.size() == 3 &&
 				first->children[1]->data == "." &&
-				first->children[2]->type == parse_node_type::string)
+				first->children[2]->type == node_type::string)
 			{
 				arg_list.push_back(first->children[2]->data);
 				variadic = true;
@@ -38,7 +38,7 @@ namespace slist
 				for (int i = 1; i < first->children.size(); ++i)
 				{
 					parse_node_ptr arg = first->children[i];
-					if (arg->type != parse_node_type::string)
+					if (arg->type != node_type::string)
 					{
 						log_errorln("Invalid function argument:\n", arg);
 						return nullptr;
@@ -57,7 +57,7 @@ namespace slist
 
 			ctx.global_vars[0][func->name] = eval(ctx, second);
 		}
-		else if (first->type == parse_node_type::string)
+		else if (first->type == node_type::string)
 		{
 			ctx.global_vars[0][first->data] = eval(ctx, second);
 		}
@@ -82,11 +82,11 @@ namespace slist
 
 		// Parse arguments
 		parse_node_ptr arg_parse_node = root->children[1];
-		if (arg_parse_node->type == parse_node_type::list)
+		if (arg_parse_node->type == node_type::list)
 		{
 			for (auto& arg : arg_parse_node->children)
 			{
-				if (arg->type == parse_node_type::string)
+				if (arg->type == node_type::string)
 				{
 					arg_list.push_back(arg->data);
 				}
@@ -97,7 +97,7 @@ namespace slist
 				}
 			}
 		}
-		else if (arg_parse_node->type == parse_node_type::string)
+		else if (arg_parse_node->type == node_type::string)
 		{
 			// TODO: Variadic
 		}
@@ -129,7 +129,7 @@ namespace slist
 		}
 
 		parse_node_ptr result(new parse_node);
-		result->type = parse_node_type::list;
+		result->type = node_type::list;
 		result->children.push_back(root->children[1]);
 		result->children.push_back(root->children[2]);
 
@@ -141,7 +141,7 @@ namespace slist
 		auto children = parse_node::parse_node_vector(root->children.begin()+1, root->children.end());
 
 		parse_node_ptr result(new parse_node);
-		result->type = parse_node_type::list;
+		result->type = node_type::list;
 		result->children = children;
 
 		return result;
@@ -153,7 +153,7 @@ namespace slist
 		if (root->children.size() == 2)
 		{
 			auto list = eval(ctx, root->children[1]);
-			if (list->type != parse_node_type::list)
+			if (list->type != node_type::list)
 			{
 				log_errorln("'car' expects a list as argument");
 				return nullptr;
@@ -182,7 +182,7 @@ namespace slist
 		if (root->children.size() == 2)
 		{
 			auto list = eval(ctx, root->children[1]);
-			if (list->type != parse_node_type::list)
+			if (list->type != node_type::list)
 			{
 				log_errorln("'cdr' expects a list as argument");
 				return nullptr;
@@ -199,7 +199,7 @@ namespace slist
 									  list->children.end());
 
 			result.reset(new parse_node);
-			result->type = parse_node_type::list;
+			result->type = node_type::list;
 			result->children = children;
 		}
 		else 
@@ -220,7 +220,7 @@ namespace slist
 		}
 
 		auto pred = eval(ctx, root->children[1]);
-		if (pred == nullptr || pred->type != parse_node_type::boolean)
+		if (pred == nullptr || pred->type != node_type::boolean)
 		{
 			log_errorln("'empty?' predicate did not evaluate to a boolean value");
 			return nullptr;
@@ -245,7 +245,7 @@ namespace slist
 		auto arg = eval(ctx, root->children[1]);
 
 		parse_node_ptr result(new parse_node);
-		result->type = parse_node_type::integer;
+		result->type = node_type::integer;
 		result->data = std::to_string(arg->children.size());
 
 		return result;
@@ -263,7 +263,7 @@ namespace slist
 		bool is_empty = (arg == nullptr) || arg->children.empty();
 
 		parse_node_ptr result(new parse_node);
-		result->type = parse_node_type::boolean;
+		result->type = node_type::boolean;
 		result->data = is_empty ? "true" : "false";
 
 		return result;
@@ -293,30 +293,30 @@ namespace slist
 			return nullptr;
 		}
 
-		if (first_val->type != parse_node_type::integer && 
-			first_val->type != parse_node_type::number)
+		if (first_val->type != node_type::integer && 
+			first_val->type != node_type::number)
 		{
 			log_errorln(std::string("___add: invalid first arg type: ") + type_to_string(first_val->type) + "\n", first_val);
 			return nullptr;
 		}
 
-		if (second_val->type != parse_node_type::integer && 
-			second_val->type != parse_node_type::number)
+		if (second_val->type != node_type::integer && 
+			second_val->type != node_type::number)
 		{
 			log_errorln(std::string("___add: invalid second arg type: ") + type_to_string(first_val->type) + "\n", second_val);
 			return nullptr;
 		}
 
 		parse_node_ptr result(new parse_node);
-		result->type = parse_node_type::integer;
+		result->type = node_type::integer;
 
-		if (first_val->type == parse_node_type::number ||
-			second_val->type == parse_node_type::number)
+		if (first_val->type == node_type::number ||
+			second_val->type == node_type::number)
 		{
-			result->type = parse_node_type::number;
+			result->type = node_type::number;
 		}
 
-		if (result->type == parse_node_type::integer)
+		if (result->type == node_type::integer)
 		{
 			result->data = std::to_string(first_val->to_int() + second_val->to_int());
 		}
