@@ -3,13 +3,13 @@
 
 namespace
 {
-	void print_node_r(const slist::node_ptr& node);
-	void debug_print_node_r(const slist::node_ptr& node, int indent);
+	void print_parse_node_r(const slist::parse_node_ptr& parse_node);
+	void debug_print_parse_node_r(const slist::parse_node_ptr& parse_node, int indent);
 }
 
 namespace slist
 {
-	bool node::to_bool() const 
+	bool parse_node::to_bool() const 
 	{
 		if (type != node_type::boolean)
 		{
@@ -21,36 +21,36 @@ namespace slist
 		return v == "true";
 	}
 
-	int node::to_int() const 
+	int parse_node::to_int() const 
 	{
 		if (type != node_type::integer) 
 		{
-			std::cerr << "Cannot convert node to int, invalid type: " << (int)type << '\n';
+			std::cerr << "Cannot convert parse_node to int, invalid type: " << (int)type << '\n';
 			return 0;
 		}
 		return std::stoi(data);
 	}
 
-	float node::to_float() const
+	float parse_node::to_float() const
 	{
 		if (type != node_type::integer && 
 			type != node_type::number)
 		{
-			std::cerr << "Cannot convert node to float, invalid type: " << (int)type << '\n';
+			std::cerr << "Cannot convert parse_node to float, invalid type: " << (int)type << '\n';
 			return 0;			
 		}
 		return std::stof(data);
 	}
 
-	void print_node(const node_ptr& root)
+	void print_parse_node(const parse_node_ptr& root)
 	{
-		print_node_r(root);
+		print_parse_node_r(root);
 		std::cout << '\n';
 	}
 
-	void debug_print_node(const node_ptr& root)
+	void debug_print_parse_node(const parse_node_ptr& root)
 	{
-		debug_print_node_r(root, 0);
+		debug_print_parse_node_r(root, 0);
 	}
 
 	void debug_print_funcdef(const funcdef_ptr& func)
@@ -69,7 +69,7 @@ namespace slist
 		std::cout << '\n';
 
 		std::cout << "Body: ";
-		print_node(func->body);
+		print_parse_node(func->body);
 	}
 
 	std::string type_to_string(slist::node_type type)
@@ -94,20 +94,20 @@ namespace slist
 
 namespace
 {
-	void print_node_r(const slist::node_ptr& node)
+	void print_parse_node_r(const slist::parse_node_ptr& parse_node)
 	{
-		if (node == nullptr)
+		if (parse_node == nullptr)
 		{
 			std::cout << "<null>";
 			return;
 		}
 
-		switch (node->type)
+		switch (parse_node->type)
 		{
 			case slist::node_type::empty:
 			break;
 			case slist::node_type::list:
-				if (node->children.size() == 0)
+				if (parse_node->children.size() == 0)
 				{
 					std::cout << "()";
 				}
@@ -115,52 +115,52 @@ namespace
 				{
 					std::cout << "(";
 					bool first = true;
-					for (const slist::node_ptr& child : node->children)
+					for (const slist::parse_node_ptr& child : parse_node->children)
 					{
 						if (!first)
 						{
 							std::cout << " ";							
 						}
-						print_node_r(child);
+						print_parse_node_r(child);
 						first = false;
 					}
 					std::cout << ")";
 				}
 			break;
 			default:
-				std::cout << node->data;
+				std::cout << parse_node->data;
 			break;
 		}
 	}
 
-	void debug_print_node_r(const slist::node_ptr& node, int indent)
+	void debug_print_parse_node_r(const slist::parse_node_ptr& parse_node, int indent)
 	{
 		for (int i = 0; i < indent; ++i) 
 		{
 			std::cout << "    ";
 		}
 
-		if (node == nullptr)
+		if (parse_node == nullptr)
 		{
 			std::cout << "<null>\n";
 			return;
 		}
 
-		std::cout << '[' << type_to_string(node->type) << "] ";
+		std::cout << '[' << type_to_string(parse_node->type) << "] ";
 
-		if (node->type == slist::node_type::list)
+		if (parse_node->type == slist::node_type::list)
 		{
 			std::cout << '\n';
 		}
 
-		if (node->data.length() > 0)
+		if (parse_node->data.length() > 0)
 		{
-			std::cout << node->data << '\n';
+			std::cout << parse_node->data << '\n';
 		}
 
-		for (const slist::node_ptr& child_node : node->children)
+		for (const slist::parse_node_ptr& child_parse_node : parse_node->children)
 		{
-			debug_print_node_r(child_node, indent+1);
+			debug_print_parse_node_r(child_parse_node, indent+1);
 		}
 	}
 }

@@ -6,7 +6,7 @@ namespace
 	slist::log_level global_log_level = slist::log_level::warning;
 
 	void log(const std::string& str, slist::log_level level, bool in_pair = false);
-	void log(const slist::node_ptr& n, slist::log_level level, bool in_pair = false);
+	void log(const slist::parse_node_ptr& n, slist::log_level level, bool in_pair = false);
 	void log(const slist::funcdef_ptr& f, slist::log_level level, bool in_pair = false);
 	void log_internal(const std::string& str, slist::log_level level);
 }
@@ -23,53 +23,53 @@ namespace slist
 		global_log_level = level;
 	}
 
-	void output(const std::string& str, node_ptr n, funcdef_ptr f)
+	void output(const std::string& str, parse_node_ptr n, funcdef_ptr f)
 	{
 		log(str, log_level::always);
 		log(n, log_level::always);
 		log(f, log_level::always);
 	}
 
-	void outputln(const std::string& str, node_ptr n, funcdef_ptr f)
+	void outputln(const std::string& str, parse_node_ptr n, funcdef_ptr f)
 	{
 		output(str, n, f);
 		log("\n", log_level::always);
 	}
 
-	void log_warning(const std::string& str, node_ptr n, funcdef_ptr f)
+	void log_warning(const std::string& str, parse_node_ptr n, funcdef_ptr f)
 	{
 		log(str, log_level::warning);
 		log(n, log_level::warning);
 		log(f, log_level::warning);
 	}	
 
-	void log_warningln(const std::string& str, node_ptr n, funcdef_ptr f)
+	void log_warningln(const std::string& str, parse_node_ptr n, funcdef_ptr f)
 	{
 		log_warning(str, n, f);
 		log("\n", log_level::warning);
 	}
 
-	void log_error(const std::string& str, node_ptr n, funcdef_ptr f)
+	void log_error(const std::string& str, parse_node_ptr n, funcdef_ptr f)
 	{
 		log(str, log_level::error);
 		log(n, log_level::error);
 		log(f, log_level::error);
 	}
 
-	void log_errorln(const std::string& str, node_ptr n, funcdef_ptr f)
+	void log_errorln(const std::string& str, parse_node_ptr n, funcdef_ptr f)
 	{
 		log_error(str, n, f);
 		log("\n", log_level::error);
 	}
 
-	void log_trace(const std::string& str, node_ptr n, funcdef_ptr f)
+	void log_trace(const std::string& str, parse_node_ptr n, funcdef_ptr f)
 	{
 		log(str, log_level::trace);
 		log(n, log_level::trace);
 		log(f, log_level::trace);
 	}
 
-	void log_traceln(const std::string& str, node_ptr n, funcdef_ptr f)
+	void log_traceln(const std::string& str, parse_node_ptr n, funcdef_ptr f)
 	{
 		log_trace(str, n, f);
 		log("\n", log_level::trace);
@@ -88,7 +88,7 @@ namespace
 		log_internal(str, level);
 	}
 
-	void log(const slist::node_ptr& n, slist::log_level level, bool in_pair)
+	void log(const slist::parse_node_ptr& n, slist::log_level level, bool in_pair)
 	{
 		using namespace slist;
 
@@ -119,7 +119,7 @@ namespace
 				{
 					log_internal("(", level);
 					bool first = true;
-					for (const slist::node_ptr& child : n->children)
+					for (const slist::parse_node_ptr& child : n->children)
 					{
 						if (!first)
 						{

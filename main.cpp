@@ -12,15 +12,15 @@ int main(int argc, char **argv)
 
 	parse_arguments(argc, argv);
 
-	// node_ptr n = parse("(define a (lambda (x) (+ x 1)))  (a 2)");
-	// node_ptr n = parse("(cons 1 2)");
-	node_ptr n = parse("(cons 1 (cons 2 3))");
-	// node_ptr n = parse("(cons (cons 1 2) (cons 3 4))");
+	// parse_node_ptr n = parse("(define a (lambda (x) (+ x 1)))  (a 2)");
+	// parse_node_ptr n = parse("(cons 1 2)");
+	parse_node_ptr n = parse("(cons 1 (cons 2 3))");
+	// parse_node_ptr n = parse("(cons (cons 1 2) (cons 3 4))");
 
 	if (get_log_level() >= log_level::trace)
 	{
 		log_traceln("");
-		debug_print_node(n);
+		debug_print_parse_node(n);
 		log_traceln("");
 	}
 
