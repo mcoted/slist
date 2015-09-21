@@ -33,6 +33,7 @@ namespace slist
 		// External
 		register_native("define", &___define);
 		register_native("lambda", &___lambda);
+		register_native("cons",   &___cons);
 		register_native("list",   &___list);
 		register_native("car",    &___car);
 		register_native("cdr",    &___cdr);
@@ -53,13 +54,13 @@ namespace slist
 		f->is_native = true;
 		f->native_func = func;
 
-		node_ptr n(new node);
+		parse_node_ptr n(new parse_node);
 		n->proc = f;
 
 		global_vars.back()[name] = n;
 	}
 
-	node_ptr context::lookup_variable(const std::string& name)
+	parse_node_ptr context::lookup_variable(const std::string& name)
 	{
 		log_traceln("Lookup variable: " + name);
 

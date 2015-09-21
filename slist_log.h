@@ -16,20 +16,20 @@ namespace slist
 	log_level get_log_level();
 	void set_log_level(log_level level);
 
-	void output(const std::string& str, node_ptr n = nullptr, funcdef_ptr f = nullptr);
-	void outputln(const std::string& str, node_ptr n = nullptr, funcdef_ptr f = nullptr);
+	void output(const std::string& str, parse_node_ptr n = nullptr, funcdef_ptr f = nullptr);
+	void outputln(const std::string& str, parse_node_ptr n = nullptr, funcdef_ptr f = nullptr);
 
-	void log_warning(const std::string& str, node_ptr n = nullptr, funcdef_ptr f = nullptr);
-	void log_warningln(const std::string& str, node_ptr n = nullptr, funcdef_ptr f = nullptr);
+	void log_warning(const std::string& str, parse_node_ptr n = nullptr, funcdef_ptr f = nullptr);
+	void log_warningln(const std::string& str, parse_node_ptr n = nullptr, funcdef_ptr f = nullptr);
 
-	void log_error(const std::string& str, node_ptr n = nullptr, funcdef_ptr f = nullptr);
-	void log_errorln(const std::string& str, node_ptr n = nullptr, funcdef_ptr f = nullptr);
+	void log_error(const std::string& str, parse_node_ptr n = nullptr, funcdef_ptr f = nullptr);
+	void log_errorln(const std::string& str, parse_node_ptr n = nullptr, funcdef_ptr f = nullptr);
 
-	void log_trace(const std::string& str, node_ptr n = nullptr, funcdef_ptr f = nullptr);
-	void log_traceln(const std::string& str, node_ptr n = nullptr, funcdef_ptr f = nullptr);
+	void log_trace(const std::string& str, parse_node_ptr n = nullptr, funcdef_ptr f = nullptr);
+	void log_traceln(const std::string& str, parse_node_ptr n = nullptr, funcdef_ptr f = nullptr);
 
 	void log(const std::string& str, log_level level);
-	void log(const node_ptr& n, log_level level);
+	void log(const parse_node_ptr& n, log_level level);
 	void log(const funcdef_ptr& f, log_level level);
 }
 

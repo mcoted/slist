@@ -6,16 +6,16 @@
 
 namespace
 {
-	slist::node_ptr eval_list(slist::context& ctx, const slist::node_ptr& root);
-	slist::node_ptr eval_string(slist::context& ctx, const slist::node_ptr& root);
+	slist::parse_node_ptr eval_list(slist::context& ctx, const slist::parse_node_ptr& root);
+	slist::parse_node_ptr eval_string(slist::context& ctx, const slist::parse_node_ptr& root);
 
-	bool bind_args(slist::context& ctx, const slist::funcdef::arg_list& args, const slist::node_ptr& root, bool variadic);
+	bool bind_args(slist::context& ctx, const slist::funcdef::arg_list& args, const slist::parse_node_ptr& root, bool variadic);
 	void unbind_args(slist::context& ctx);
 }
 
 namespace slist
 {
-	node_ptr eval(context& ctx, const node_ptr& root)
+	parse_node_ptr eval(context& ctx, const parse_node_ptr& root)
 	{
 		log_traceln("Eval: ", root);
 
@@ -24,18 +24,18 @@ namespace slist
             return nullptr;
         }
         
-        node_ptr result;
+        parse_node_ptr result;
 
 		switch (root->type)
 		{
-			case node_type::list:
+			case parse_node_type::list:
 				result = eval_list(ctx, root);
                 break;
-			case node_type::string:
+			case parse_node_type::string:
 				result =  eval_string(ctx, root);
                 break;
-			case node_type::integer:
-			case node_type::number:
+			case parse_node_type::integer:
+			case parse_node_type::number:
 				result = root;
                 break;
 			default:
@@ -47,22 +47,24 @@ namespace slist
 		return result;
 	}
 
-	void exec(context& ctx, const std::string& str)
+	parse_node_ptr exec(context& ctx, const std::string& str)
 	{
-		auto parse_node = parse(str);
-		if (parse_node != nullptr)
+		parse_node_ptr result;
+		parse_node_ptr parse_parse_node = parse(str);
+		if (parse_parse_node != nullptr)
 		{
-			for (auto& child : parse_node->children)
+			for (auto& child : parse_parse_node->children)
 			{
-				eval(ctx, child);
+				result = eval(ctx, child);
 			}
 		}
+		return result;
 	}
 }
 
 namespace
 {
-	slist::node_ptr eval_list(slist::context& ctx, const slist::node_ptr& root)
+	slist::parse_node_ptr eval_list(slist::context& ctx, const slist::parse_node_ptr& root)
 	{
 		using namespace slist;
 
@@ -71,23 +73,23 @@ namespace
 			return root;
 		}
 
-		node_ptr op_node = root->children[0];
+		parse_node_ptr op_parse_node = root->children[0];
 		funcdef_ptr proc;
 
-		if (op_node->type == node_type::list)
+		if (op_parse_node->type == parse_node_type::list)
 		{
-			op_node = eval(ctx, op_node);
-			if (op_node->proc == nullptr)
+			op_parse_node = eval(ctx, op_parse_node);
+			if (op_parse_node->proc == nullptr)
 			{
 				log_errorln("Error: first argument is not a procedure", root);
 				return nullptr;
 			}
-			proc = op_node->proc;
+			proc = op_parse_node->proc;
 		}
 		else 
 		{
 			// Look for globals
-			node_ptr val = ctx.lookup_variable(op_node->data);
+			parse_node_ptr val = ctx.lookup_variable(op_parse_node->data);
 			if (val != nullptr && val->proc != nullptr)
 			{
 				proc = val->proc;
@@ -105,7 +107,7 @@ namespace
 
 			if (bind_args(ctx, proc->args, root, proc->variadic))
             {
-                node_ptr res = eval(ctx, proc->body);
+                parse_node_ptr res = eval(ctx, proc->body);
                 unbind_args(ctx);
                 return res;
             }
@@ -114,17 +116,17 @@ namespace
 		return root;
 	}
 
-	slist::node_ptr eval_string(slist::context& ctx, const slist::node_ptr& root)
+	slist::parse_node_ptr eval_string(slist::context& ctx, const slist::parse_node_ptr& root)
 	{
-		slist::node_ptr var_node = ctx.lookup_variable(root->data);
-		if (var_node != nullptr)
+		slist::parse_node_ptr var_parse_node = ctx.lookup_variable(root->data);
+		if (var_parse_node != nullptr)
 		{
-			return var_node;
+			return var_parse_node;
 		}
 		return root;
 	}
 
-	bool bind_args(slist::context& ctx, const slist::funcdef::arg_list& args, const slist::node_ptr& root, bool variadic)
+	bool bind_args(slist::context& ctx, const slist::funcdef::arg_list& args, const slist::parse_node_ptr& root, bool variadic)
 	{
 		using namespace slist;
 
@@ -136,7 +138,7 @@ namespace
 				return false;
 			}
 
-			node::node_vector children;
+			parse_node::parse_node_vector children;
 			if (root->children.size() > 1)
 			{
 				for (int i = 1; i < root->children.size(); ++i)
@@ -145,8 +147,8 @@ namespace
 				}
 			}
 
-			node_ptr packed_arg(new node);
-			packed_arg->type = node_type::list;
+			parse_node_ptr packed_arg(new parse_node);
+			packed_arg->type = parse_node_type::list;
 			packed_arg->children = children;
 
 			var_map map;
@@ -164,7 +166,7 @@ namespace
 					log_error(arg + ' ');
 				}
 				log_errorln("");
-				log_error("Node: ", root);
+				log_error("parse_node: ", root);
 
 				return false;
 			}
@@ -175,7 +177,7 @@ namespace
 			for (int i = 0; i < args.size(); ++i)
 			{
 				auto& arg = args[i];
-				node_ptr n = eval(ctx, root->children[i+1]);
+				parse_node_ptr n = eval(ctx, root->children[i+1]);
 				map[arg] = n;
 				log_trace(arg + ": ", n);
 			}
