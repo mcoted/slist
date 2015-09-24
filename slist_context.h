@@ -11,10 +11,10 @@ namespace slist
 	{
 		context();
 
-		void     register_native(const std::string& name, funcdef::callback func);
-		parse_node_ptr lookup_variable(const std::string& name);
+		void  register_native(const std::string& name, funcdef::callback func);
+		node_ptr lookup_variable(const std::string& name);
 
-		var_stack global_vars;
+		var_stack2 global_vars;
 	};
 }
 

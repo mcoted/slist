@@ -1,6 +1,9 @@
 #include "slist.h"
 #include <cstdlib>
 
+#include <mach/mach.h>
+#include <mach/mach_vm.h>
+
 namespace
 {
 	void parse_arguments(int argc, char **argv);
@@ -9,33 +12,32 @@ namespace
 int main(int argc, char **argv)
 {
 	using namespace slist;
-
+    
 	parse_arguments(argc, argv);
 
 	// parse_node_ptr n = parse("(define a (lambda (x) (+ x 1)))  (a 2)");
-	// parse_node_ptr n = parse("(cons 1 2)");
-	parse_node_ptr n = parse("(cons 1 (cons 2 3))");
-	// parse_node_ptr n = parse("(cons (cons 1 2) (cons 3 4))");
+	// node_ptr n = parse("(define a (cons (cons 1 2) (cons 3 4))) a");
+	node_ptr n = parse(
+		"(define a (lambda (x) (+ x 1)))\n"
+		"(a 2)\n"
+		);
 
 	if (get_log_level() >= log_level::trace)
 	{
 		log_traceln("");
-		debug_print_parse_node(n);
+		debug_print_node(n);
 		log_traceln("");
 	}
 
 	context ctx;
-	for (auto& child : n->children)
+	while (n != nullptr)
 	{
-		auto val = eval(ctx, child);
-		if (val != nullptr)
+		auto r = eval(ctx, n->car);
+		if (r != nullptr)
 		{
-            auto r = eval(ctx, child);
-            if (r != nullptr)
-            {
-                outputln("", r);
-            }
+			outputln("", r);
 		}
+		n = n->cdr;
 	}
 }
 

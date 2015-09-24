@@ -6,16 +6,16 @@
 
 namespace
 {
-	slist::parse_node_ptr eval_list(slist::context& ctx, const slist::parse_node_ptr& root);
-	slist::parse_node_ptr eval_string(slist::context& ctx, const slist::parse_node_ptr& root);
+	slist::node_ptr eval_list(slist::context& ctx, const slist::node_ptr& root);
+	slist::node_ptr eval_string(slist::context& ctx, const slist::node_ptr& root);
 
-	bool bind_args(slist::context& ctx, const slist::funcdef::arg_list& args, const slist::parse_node_ptr& root, bool variadic);
+	bool bind_args(slist::context& ctx, const slist::funcdef::arg_list& args, const slist::node_ptr& root, bool variadic);
 	void unbind_args(slist::context& ctx);
 }
 
 namespace slist
 {
-	parse_node_ptr eval(context& ctx, const parse_node_ptr& root)
+	node_ptr eval(context& ctx, const node_ptr& root)
 	{
 		log_traceln("Eval: ", root);
 
@@ -24,11 +24,11 @@ namespace slist
             return nullptr;
         }
         
-        parse_node_ptr result;
+        node_ptr result;
 
 		switch (root->type)
 		{
-			case node_type::list:
+			case node_type::pair:
 				result = eval_list(ctx, root);
                 break;
 			case node_type::string:
@@ -47,15 +47,16 @@ namespace slist
 		return result;
 	}
 
-	parse_node_ptr exec(context& ctx, const std::string& str)
+	node_ptr exec(context& ctx, const std::string& str)
 	{
-		parse_node_ptr result;
-		parse_node_ptr parse_parse_node = parse(str);
-		if (parse_parse_node != nullptr)
+		node_ptr result;
+		node_ptr parse_node = parse(str);
+		if (parse_node != nullptr)
 		{
-			for (auto& child : parse_parse_node->children)
+			while (parse_node != nullptr)
 			{
-				result = eval(ctx, child);
+				result = eval(ctx, parse_node->car);
+				parse_node = parse_node->cdr;
 			}
 		}
 		return result;
@@ -64,69 +65,70 @@ namespace slist
 
 namespace
 {
-	slist::parse_node_ptr eval_list(slist::context& ctx, const slist::parse_node_ptr& root)
+	slist::node_ptr eval_list(slist::context& ctx, const slist::node_ptr& root)
 	{
 		using namespace slist;
 
-		if (root->children.empty())
+		if (root->length() == 0)
 		{
-			return root;
+			log_errorln("List is not a procedure", root);
+			return nullptr;
 		}
 
-		parse_node_ptr op_parse_node = root->children[0];
+		node_ptr op_node = root->get(0);
 		funcdef_ptr proc;
 
-		if (op_parse_node->type == node_type::list)
+		if (op_node->type == node_type::pair)
 		{
-			op_parse_node = eval(ctx, op_parse_node);
-			if (op_parse_node->proc == nullptr)
+			node_ptr eval_node = eval(ctx, op_node);
+			if (eval_node == nullptr || eval_node->proc == nullptr)
 			{
 				log_errorln("Error: first argument is not a procedure", root);
 				return nullptr;
 			}
-			proc = op_parse_node->proc;
+			proc = eval_node->proc;
 		}
 		else 
 		{
 			// Look for globals
-			parse_node_ptr val = ctx.lookup_variable(op_parse_node->data);
+			node_ptr val = ctx.lookup_variable(op_node->value);
 			if (val != nullptr && val->proc != nullptr)
 			{
 				proc = val->proc;
-	        	if (proc != nullptr && proc->is_native)
-	        	{
-	        		// Execute native procs right away, no need to bind variables
-	        		return proc->native_func(ctx, root);
-	        	}
+				if (proc != nullptr && proc->is_native)
+				{
+					// Execute native procs right away, no need to bind variables
+					return proc->native_func(ctx, root);
+				}
 			}
 		}
 
 		if (proc != nullptr)
 		{
-			log_traceln("Evaluating Procedure:", nullptr, proc);
+			log_traceln("Evaluating Procedure:\n", nullptr, proc);
 
-			if (bind_args(ctx, proc->args, root, proc->variadic))
-            {
-                parse_node_ptr res = eval(ctx, proc->body);
-                unbind_args(ctx);
-                return res;
-            }
+			if (bind_args(ctx, proc->args, root->cdr, proc->variadic))
+			{
+				node_ptr res = eval(ctx, proc->body);
+				unbind_args(ctx);
+				return res;
+			}
 		}
 
 		return root;
 	}
 
-	slist::parse_node_ptr eval_string(slist::context& ctx, const slist::parse_node_ptr& root)
+	slist::node_ptr eval_string(slist::context& ctx, const slist::node_ptr& root)
 	{
-		slist::parse_node_ptr var_parse_node = ctx.lookup_variable(root->data);
-		if (var_parse_node != nullptr)
+		slist::node_ptr var_node = ctx.lookup_variable(root->value);
+		if (var_node != nullptr)
 		{
-			return var_parse_node;
+			return var_node;
 		}
 		return root;
 	}
 
-	bool bind_args(slist::context& ctx, const slist::funcdef::arg_list& args, const slist::parse_node_ptr& root, bool variadic)
+	bool bind_args(slist::context& ctx, const slist::funcdef::arg_list& args, const slist::node_ptr& root, bool variadic)
 	{
 		using namespace slist;
 
@@ -138,26 +140,33 @@ namespace
 				return false;
 			}
 
-			parse_node::parse_node_vector children;
-			if (root->children.size() > 1)
+			node_ptr packed_arg(new node);
+			packed_arg->type = node_type::pair;
+
+			if (root->length() > 0)
 			{
-				for (int i = 1; i < root->children.size(); ++i)
+				node_ptr p = root;
+				while (p != nullptr)
 				{
-                    children.push_back(eval(ctx, root->children[i]));
+					packed_arg->append(eval(ctx, p->car));
+					p = p->cdr;
 				}
 			}
 
-			parse_node_ptr packed_arg(new parse_node);
-			packed_arg->type = node_type::list;
-			packed_arg->children = children;
+            log_traceln("\n>>>> BIND ARGS (VARIADIC):");
 
-			var_map map;
+			var_map2 map;
 			map[args[0]] = packed_arg;
 			ctx.global_vars.push_back(map);
+            
+            log_trace(std::string("Bind \"") + args[0] + "\": ", map[args[0]]);
+            log_traceln("<<<<<");
+            log_traceln("");
+
 		}
 		else 
 		{
-			if (args.size() != root->children.size()-1)
+			if (args.size() != root->length())
 			{
 				log_errorln("Unable to bind arguments");
 				log_error("Args: ");
@@ -166,23 +175,23 @@ namespace
 					log_error(arg + ' ');
 				}
 				log_errorln("");
-				log_error("parse_node: ", root);
+				log_error("node: ", root);
 
 				return false;
 			}
 
-			log_traceln("Variable bindings:");
+			log_traceln("\n>>>> BIND ARGS:");
 
-			var_map map;
+			var_map2 map;
 			for (int i = 0; i < args.size(); ++i)
 			{
 				auto& arg = args[i];
-				parse_node_ptr n = eval(ctx, root->children[i+1]);
+                node_ptr n = eval(ctx, root->get(i));
 				map[arg] = n;
-				log_trace(arg + ": ", n);
+                log_trace(std::string("Bind \"") + arg + "\": ", n);
 			}
 
-			log_traceln("");
+			log_traceln("<<<<<");
 			log_traceln("");
 
 			ctx.global_vars.push_back(map);

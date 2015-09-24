@@ -6,73 +6,74 @@
 
 namespace slist
 {
-	parse_node_ptr ___define(context& ctx, const parse_node_ptr& root)
+	node_ptr ___define(context& ctx, const node_ptr& root)
 	{
-		if (root->children.size() < 3)
+		if (root->length() < 3)
 		{
 			log_errorln("Invalid arguments for 'define'\n", root);
 			return nullptr;
 		}
 
-		parse_node_ptr first = root->children[1];
-		parse_node_ptr second = root->children[2];
+		node_ptr first = root->get(1);
+		node_ptr second = root->get(2);
 
-		if (first->type == node_type::list)
+		if (first->type == node_type::pair)
 		{
 			// Lambda shortcut
-			parse_node_ptr name = first->children[0];
+			node_ptr name = first->get(0);
 
 			funcdef::arg_list arg_list;
 			bool variadic = false;
 
 			// TODO: Support actual variadic functions
-			if (first->children.size() == 3 &&
-				first->children[1]->data == "." &&
-				first->children[2]->type == node_type::string)
+			if (first->length() == 3 &&
+				first->get(1)->value == "." &&
+				first->get(2)->type == node_type::string)
 			{
-				arg_list.push_back(first->children[2]->data);
+				arg_list.push_back(first->get(2)->value);
 				variadic = true;
 			}
 			else 
 			{
-				for (int i = 1; i < first->children.size(); ++i)
+				for (int i = 1; i < first->length(); ++i)
 				{
-					parse_node_ptr arg = first->children[i];
-					if (arg->type != node_type::string)
+					node_ptr arg = first->get(i);
+					if (arg == nullptr || arg->type != node_type::string)
 					{
 						log_errorln("Invalid function argument:\n", arg);
 						return nullptr;
 					}
-					arg_list.push_back(arg->data);	
+					arg_list.push_back(arg->value);	
 				}				
 			}
 
 			funcdef_ptr func(new funcdef);
-			func->name = name->data;
+			func->name = name->value;
 			func->args = arg_list;
 			func->variadic = variadic;
 			func->body = second;
 
 			second->proc = func;
 
-			ctx.global_vars[0][func->name] = eval(ctx, second);
+            ctx.global_vars[0][func->name] = second;
 		}
 		else if (first->type == node_type::string)
 		{
-			ctx.global_vars[0][first->data] = eval(ctx, second);
+            ctx.global_vars[0][first->value] = eval(ctx, second);
 		}
 
 		return nullptr;
 	}
 
-	parse_node_ptr ___lambda(context& ctx, const parse_node_ptr& root)
+	node_ptr ___lambda(context& ctx, const node_ptr& root)
 	{
 		if (root->proc != nullptr)
 		{
+			log_warningln("Evaluating a lambda that already has a procedure. Was it evaluated twice?");
 			return root; // Already evaluated
 		}
 
-		if (root->children.size() != 3)
+		if (root->length() != 3)
 		{
 			log_errorln("Invalid lambda format\n", root);
 			return nullptr;
@@ -81,37 +82,39 @@ namespace slist
 		funcdef::arg_list arg_list;
 
 		// Parse arguments
-		parse_node_ptr arg_parse_node = root->children[1];
-		if (arg_parse_node->type == node_type::list)
+		node_ptr arg_node = root->get(1);
+		if (arg_node->type == node_type::pair)
 		{
-			for (auto& arg : arg_parse_node->children)
+			while (arg_node != nullptr)
 			{
-				if (arg->type == node_type::string)
+				node_ptr arg = arg_node->car;
+				if (arg != nullptr && arg->type == node_type::string)
 				{
-					arg_list.push_back(arg->data);
+					arg_list.push_back(arg_node->car->value);				
 				}
 				else 
 				{
 					log_errorln("Invalid argument:\n", arg);
-					return nullptr;
+					return nullptr;	
 				}
+				arg_node = arg_node->cdr;
 			}
 		}
-		else if (arg_parse_node->type == node_type::string)
+		else if (arg_node->type == node_type::string)
 		{
 			// TODO: Variadic
 		}
 		else 
 		{
-			log_error("Invalid argument type for lambda\n", arg_parse_node);
+			log_error("Invalid argument type for lambda\n", arg_node);
 			return nullptr;
 		}
 
 		funcdef_ptr func(new funcdef);
-		func->name = root->children[0]->data; // "lambda"
+		func->name = root->get(0)->value; // "lambda"
 		func->args = arg_list;
 		func->variadic = false; // TODO
-		func->body = root->children[2];
+		func->body = root->get(2);
 
 		log_traceln("Lambda proc:\n", nullptr, func);
 
@@ -120,138 +123,82 @@ namespace slist
 		return root;
 	}
 
-	parse_node_ptr ___cons(context& ctx, const parse_node_ptr& root)
+	node_ptr ___cons(context& ctx, const node_ptr& root)
 	{
-		if (root->children.size() != 3)
+		if (root->length() != 3)
 		{
 			log_errorln("Invalid arguments to 'cons':\n", root);
 			return nullptr;
 		}
 
-		parse_node_ptr result(new parse_node);
+		node_ptr result(new node);
 		result->type = node_type::pair;
-		result->children.push_back(eval(ctx, root->children[1]));
-		result->children.push_back(eval(ctx, root->children[2]));
+		result->car = eval(ctx, root->get(1));
+		result->cdr = eval(ctx, root->get(2));
 
 		return result;
 	}
 
-	parse_node_ptr ___list(context& ctx, const parse_node_ptr& root)
+	node_ptr ___list(context& ctx, const node_ptr& root)
 	{
-		auto children = parse_node::parse_node_vector(root->children.begin()+1, root->children.end());
-
-		parse_node_ptr result(new parse_node);
-		result->type = node_type::list;
-		result->children = children;
-
-		return result;
-	}
-
-	parse_node_ptr ___car(context& ctx, const parse_node_ptr& root)
-	{
-		if (root->type == node_type::pair)
+		if (root->length() == 1)
 		{
-			if (root->children.size() != 2)
-			{
-				log_errorln("Invalid pair: ", root);
-				return nullptr;
-			}
-			return root->children[0];
-		}
-
-		if (root->type != node_type::list)
-		{
-			log_errorln("Invalid argument to 'car': ", root);
-			return nullptr;
-		}
-
-		parse_node_ptr result;
-		if (root->children.size() == 2)
-		{
-			auto list = eval(ctx, root->children[1]);
-			if (list->type != node_type::list)
-			{
-				log_errorln("'car' expects a list as argument");
-				return nullptr;
-			}
-
-			if (list->children.size() == 0)
-			{
-				log_errorln("'car' of empty list");
-				return nullptr;
-			}
-
-			result = list->children[0];
+			node_ptr result(new node);
+			result->type = node_type::empty;
+			return result;
 		}
 		else 
 		{
-			log_errorln("Invalid number of arguments to 'car'");
-			return nullptr;
+			return root->cdr;
 		}
-
-		return result;
 	}
 
-	parse_node_ptr ___cdr(context& ctx, const parse_node_ptr& root)
+	node_ptr ___car(context& ctx, const node_ptr& root)
 	{
-		if (root->type == node_type::pair)
+		if (root->length() < 2 || root->get(1) == nullptr)
 		{
-			if (root->children.size() != 2)
-			{
-				log_errorln("Invalid pair: ", root);
-				return nullptr;
-			}
-			return root->children[1];
-		}
-
-		if (root->type != node_type::list)
-		{
-			log_errorln("Invalid argument to 'car': ", root);
+			log_errorln("Invalid pair for 'car': ", root);
 			return nullptr;
 		}
 
-		parse_node_ptr result;
-		if (root->children.size() == 2)
-		{
-			auto list = eval(ctx, root->children[1]);
-			if (list->type != node_type::list)
-			{
-				log_errorln("'cdr' expects a list as argument");
-				return nullptr;
-			}
+        node_ptr n = eval(ctx, root->get(1));
+        if (n != nullptr && n->type == node_type::pair)
+        {
+            return n->car;
+        }
 
-			if (list->children.size() == 0)
-			{
-				log_errorln("'cdr' of empty list");
-				return nullptr;
-			}
-
-			auto children = 
-				std::vector<parse_node_ptr>(list->children.begin()+1,
-									  list->children.end());
-
-			result.reset(new parse_node);
-			result->type = node_type::list;
-			result->children = children;
-		}
-		else 
-		{
-			log_errorln("Invalid number of arguments to 'cdr'");
-			return nullptr;
-		}
-
-        return result;
+        return nullptr;
 	}
 
-	parse_node_ptr ___if(context& ctx, const parse_node_ptr& root)
+	node_ptr ___cdr(context& ctx, const node_ptr& root)
 	{
-		if (root->children.size() != 4)
+		if (root->length() < 2 || root->get(1) == nullptr)
+		{
+			log_errorln("Invalid pair for 'car': ", root);
+			return nullptr;
+		}
+
+        node_ptr n = eval(ctx, root->get(1));
+        if (n != nullptr && n->type == node_type::pair && n->cdr != nullptr)
+        {
+            return n->cdr;
+        }
+        
+        n.reset(new node);
+        n->type = node_type::empty;
+
+        return n;
+	}
+
+	node_ptr ___if(context& ctx, const node_ptr& root)
+	{
+		if (root->length() != 4)
 		{
 			log_errorln("Invalid 'if' statement");
 			return nullptr;
 		}
 
-		auto pred = eval(ctx, root->children[1]);
+		auto pred = eval(ctx, root->get(1));
 		if (pred == nullptr || pred->type != node_type::boolean)
 		{
 			log_errorln("'empty?' predicate did not evaluate to a boolean value");
@@ -260,56 +207,69 @@ namespace slist
 
 		if (pred->to_bool())
 		{
-			return eval(ctx, root->children[2]);
+			return eval(ctx, root->get(2));
 		}
 
-		return eval(ctx, root->children[3]);
+		return eval(ctx, root->get(3));
 	}
 
-	parse_node_ptr ___length(context& ctx, const parse_node_ptr& root)
+	node_ptr ___length(context& ctx, const node_ptr& root)
 	{
-		if (root->children.size() != 2)
+		if (root->length() != 2)
 		{
-			log_errorln("Invalid 'empty?' statement");
+			log_errorln("Invalid 'length' statement");
 			return nullptr;
 		}
 
-		auto arg = eval(ctx, root->children[1]);
+		auto arg = eval(ctx, root->get(1));
 
-		parse_node_ptr result(new parse_node);
+		node_ptr result(new node);
 		result->type = node_type::integer;
-		result->data = std::to_string(arg->children.size());
+		result->value = std::to_string(arg->length());
 
 		return result;
 	}
 
-	parse_node_ptr ___empty(context& ctx, const parse_node_ptr& root)
+	node_ptr ___empty(context& ctx, const node_ptr& root)
 	{
-		if (root->children.size() != 2)
+		if (root->length() != 2)
 		{
 			log_errorln("Invalid 'empty?' statement");
 			return nullptr;
 		}
 
-		auto arg = eval(ctx, root->children[1]);
-		bool is_empty = (arg == nullptr) || arg->children.empty();
+		auto arg = eval(ctx, root->get(1));
+        bool is_empty = (arg == nullptr)                ||
+                        (arg->car == nullptr)           ||
+                        (arg->type == node_type::empty) ||
+                        (arg->length() == 0);
 
-		parse_node_ptr result(new parse_node);
+		node_ptr result(new node);
 		result->type = node_type::boolean;
-		result->data = is_empty ? "true" : "false";
+		result->value = is_empty ? "true" : "false";
 
 		return result;
 	}
 
-	parse_node_ptr ___add(context& ctx, const parse_node_ptr& root)
+	node_ptr ___print(context& ctx, const node_ptr& root)
+	{
+		return root;
+	}
+
+	node_ptr ___println(context& ctx, const node_ptr& root)
+	{
+		return root;
+	}
+
+	node_ptr ___add(context& ctx, const node_ptr& root)
 	{		
-		if (root->children.size() != 3)
+		if (root->length() != 3)
 		{
 			log_errorln("'___add' expects two arguments");
 			return nullptr;
 		}
 
-		parse_node_ptr first_val = eval(ctx, root->children[1]);
+		node_ptr first_val = eval(ctx, root->get(1));
 		log_traceln("___add first arg: ", first_val);
 
 		if (first_val == nullptr)
@@ -318,7 +278,7 @@ namespace slist
 			return nullptr;
 		}
 
-		parse_node_ptr second_val = eval(ctx, root->children[2]);
+		node_ptr second_val = eval(ctx, root->get(2));
 		if (second_val == nullptr)
 		{
 			log_errorln("___add: second arg is null");
@@ -339,7 +299,7 @@ namespace slist
 			return nullptr;
 		}
 
-		parse_node_ptr result(new parse_node);
+		node_ptr result(new node);
 		result->type = node_type::integer;
 
 		if (first_val->type == node_type::number ||
@@ -350,13 +310,18 @@ namespace slist
 
 		if (result->type == node_type::integer)
 		{
-			result->data = std::to_string(first_val->to_int() + second_val->to_int());
+			result->value = std::to_string(first_val->to_int() + second_val->to_int());
 		}
 		else 
 		{
-			result->data = std::to_string(first_val->to_float() + second_val->to_float());
+			result->value = std::to_string(first_val->to_float() + second_val->to_float());
 		}
 
 		return result;
+	}
+
+	node_ptr ___mult(context& ctx, const node_ptr& root)
+	{
+		return root;
 	}
 }

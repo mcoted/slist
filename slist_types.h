@@ -15,11 +15,18 @@ namespace slist
 	struct parse_node;
 	typedef std::shared_ptr<parse_node> parse_node_ptr;
 
+	struct node;
+	typedef std::shared_ptr<node> node_ptr;	
+
 	struct funcdef;
 	typedef std::shared_ptr<funcdef> funcdef_ptr;
 
 	typedef std::unordered_map<std::string, parse_node_ptr> var_map;
 	typedef std::vector<var_map> var_stack;
+
+	typedef std::unordered_map<std::string, node_ptr> var_map2;
+	typedef std::vector<var_map2> var_stack2;
+
 
 	enum class node_type
 	{
@@ -51,6 +58,25 @@ namespace slist
 		funcdef_ptr proc;
 	};
 
+	struct node : public std::enable_shared_from_this<node>
+	{
+		size_t length() const;
+		node_ptr get(size_t index);
+		void append(const node_ptr& n);
+
+		bool to_bool() const;
+		int to_int() const;
+		float to_float() const;
+
+		node_type type;
+		std::string value;
+
+		node_ptr car;
+		node_ptr cdr;
+
+		funcdef_ptr proc;
+	};
+
 	struct funcdef
 	{
 		funcdef() : variadic(false), is_native(false) {}
@@ -65,18 +91,21 @@ namespace slist
 		var_stack local_vars;
 
 		// Body of the function (non-native)
-		parse_node_ptr body;
+		node_ptr body;
 
 		// Callback (native)
-		typedef std::function<parse_node_ptr(context&, const parse_node_ptr&)> callback;
+		typedef std::function<node_ptr(context&, const node_ptr&)> callback;
 		callback native_func;
 	};
 
 	std::string type_to_string(slist::node_type type);
 
+	void print_node(const node_ptr& n);
 	void print_parse_node(const parse_node_ptr& parse_node);
 	void debug_print_parse_node(const parse_node_ptr& parse_node);
 	void debug_print_funcdef(const funcdef_ptr& func);
+
+	void debug_print_node(const node_ptr& n, int indent = 0);
 }
 
 #endif

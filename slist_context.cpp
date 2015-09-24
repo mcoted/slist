@@ -8,17 +8,10 @@ namespace
 {
 	const char * builtin___add = 
 	"(define (+ . values) (___sum values))"
-	"(define (* . values) (___mul values))"
-	""
 	"(define (___sum values)"
 	"    (if (empty? values)"
 	"        0"
 	"        (___add (car values) (___sum (cdr values)))))"
-	""
-	"(define (___mul values)"
-	"    (if (empty? values)"
-	"        1"
-	"        (___mul (car values) (___sum (cdr values)))))"
 	;
 }
 
@@ -27,22 +20,25 @@ namespace slist
 	context::context()
 	{
 		// Prepare global variables map
-		var_map map;
+		var_map2 map;
 		global_vars.push_back(map);
 
 		// External
-		register_native("define", &___define);
-		register_native("lambda", &___lambda);
-		register_native("cons",   &___cons);
-		register_native("list",   &___list);
-		register_native("car",    &___car);
-		register_native("cdr",    &___cdr);
-		register_native("if",     &___if);
-		register_native("length", &___length);
-		register_native("empty?", &___empty);
+		register_native("define",  &___define);
+		register_native("lambda",  &___lambda);
+		register_native("cons",    &___cons);
+		register_native("list",    &___list);
+		register_native("car",     &___car);
+		register_native("cdr",     &___cdr);
+		register_native("if",      &___if);
+		register_native("length",  &___length);
+		register_native("empty?",  &___empty);
+		register_native("print",   &___print);
+		register_native("println", &___println);
 
 		// Internal
-		register_native("___add", &___add);
+		register_native("___add",  &___add);
+		register_native("___mult", &___mult);
 
 		// Execute the builtins script to register the builtin procedures
 		exec(*this, builtin___add);
@@ -54,13 +50,13 @@ namespace slist
 		f->is_native = true;
 		f->native_func = func;
 
-		parse_node_ptr n(new parse_node);
+		node_ptr n(new node);
 		n->proc = f;
 
 		global_vars.back()[name] = n;
 	}
 
-	parse_node_ptr context::lookup_variable(const std::string& name)
+	node_ptr context::lookup_variable(const std::string& name)
 	{
 		log_traceln("Lookup variable: " + name);
 
@@ -76,7 +72,7 @@ namespace slist
 			auto it = stack.find(name);
 			if (it != stack.end())
 			{
-				log_traceln(name + " = ", it->second);
+				//log_traceln(name + " = ", it->second);
 				return it->second;
 			}
 		}

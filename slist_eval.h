@@ -7,8 +7,8 @@
 
 namespace slist
 {
-	parse_node_ptr eval(context& ctx, const parse_node_ptr& tree);
-	parse_node_ptr exec(context& ctx, const std::string& str);
+	node_ptr eval(context& ctx, const node_ptr& n);
+	node_ptr exec(context& ctx, const std::string& str);
 }
 
 #endif
