@@ -14,7 +14,7 @@ namespace slist
 		void  register_native(const std::string& name, funcdef::callback func);
 		node_ptr lookup_variable(const std::string& name);
 
-		var_stack2 global_vars;
+		var_stack global_vars;
 	};
 }
 
