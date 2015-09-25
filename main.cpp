@@ -18,8 +18,9 @@ int main(int argc, char **argv)
 	// parse_node_ptr n = parse("(define a (lambda (x) (+ x 1)))  (a 2)");
 	// node_ptr n = parse("(define a (cons (cons 1 2) (cons 3 4))) a");
 	node_ptr n = parse(
-		"(define a (lambda (x) (+ x 1)))\n"
-		"(a 2)\n"
+		"(define (make-adder x) (lambda (a) (___add x a)))"
+		"(define add-2 (make-adder 2))"
+		"(add-2 3)"
 		);
 
 	if (get_log_level() >= log_level::trace)

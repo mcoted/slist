@@ -184,10 +184,10 @@ namespace slist
             return n->cdr;
         }
         
-        n.reset(new node);
-        n->type = node_type::empty;
+        node_ptr empty(new node);
+        empty->type = node_type::pair;
 
-        return n;
+        return empty;
 	}
 
 	node_ptr ___if(context& ctx, const node_ptr& root)
