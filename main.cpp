@@ -18,7 +18,7 @@ int main(int argc, char **argv)
 	// parse_node_ptr n = parse("(define a (lambda (x) (+ x 1)))  (a 2)");
 	// node_ptr n = parse("(define a (cons (cons 1 2) (cons 3 4))) a");
 	node_ptr n = parse(
-		"(define (make-adder x) (lambda (a) (___add x a)))"
+		"(define (make-adder x) (begin (println \"hello\") (lambda (a) (___add x a))))"
 		"(define add-2 (make-adder 2))"
 		"(add-2 3)"
 		);

@@ -190,6 +190,25 @@ namespace slist
         return empty;
 	}
 
+	node_ptr ___begin(context& ctx, const node_ptr& root)
+	{
+		node_ptr n = root->cdr;
+		node_ptr result;
+		while (n != nullptr)
+		{
+			result = eval(ctx, n->car);
+			n = n->cdr;
+		}
+
+		if (result == nullptr)
+		{
+			result.reset(new node);
+			result->type = node_type::pair;
+		}
+
+		return result;
+	}
+
 	node_ptr ___if(context& ctx, const node_ptr& root)
 	{
 		if (root->length() != 4)
@@ -253,12 +272,20 @@ namespace slist
 
 	node_ptr ___print(context& ctx, const node_ptr& root)
 	{
-		return root;
+		if (root->length() > 1)
+		{
+			output("", eval(ctx, root->cdr->car));			
+		}
+		return nullptr;
 	}
 
 	node_ptr ___println(context& ctx, const node_ptr& root)
 	{
-		return root;
+		if (root->length() > 1)
+		{
+			outputln("", eval(ctx, root->cdr->car));			
+		}
+		return nullptr;
 	}
 
 	node_ptr ___add(context& ctx, const node_ptr& root)

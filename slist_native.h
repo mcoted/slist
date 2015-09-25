@@ -13,6 +13,7 @@ namespace slist
 	node_ptr ___list    (context& ctx, const node_ptr& root);
 	node_ptr ___car     (context& ctx, const node_ptr& root);
 	node_ptr ___cdr     (context& ctx, const node_ptr& root);
+	node_ptr ___begin   (context& ctx, const node_ptr& root);
 	node_ptr ___if      (context& ctx, const node_ptr& root);
 	node_ptr ___length  (context& ctx, const node_ptr& root);
 	node_ptr ___empty   (context& ctx, const node_ptr& root);
