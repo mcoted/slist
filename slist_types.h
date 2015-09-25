@@ -24,7 +24,6 @@ namespace slist
 	enum class node_type
 	{
 		empty,
-		list,
 		pair,
 		boolean,
 		integer,
