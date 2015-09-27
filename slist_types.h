@@ -18,6 +18,9 @@ namespace slist
 	struct funcdef;
 	typedef std::shared_ptr<funcdef> funcdef_ptr;
 
+	struct environment;
+	typedef std::shared_ptr<environment> environment_ptr;
+
 	typedef std::unordered_map<std::string, node_ptr> var_map2;
 	typedef std::vector<var_map2> var_stack;
 
@@ -37,6 +40,7 @@ namespace slist
 		size_t length() const;
 		node_ptr get(size_t index);
 		void append(const node_ptr& n);
+		node_ptr pop();
 
 		bool to_bool() const;
 		int to_int() const;
@@ -62,7 +66,8 @@ namespace slist
 		bool variadic;
 		bool is_native;
 
-		var_stack local_vars;
+		// Variables inherited from outer scope
+		var_stack inherited_vars;
 
 		// Body of the function (non-native)
 		node_ptr body;
@@ -70,6 +75,19 @@ namespace slist
 		// Callback (native)
 		typedef std::function<node_ptr(context&, const node_ptr&)> callback;
 		callback native_func;
+
+		// Environment
+		environment_ptr env;
+	};
+
+	struct environment
+	{
+		node_ptr lookup(const std::string& name);
+
+		std::weak_ptr<environment> parent;
+
+		typedef std::unordered_map<std::string, node_ptr> var_map;
+		var_map bindings;
 	};
 
 	std::string type_to_string(slist::node_type type);

@@ -52,6 +52,25 @@ namespace slist
 		p->cdr = next;
 	}
 
+	node_ptr node::pop()
+	{
+		if (cdr == nullptr)
+		{
+			return nullptr;
+		}
+
+		node_ptr n =shared_from_this();
+		while (n->cdr != nullptr)
+		{
+			n = n->cdr;
+		}
+
+		node_ptr result = n->cdr;
+		n->cdr = nullptr;
+
+		return result;
+	}
+
 	bool node::to_bool() const 
 	{
 		if (type != node_type::boolean)
@@ -83,6 +102,23 @@ namespace slist
 			return 0;			
 		}
 		return std::stof(value);
+	}
+
+	node_ptr environment::lookup(const std::string& name)
+	{
+		auto it = bindings.find(name);
+		if (it != bindings.end())
+		{
+			return it->second;
+		}
+
+		auto p = parent.lock();
+		if (p != nullptr)
+		{
+			return p->lookup(name);
+		}
+
+		return nullptr;
 	}
 
 	void print_node(const node_ptr& n)
