@@ -19,13 +19,14 @@ namespace slist
 {
 	context::context()
 	{
-		// Prepare global variables map
-		var_map2 map;
-		global_vars.push_back(map);
+		// Prepare global environment
+		global_env.reset(new environment);
+		active_env = global_env;
 
 		// External
 		register_native("define",  &___define);
 		register_native("lambda",  &___lambda);
+		register_native("apply",   &___apply);
 		register_native("cons",    &___cons);
 		register_native("list",    &___list);
 		register_native("car",     &___car);
@@ -42,44 +43,45 @@ namespace slist
 		register_native("___mult", &___mult);
 
 		// Execute the builtins script to register the builtin procedures
-		exec(*this, builtin___add);
+		//exec(*this, builtin___add);
 	}
 
 	void context::register_native(const std::string& name, funcdef::callback func)
 	{
 		funcdef_ptr f(new funcdef);
+		f->env->parent = active_env;
 		f->is_native = true;
 		f->native_func = func;
 
 		node_ptr n(new node);
 		n->proc = f;
 
-		global_vars.back()[name] = n;
+		global_env->register_variable(name, n);
 	}
 
-	node_ptr context::lookup_variable(const std::string& name)
-	{
-		log_traceln("Lookup variable: " + name);
+	// node_ptr context::lookup_variable(const std::string& name)
+	// {
+	// 	log_traceln("Lookup variable: " + name);
 
-		if (global_vars.size() == 0)
-		{
-			log_traceln("Not found");
-			return nullptr;
-		}
+	// 	if (global_vars.size() == 0)
+	// 	{
+	// 		log_traceln("Not found");
+	// 		return nullptr;
+	// 	}
 
-		for (int i = (int)(global_vars.size()-1); i >= 0; --i)
-		{
-			auto stack = global_vars[i];
-			auto it = stack.find(name);
-			if (it != stack.end())
-			{
-				//log_traceln(name + " = ", it->second);
-				return it->second;
-			}
-		}
+	// 	for (int i = (int)(global_vars.size()-1); i >= 0; --i)
+	// 	{
+	// 		auto stack = global_vars[i];
+	// 		auto it = stack.find(name);
+	// 		if (it != stack.end())
+	// 		{
+	// 			//log_traceln(name + " = ", it->second);
+	// 			return it->second;
+	// 		}
+	// 	}
 
-		log_traceln("Not found");
+	// 	log_traceln("Not found");
 
-		return nullptr;
-	}
+	// 	return nullptr;
+	// }
 }

@@ -15,51 +15,34 @@ namespace slist
 		}
 
 		node_ptr first = root->get(1);
-		node_ptr second = root->get(2);
+		node_ptr body = root->get(2);
 
 		if (first->type == node_type::pair)
 		{
-			// Lambda shortcut
-			node_ptr name = first->get(0);
+			// Lambda syntactic sugar
+			// (define (f x) (...)) -> (define f (lambda (x) (...))
 
-			funcdef::arg_list arg_list;
-			bool variadic = false;
+			node_ptr name = first->car;
+			node_ptr args = first->cdr;
 
-			// TODO: Support actual variadic functions
-			if (first->length() == 3 &&
-				first->get(1)->value == "." &&
-				first->get(2)->type == node_type::string)
-			{
-				arg_list.push_back(first->get(2)->value);
-				variadic = true;
-			}
-			else 
-			{
-				for (int i = 1; i < first->length(); ++i)
-				{
-					node_ptr arg = first->get(i);
-					if (arg == nullptr || arg->type != node_type::string)
-					{
-						log_errorln("Invalid function argument:\n", arg);
-						return nullptr;
-					}
-					arg_list.push_back(arg->value);	
-				}				
-			}
+			node_ptr lambda_node(new node);
+			lambda_node->type = node_type::pair;
 
-			funcdef_ptr func(new funcdef);
-			func->name = name->value;
-			func->args = arg_list;
-			func->variadic = variadic;
-			func->body = second;
+			node_ptr name_node(new node);
+			name_node->value = "lambda";
+			name_node->type = node_type::string;			
+			lambda_node->append(name_node);
+			lambda_node->append(args);
+			lambda_node->append(body);
 
-			second->proc = func;
+			log_traceln("LAMBDA FROM SCRATCH:\n", lambda_node);
 
-            ctx.global_vars[0][func->name] = second;
+            ctx.global_env->register_variable(name->value, ___lambda(ctx, lambda_node));
 		}
 		else if (first->type == node_type::string)
 		{
-            ctx.global_vars[0][first->value] = eval(ctx, second);
+            node_ptr res = eval(ctx, body);
+			ctx.global_env->register_variable(first->value, res);            
 		}
 
 		return nullptr;
@@ -70,7 +53,7 @@ namespace slist
 		if (root->proc != nullptr)
 		{
 			log_warningln("Evaluating a lambda that already has a procedure. Was it evaluated twice?");
-			return root; // Already evaluated
+			return root;
 		}
 
 		if (root->length() != 3)
@@ -83,6 +66,7 @@ namespace slist
 
 		// Parse arguments
 		node_ptr arg_node = root->get(1);
+		node_ptr args = arg_node;
 		if (arg_node->type == node_type::pair)
 		{
 			while (arg_node != nullptr)
@@ -111,16 +95,44 @@ namespace slist
 		}
 
 		funcdef_ptr func(new funcdef);
+		func->env->parent = ctx.active_env;
 		func->name = root->get(0)->value; // "lambda"
 		func->args = arg_list;
+		func->variables = args;
 		func->variadic = false; // TODO
 		func->body = root->get(2);
 
+		node_ptr res(new node);
+		res->proc = func;
+
 		log_traceln("Lambda proc:\n", nullptr, func);
 
-		root->proc = func;
+		return res;
+	}
 
-		return root;
+	node_ptr ___apply(context& ctx, const node_ptr& root)
+	{
+		if (root->length() < 3)
+		{
+			log_errorln("Not enough arguments for 'apply'\n", root);
+			return nullptr;
+		}
+
+        node_ptr func_node = eval(ctx, root->get(1));
+		if (func_node->proc == nullptr)
+		{
+			log_errorln("First argument for 'apply' is not a procedure:\n", func_node);
+			return nullptr;
+		}
+
+        node_ptr args = eval(ctx, root->get(2));
+        if (args->type != node_type::pair)
+        {
+        	log_errorln("Arguments is not a list:\n", args);
+        	return nullptr;
+        }
+
+		return apply(ctx, args, func_node->proc);
 	}
 
 	node_ptr ___cons(context& ctx, const node_ptr& root)
@@ -198,12 +210,6 @@ namespace slist
 		{
 			result = eval(ctx, n->car);
 			n = n->cdr;
-		}
-
-		if (result == nullptr)
-		{
-			result.reset(new node);
-			result->type = node_type::pair;
 		}
 
 		return result;

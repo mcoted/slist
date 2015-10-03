@@ -21,9 +21,6 @@ namespace slist
 	struct environment;
 	typedef std::shared_ptr<environment> environment_ptr;
 
-	typedef std::unordered_map<std::string, node_ptr> var_map2;
-	typedef std::vector<var_map2> var_stack;
-
 	enum class node_type
 	{
 		empty,
@@ -57,17 +54,17 @@ namespace slist
 
 	struct funcdef
 	{
-		funcdef() : variadic(false), is_native(false) {}
+		funcdef();
 
 		std::string name;
 
 		typedef std::vector<std::string> arg_list;
 		arg_list args;
+
+		node_ptr variables;
+
 		bool variadic;
 		bool is_native;
-
-		// Variables inherited from outer scope
-		var_stack inherited_vars;
 
 		// Body of the function (non-native)
 		node_ptr body;
@@ -82,9 +79,13 @@ namespace slist
 
 	struct environment
 	{
-		node_ptr lookup(const std::string& name);
+		environment();
+		environment(const environment& other);
 
-		std::weak_ptr<environment> parent;
+		void register_variable(const std::string& name, node_ptr n);
+		node_ptr lookup_variable(const std::string& name);
+
+		environment_ptr parent;
 
 		typedef std::unordered_map<std::string, node_ptr> var_map;
 		var_map bindings;
@@ -93,9 +94,9 @@ namespace slist
 	std::string type_to_string(slist::node_type type);
 
 	void print_node(const node_ptr& n);
-	void debug_print_funcdef(const funcdef_ptr& func);
 
 	void debug_print_node(const node_ptr& n, int indent = 0);
+	void debug_print_environemnt(const environment_ptr& env);
 }
 
 #endif

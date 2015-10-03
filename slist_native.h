@@ -9,6 +9,7 @@ namespace slist
 	
 	node_ptr ___define  (context& ctx, const node_ptr& root);
 	node_ptr ___lambda  (context& ctx, const node_ptr& root);
+	node_ptr ___apply   (context& ctx, const node_ptr& root);
 	node_ptr ___cons    (context& ctx, const node_ptr& root);
 	node_ptr ___list    (context& ctx, const node_ptr& root);
 	node_ptr ___car     (context& ctx, const node_ptr& root);

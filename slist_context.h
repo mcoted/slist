@@ -12,9 +12,10 @@ namespace slist
 		context();
 
 		void  register_native(const std::string& name, funcdef::callback func);
-		node_ptr lookup_variable(const std::string& name);
+		// node_ptr lookup_variable(const std::string& name);
 
-		var_stack global_vars;
+		environment_ptr global_env;
+		environment_ptr active_env;
 	};
 }
 

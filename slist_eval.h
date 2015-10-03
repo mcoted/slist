@@ -9,6 +9,8 @@ namespace slist
 {
 	node_ptr eval(context& ctx, const node_ptr& n);
 	node_ptr exec(context& ctx, const std::string& str);
+
+	node_ptr apply(context& ctx, const node_ptr& args, const funcdef_ptr& proc);
 }
 
 #endif

@@ -141,6 +141,30 @@ namespace
 		}
 	}
 
+	void log_env(const slist::environment_ptr& env, slist::log_level level)
+	{
+		if (env == nullptr)
+		{
+			return;
+		}
+		log_internal("[\n", level);
+		for (auto& keyval : env->bindings)
+		{
+			log_internal("\"" + keyval.first + "\": ", level);
+			if (keyval.second->car == nullptr && keyval.second->proc != nullptr)
+			{
+				log_internal("<native func>\n", level);
+			}
+			else 
+			{
+				log(keyval.second, level);
+				log_internal("\n", level);
+			}
+		}
+		log_internal("]\n", level);
+		log_env(env->parent, level);
+	}
+
 	void log(const slist::funcdef_ptr& f, slist::log_level level, bool in_pair)
 	{
 		using namespace slist;
@@ -167,6 +191,9 @@ namespace
 		log_internal("Body: ", level);
 		log(f->body, level);
 		log_internal("\n", level);
+
+		log_internal("Env:  ", level);
+		log_env(f->env, level);
 	}
 
 	void log_internal(const std::string& str, slist::log_level level)

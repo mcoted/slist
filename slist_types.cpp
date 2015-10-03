@@ -1,4 +1,6 @@
 #include "slist_types.h"
+#include "slist_log.h"
+#include "slist_context.h"
 #include <iostream>
 
 namespace slist
@@ -104,7 +106,29 @@ namespace slist
 		return std::stof(value);
 	}
 
-	node_ptr environment::lookup(const std::string& name)
+	funcdef::funcdef()
+		 : variadic(false) 
+		 , is_native(false)
+	 {
+	 	env.reset(new environment);
+	 }
+
+	 environment::environment()
+	 {
+	 }
+
+	 environment::environment(const environment& other)
+	 	: parent(other.parent)
+	 	, bindings(other.bindings)
+ 	{	 		
+ 	}
+
+	void environment::register_variable(const std::string& name, node_ptr n)
+	{
+		bindings[name] = n;
+	}
+
+	node_ptr environment::lookup_variable(const std::string& name)
 	{
 		auto it = bindings.find(name);
 		if (it != bindings.end())
@@ -112,10 +136,10 @@ namespace slist
 			return it->second;
 		}
 
-		auto p = parent.lock();
+		auto p = parent;
 		if (p != nullptr)
 		{
-			return p->lookup(name);
+			return p->lookup_variable(name);
 		}
 
 		return nullptr;
@@ -126,52 +150,56 @@ namespace slist
 		debug_print_node(n);
 	}
 
-	void debug_print_funcdef(const funcdef_ptr& func)
-	{
-		std::cout << "Func: " << func->name << '\n';
-
-		std::cout << "Args: ";
-		for (auto& arg : func->args)
-		{
-			std::cout << arg << ' ';
-		}
-		if (func->variadic)
-		{
-			std::cout << " (variadic)";
-		}
-		std::cout << '\n';
-
-		std::cout << "Body: ";
-		print_node(func->body);
-	}
-
 	void debug_print_node(const node_ptr& n, int indent)
 	{
 		for (int i = 0; i < indent; ++i)
 		{
-			std::cout << "    ";
+			log_trace("    ");
 		}
 
 		if (n == nullptr)
 		{
-			std::cout << "nil\n";
+			log_traceln("nil");
             return;
 		}
 
-		std::cout << "[" << type_to_string(n->type) << "]";
+		log_trace("[" + type_to_string(n->type) + "]");		
 
 		if (n->value.length() > 0)
 		{
-			std::cout << " \"" << n->value << "\"";
+			log_trace(" \"" + n->value + "\"");
 		}
 
-		std::cout << '\n';
+		log_traceln();
 
 		if (n->type == node_type::pair)
 		{
 			debug_print_node(n->car, indent+1);
 			debug_print_node(n->cdr, indent+1);
 		}
+	}
+
+	void debug_print_environemnt(const environment_ptr& env)
+	{
+		if (env == nullptr)
+		{
+			return;
+		}
+		log_traceln("[");
+		for (auto& keyval : env->bindings)
+		{
+			log_trace("\"" + keyval.first + "\": ");
+			if (keyval.second->car == nullptr && keyval.second->proc != nullptr)
+			{
+				log_traceln("<native func>");
+			}
+			else 
+			{
+				log_traceln("", keyval.second);				
+			}
+		}
+		log_traceln("]");
+		debug_print_environemnt(env->parent);
 	}
 
 	std::string type_to_string(slist::node_type type)
