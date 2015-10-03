@@ -8,9 +8,6 @@ namespace
 {
 	slist::node_ptr eval_list(slist::context& ctx, const slist::node_ptr& root);
 	slist::node_ptr eval_string(slist::context& ctx, const slist::node_ptr& root);
-
-	bool bind_args(slist::context& ctx, slist::environment_ptr env, const slist::funcdef::arg_list& args, const slist::node_ptr& root, bool variadic);
-	// void unbind_args(slist::context& ctx);
 }
 
 namespace slist
@@ -139,20 +136,6 @@ namespace
 		if (proc != nullptr)
 		{
 			return apply(ctx, root->cdr, proc);
-
-			// // Clone the environement to make sure they are not shared between evals
-			// environment_ptr env(new environment(*(proc->env)));
-			// proc->env = env;
-
-			// if (bind_args(ctx, proc->env, proc->args, root->cdr, proc->variadic))
-			// {
-			// 	log_traceln("Evaluating Procedure:\n", nullptr, proc);
-			// 	auto old_env = ctx.active_env;
-			// 	ctx.active_env = proc->env;
-			// 	node_ptr res = eval(ctx, proc->body);
-			// 	ctx.active_env = old_env;
-			// 	return res;
-			// }
 		}
 
 		return root;
@@ -166,83 +149,5 @@ namespace
 			return var_node;
 		}
 		return root;
-	}
-
-	bool bind_args(slist::context& ctx, slist::environment_ptr env, const slist::funcdef::arg_list& args, const slist::node_ptr& root, bool variadic)
-	{
-		using namespace slist;
-
-		if (variadic)
-		{
-			if (args.size() != 1)
-			{
-				log_errorln("Variadic functions should have only one arg");
-				return false;
-			}
-
-			node_ptr packed_arg(new node);
-			packed_arg->type = node_type::pair;
-
-			if (root->length() > 0)
-			{
-				node_ptr p = root;
-				while (p != nullptr)
-				{
-					packed_arg->append(eval(ctx, p->car));
-					p = p->cdr;
-				}
-			}
-
-            log_traceln("\n>>>> BIND ARGS (VARIADIC):");
-
-			// var_map2 map;
-			// map[args[0]] = packed_arg;
-			// ctx.global_vars.push_back(map);
-            
-			env->register_variable(args[0], packed_arg);
-
-            log_trace(std::string("Bind \"") + args[0] + "\": ", env->lookup_variable(args[0]));
-            log_traceln("<<<<<");
-            log_traceln("");
-
-		}
-		else 
-		{
-			if (args.size() != root->length())
-			{
-				log_errorln("Unable to bind arguments");
-				log_error("Args: ");
-				for (auto& arg : args)
-				{
-					log_error(arg + ' ');
-				}
-				log_errorln("");
-				log_error("node: ", root);
-
-				return false;
-			}
-
-			log_traceln("\n>>>> BIND ARGS:");
-
-			for (int i = 0; i < args.size(); ++i)
-			{
-				auto& arg = args[i];
-                node_ptr n = eval(ctx, root->get(i));
-				env->register_variable(arg, n);
-                log_trace(std::string("Bind \"") + arg + "\": ", n);
-			}
-
-			log_traceln("<<<<<");
-			log_traceln("");
-
-			// ctx.global_vars.push_back(map);
-		}
-        
-        return true;
-	}
-
-	void unbind_args(slist::context& ctx)
-	{
-		// ctx.global_vars.pop_back();
 	}
 }
