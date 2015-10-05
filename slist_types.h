@@ -63,7 +63,6 @@ namespace slist
 
 		node_ptr variables;
 
-		bool variadic;
 		bool is_native;
 
 		// Body of the function (non-native)

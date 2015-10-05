@@ -15,14 +15,12 @@ int main(int argc, char **argv)
     
 	parse_arguments(argc, argv);
 
-	// parse_node_ptr n = parse("(define a (lambda (x) (+ x 1)))  (a 2)");
-	// node_ptr n = parse("(define a (cons (cons 1 2) (cons 3 4))) a");
 	node_ptr n = parse(
 
-		"(+ 1 2 3)"
-		"(- 1 2 3)"
-		"(* 1 2 3)"
-		"(/ 1.0 2 3)"
+		// "(+ 1 2 3)"
+		// "(- 1 2 3)"
+		// "(* 1 2 3)"
+		// "(/ 1.0 2 3)"
 
 		// "(define (make-adder x) (lambda (a) (___add x a)))"
 		// "(define add-1 (make-adder 1))"
@@ -31,11 +29,16 @@ int main(int argc, char **argv)
 		// "(println (add-2 1))"
 		// "(println (add-1 3))"
 
-		// "(define (add x y) (___add x y))"
-		// "(apply add (list 1 2))"
+		"(define (add x y) (+ x y))"
+		"(apply add (list 1 2))"
 
 		// "(define (f x y) (begin (println x) (println y)))"
 		// "(f 1 2)"
+
+		// NOT YET WORKING
+		// Probably a problem with 'apply' on native procedure
+		// "(define variadic-test-1 (lambda values (apply + values)))"
+		// "(variadic-test-1 1 2 3)"
 
 		);
 

@@ -99,7 +99,6 @@ namespace slist
 		func->name = root->get(0)->value; // "lambda"
 		func->args = arg_list;
 		func->variables = args;
-		func->variadic = false; // TODO
 		func->body = root->get(2);
 
 		node_ptr res(new node);
@@ -294,57 +293,6 @@ namespace slist
 		return nullptr;
 	}
 
-	#define MAKE_ARITHMETIC_OP(OP) \
-		struct OperatorWrapper \
-		{ \
-			std::string perform_int(const std::string& arg1, const std::string& arg2) const \
-			{ \
-				using namespace std; \
-				return to_string(stoi(arg1) OP stoi(arg2)); \
-			} \
-			std::string perform_float(const std::string& arg1, const std::string& arg2) const \
-			{ \
-				using namespace std; \
-				return to_string(stof(arg1) OP stof(arg2)); \
-			} \
-		} op;
-
-	#define MAKE_ARITHMETIC_FUNC(FUNC_NAME, OP) \
-		node_ptr FUNC_NAME(context& ctx, const node_ptr& root) \
-		{ \
-			if (root->length() < 2) \
-			{ \
-				log_errorln("'OP' expects at least one argument"); \
-				return nullptr; \
-			} \
-			\
-			MAKE_ARITHMETIC_OP(OP); \
-			\
-			node_ptr arg = root->cdr; \
-			\
-			node_ptr result(new node); \
-			result->type = arg->car->type; \
-			result->value = arg->car->value; \
-			\
-			if (!___arithmetic_op_validate_arg(result)) \
-			{ \
-				return nullptr; \
-			} \
-			\
-			arg = arg->cdr; \
-			while (arg != nullptr) \
-			{ \
-				result = ___arithmetic_op_helper(result, arg->car, op); \
-				if (result == nullptr) \
-				{ \
-					return nullptr; \
-				} \
-				arg = arg->cdr; \
-			} \
-			\
-			return result; \
-		}
-
 	bool ___arithmetic_op_validate_arg(const node_ptr& arg)
 	{
 		if (arg->type != node_type::integer && arg->type != node_type::number)
@@ -376,6 +324,55 @@ namespace slist
 
 		return result;
 	}
+
+	#define MAKE_ARITHMETIC_OP(OP) \
+		struct OperatorWrapper \
+		{ \
+			std::string perform_int(const std::string& arg1, const std::string& arg2) const \
+			{ \
+				using namespace std; \
+				return to_string(stoi(arg1) OP stoi(arg2)); \
+			} \
+			std::string perform_float(const std::string& arg1, const std::string& arg2) const \
+			{ \
+				using namespace std; \
+				return to_string(stof(arg1) OP stof(arg2)); \
+			} \
+		} op;
+
+	#define MAKE_ARITHMETIC_FUNC(FUNC_NAME, OP) \
+		node_ptr FUNC_NAME(context& ctx, const node_ptr& root) \
+		{ \
+			if (root->length() < 2) \
+			{ \
+				log_errorln("'OP' expects at least one argument"); \
+				return nullptr; \
+			} \
+			\
+			MAKE_ARITHMETIC_OP(OP); \
+			\
+			node_ptr arg = root->cdr; \
+			\
+			node_ptr result = eval(ctx, arg->car); \
+			\
+			if (!___arithmetic_op_validate_arg(result)) \
+			{ \
+				return nullptr; \
+			} \
+			\
+			arg = arg->cdr; \
+			while (arg != nullptr) \
+			{ \
+				result = ___arithmetic_op_helper(result, eval(ctx, arg->car), op); \
+				if (result == nullptr) \
+				{ \
+					return nullptr; \
+				} \
+				arg = arg->cdr; \
+			} \
+			\
+			return result; \
+		}
 
 	MAKE_ARITHMETIC_FUNC(___add, +)
 	MAKE_ARITHMETIC_FUNC(___sub, -)

@@ -182,10 +182,6 @@ namespace
 		{
 			log_internal(arg + " ", level);
 		}
-		if (f->variadic)
-		{
-			log_internal(" (variadic)", level);
-		}
 		log_internal("\n", level);
 
 		log_internal("Body: ", level);

@@ -69,7 +69,13 @@ namespace slist
 		node_ptr arg = args;
 		while (var != nullptr)
 		{
-			// TODO: Apply 'arg' value to proc's variable in env
+			if (var->type == node_type::string)
+			{
+				// This is a variadic argument, grab all the args
+				env->register_variable(var->value, eval(ctx, args));
+				break;
+			}
+
 			node_ptr var_name = var->car;
 			if (var_name->type != node_type::string)
 			{
@@ -77,7 +83,6 @@ namespace slist
 				return nullptr;
 			}
 
-			// TODO: Make sure that we need to evaluate arguments at this point
 			env->register_variable(var_name->value, eval(ctx, arg->car));
 
 			arg = arg->cdr;

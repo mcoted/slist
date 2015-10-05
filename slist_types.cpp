@@ -107,8 +107,7 @@ namespace slist
 	}
 
 	funcdef::funcdef()
-		 : variadic(false) 
-		 , is_native(false)
+		 : is_native(false)
 	 {
 	 	env.reset(new environment);
 	 }
@@ -189,13 +188,17 @@ namespace slist
 		for (auto& keyval : env->bindings)
 		{
 			log_trace("\"" + keyval.first + "\": ");
-			if (keyval.second->car == nullptr && keyval.second->proc != nullptr)
+			auto proc = keyval.second->proc;
+			if (proc != nullptr)
 			{
-				log_traceln("<native func>");
-			}
-			else 
-			{
-				log_traceln("", keyval.second);				
+				if (proc->body == nullptr)
+				{
+					log_traceln("<native func>");					
+				}
+				else 
+				{
+					log_traceln("", proc->body);
+				}
 			}
 		}
 		log_traceln("]");
