@@ -6,13 +6,13 @@
 
 namespace
 {
-	const char * builtin___add = 
-	"(define (+ . values) (___sum values))"
-	"(define (___sum values)"
-	"    (if (empty? values)"
-	"        0"
-	"        (___add (car values) (___sum (cdr values)))))"
-	;
+	// const char * builtin___add = 
+	// "(define (+ . values) (___sum values))"
+	// "(define (___sum values)"
+	// "    (if (empty? values)"
+	// "        0"
+	// "        (___add (car values) (___sum (cdr values)))))"
+	// ;
 }
 
 namespace slist
@@ -23,7 +23,6 @@ namespace slist
 		global_env.reset(new environment);
 		active_env = global_env;
 
-		// External
 		register_native("define",  &___define);
 		register_native("lambda",  &___lambda);
 		register_native("apply",   &___apply);
@@ -38,9 +37,8 @@ namespace slist
 		register_native("print",   &___print);
 		register_native("println", &___println);
 
-		// Internal
-		register_native("___add",  &___add);
-		register_native("___mult", &___mult);
+		register_native("+", &___add);
+		register_native("-", &___sub);
 
 		// Execute the builtins script to register the builtin procedures
 		//exec(*this, builtin___add);
@@ -58,30 +56,4 @@ namespace slist
 
 		global_env->register_variable(name, n);
 	}
-
-	// node_ptr context::lookup_variable(const std::string& name)
-	// {
-	// 	log_traceln("Lookup variable: " + name);
-
-	// 	if (global_vars.size() == 0)
-	// 	{
-	// 		log_traceln("Not found");
-	// 		return nullptr;
-	// 	}
-
-	// 	for (int i = (int)(global_vars.size()-1); i >= 0; --i)
-	// 	{
-	// 		auto stack = global_vars[i];
-	// 		auto it = stack.find(name);
-	// 		if (it != stack.end())
-	// 		{
-	// 			//log_traceln(name + " = ", it->second);
-	// 			return it->second;
-	// 		}
-	// 	}
-
-	// 	log_traceln("Not found");
-
-	// 	return nullptr;
-	// }
 }

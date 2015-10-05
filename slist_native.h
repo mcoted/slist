@@ -21,7 +21,7 @@ namespace slist
 	node_ptr ___print   (context& ctx, const node_ptr& root);
 	node_ptr ___println (context& ctx, const node_ptr& root);
 	node_ptr ___add     (context& ctx, const node_ptr& root);
-	node_ptr ___mult    (context& ctx, const node_ptr& root);
+	node_ptr ___sub     (context& ctx, const node_ptr& root);
 }
 
 #endif

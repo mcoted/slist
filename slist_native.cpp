@@ -294,60 +294,118 @@ namespace slist
 		return nullptr;
 	}
 
-	node_ptr ___add(context& ctx, const node_ptr& root)
-	{		
-		if (root->length() != 3)
+	#define MAKE_ARITHMETIC_OP(STRUCT_NAME, VAR_NAME, OP) \
+		struct STRUCT_NAME \
+		{ \
+			std::string perform_int(const std::string& arg1, const std::string& arg2) const \
+			{ \
+				using namespace std; \
+				return to_string(stoi(arg1) OP stoi(arg2)); \
+			} \
+			std::string perform_float(const std::string& arg1, const std::string& arg2) const \
+			{ \
+				using namespace std; \
+				return to_string(stof(arg1) OP stof(arg2)); \
+			} \
+		} VAR_NAME;
+
+	bool ___arithmetic_op_validate_arg(const node_ptr& arg)
+	{
+		if (arg->type != node_type::integer && arg->type != node_type::number)
 		{
-			log_errorln("'___add' expects two arguments");
+			log_errorln("Invalid argument to '+':", arg);
+			return false;
+		}
+		return true;
+	}
+
+	template<class Op>
+	node_ptr ___arithmetic_op_helper(node_ptr result, const node_ptr& arg, const Op& op)
+	{
+		if (!___arithmetic_op_validate_arg(arg))
+		{
 			return nullptr;
 		}
 
-		node_ptr first_val = eval(ctx, root->get(1));
-		log_traceln("___add first arg: ", first_val);
-
-		if (first_val == nullptr)
-		{
-			log_errorln("___add: first arg is null");
-			return nullptr;
-		}
-
-		node_ptr second_val = eval(ctx, root->get(2));
-		if (second_val == nullptr)
-		{
-			log_errorln("___add: second arg is null");
-			return nullptr;
-		}
-
-		if (first_val->type != node_type::integer && 
-			first_val->type != node_type::number)
-		{
-			log_errorln(std::string("___add: invalid first arg type: ") + type_to_string(first_val->type) + "\n", first_val);
-			return nullptr;
-		}
-
-		if (second_val->type != node_type::integer && 
-			second_val->type != node_type::number)
-		{
-			log_errorln(std::string("___add: invalid second arg type: ") + type_to_string(first_val->type) + "\n", second_val);
-			return nullptr;
-		}
-
-		node_ptr result(new node);
-		result->type = node_type::integer;
-
-		if (first_val->type == node_type::number ||
-			second_val->type == node_type::number)
+		if (result->type == node_type::number || arg->type == node_type::number)
 		{
 			result->type = node_type::number;
-		}
-
-		if (result->type == node_type::integer)
-		{
-			result->value = std::to_string(first_val->to_int() + second_val->to_int());
+			result->value = op.perform_float(result->value, arg->value);
 		}
 		else 
 		{
-			result->value = std::to_string(first_val->to_float() + second_val->to_float());
+			result->type = node_type::integer;
+			result->value = op.perform_int(result->value, arg->value);
+		}
+
+		return result;
+	}
+
+	node_ptr ___add(context& ctx, const node_ptr& root)
+	{		
+		if (root->length() < 2)
+		{
+			log_errorln("'+' expects at least one argument");
+			return nullptr;
+		}
+
+		MAKE_ARITHMETIC_OP(Add, add, +);
+
+		node_ptr arg = root->cdr;
+
+		node_ptr result(new node);
+		result->type = arg->car->type;
+		result->value = arg->car->value;
+
+		if (!___arithmetic_op_validate_arg(result))
+		{
+			return nullptr;
+		}
+
+		arg = arg->cdr;
+		while (arg != nullptr)
+		{
+			result = ___arithmetic_op_helper(result, arg->car, add);
+			if (result == nullptr)
+			{
+				return nullptr;
+			}
+			arg = arg->cdr;
+		}
+
+		return result;
+	}
+
+	node_ptr ___sub(context& ctx, const node_ptr& root)
+	{
+		if (root->length() < 2)
+		{
+			log_errorln("'-' expects at least one argument");
+			return nullptr;
+		}
+
+		MAKE_ARITHMETIC_OP(Sub, sub, -);
+
+		node_ptr arg = root->cdr;
+
+		node_ptr result(new node);
+		result->type = arg->car->type;
+		result->value = arg->car->value;
+
+		if (!___arithmetic_op_validate_arg(result))
+		{
+			return nullptr;
+		}
+
+		arg = arg->cdr;
+		while (arg != nullptr)
+		{
+			result = ___arithmetic_op_helper(result, arg->car, sub);
+			if (result == nullptr)
+			{
+				return nullptr;
+			}
+			arg = arg->cdr;
 		}
 
 		return result;

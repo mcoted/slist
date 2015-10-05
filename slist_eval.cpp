@@ -77,7 +77,7 @@ namespace slist
 				return nullptr;
 			}
 
-            // TODO: Make sure that we need to evaluate arguments at this point
+			// TODO: Make sure that we need to evaluate arguments at this point
 			env->register_variable(var_name->value, eval(ctx, arg->car));
 
 			arg = arg->cdr;
