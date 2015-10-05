@@ -177,10 +177,12 @@ namespace
 		log_internal("Func: ", level);
 		log_internal(f->name+"\n", level);
 
-		log_internal("Args: ", level);
-		for (auto& arg : f->args)
+		log_internal("Vars: ", level);
+		node_ptr var = f->variables;
+		while (var != nullptr)
 		{
-			log_internal(arg + " ", level);
+			log_internal(var->car->value + " ", level);
+			var = var->cdr;
 		}
 		log_internal("\n", level);
 

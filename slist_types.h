@@ -58,9 +58,6 @@ namespace slist
 
 		std::string name;
 
-		typedef std::vector<std::string> arg_list;
-		arg_list args;
-
 		node_ptr variables;
 
 		bool is_native;

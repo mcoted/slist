@@ -62,43 +62,10 @@ namespace slist
 			return nullptr;
 		}
 
-		funcdef::arg_list arg_list;
-
-		// Parse arguments
-		node_ptr arg_node = root->get(1);
-		node_ptr args = arg_node;
-		if (arg_node->type == node_type::pair)
-		{
-			while (arg_node != nullptr)
-			{
-				node_ptr arg = arg_node->car;
-				if (arg != nullptr && arg->type == node_type::string)
-				{
-					arg_list.push_back(arg_node->car->value);				
-				}
-				else 
-				{
-					log_errorln("Invalid argument:\n", arg);
-					return nullptr;	
-				}
-				arg_node = arg_node->cdr;
-			}
-		}
-		else if (arg_node->type == node_type::string)
-		{
-			// TODO: Variadic
-		}
-		else 
-		{
-			log_error("Invalid argument type for lambda\n", arg_node);
-			return nullptr;
-		}
-
 		funcdef_ptr func(new funcdef);
 		func->env->parent = ctx.active_env;
 		func->name = root->get(0)->value; // "lambda"
-		func->args = arg_list;
-		func->variables = args;
+		func->variables = root->get(1);
 		func->body = root->get(2);
 
 		node_ptr res(new node);
