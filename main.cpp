@@ -1,9 +1,6 @@
 #include "slist.h"
 #include <cstdlib>
 
-#include <mach/mach.h>
-#include <mach/mach_vm.h>
-
 namespace
 {
 	void parse_arguments(int argc, char **argv);

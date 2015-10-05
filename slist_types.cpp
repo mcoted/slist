@@ -1,7 +1,7 @@
 #include "slist_types.h"
 #include "slist_log.h"
 #include "slist_context.h"
-#include <iostream>
+#include <algorithm>
 
 namespace slist
 {
@@ -77,7 +77,7 @@ namespace slist
 	{
 		if (type != node_type::boolean)
 		{
-			std::cerr << "Cannot convert to boolean, invalid type: " << (int)type << '\n';
+			log_errorln(std::string("Cannot convert to boolean, invalid type: ") + std::to_string((int)type));
 			return false;
 		}
 		std::string v = value;
@@ -89,7 +89,7 @@ namespace slist
 	{
 		if (type != node_type::integer) 
 		{
-			std::cerr << "Cannot convert node to int, invalid type: " << (int)type << '\n';
+			log_errorln(std::string("Cannot convert to int, invalid type: ") + std::to_string((int)type));
 			return 0;
 		}
 		return std::stoi(value);
@@ -100,7 +100,8 @@ namespace slist
 		if (type != node_type::integer && 
 			type != node_type::number)
 		{
-			std::cerr << "Cannot convert parse_node to float, invalid type: " << (int)type << '\n';
+			log_errorln(std::string("Cannot convert to float, invalid type: ") + std::to_string((int)type));
+
 			return 0;			
 		}
 		return std::stof(value);
