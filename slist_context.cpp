@@ -39,6 +39,8 @@ namespace slist
 
 		register_native("+", &___add);
 		register_native("-", &___sub);
+		register_native("*", &___mul);
+		register_native("/", &___div);
 
 		// Execute the builtins script to register the builtin procedures
 		//exec(*this, builtin___add);

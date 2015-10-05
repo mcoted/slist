@@ -20,9 +20,9 @@ int main(int argc, char **argv)
 	node_ptr n = parse(
 
 		"(+ 1 2 3)"
-		// "(+ 1.1 2 3)"
-
 		"(- 1 2 3)"
+		"(* 1 2 3)"
+		"(/ 1.0 2 3)"
 
 		// "(define (make-adder x) (lambda (a) (___add x a)))"
 		// "(define add-1 (make-adder 1))"

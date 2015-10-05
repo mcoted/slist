@@ -294,8 +294,8 @@ namespace slist
 		return nullptr;
 	}
 
-	#define MAKE_ARITHMETIC_OP(STRUCT_NAME, VAR_NAME, OP) \
-		struct STRUCT_NAME \
+	#define MAKE_ARITHMETIC_OP(OP) \
+		struct OperatorWrapper \
 		{ \
 			std::string perform_int(const std::string& arg1, const std::string& arg2) const \
 			{ \
@@ -307,7 +307,43 @@ namespace slist
 				using namespace std; \
 				return to_string(stof(arg1) OP stof(arg2)); \
 			} \
-		} VAR_NAME;
+		} op;
+
+	#define MAKE_ARITHMETIC_FUNC(FUNC_NAME, OP) \
+		node_ptr FUNC_NAME(context& ctx, const node_ptr& root) \
+		{ \
+			if (root->length() < 2) \
+			{ \
+				log_errorln("'OP' expects at least one argument"); \
+				return nullptr; \
+			} \
+			\
+			MAKE_ARITHMETIC_OP(OP); \
+			\
+			node_ptr arg = root->cdr; \
+			\
+			node_ptr result(new node); \
+			result->type = arg->car->type; \
+			result->value = arg->car->value; \
+			\
+			if (!___arithmetic_op_validate_arg(result)) \
+			{ \
+				return nullptr; \
+			} \
+			\
+			arg = arg->cdr; \
+			while (arg != nullptr) \
+			{ \
+				result = ___arithmetic_op_helper(result, arg->car, op); \
+				if (result == nullptr) \
+				{ \
+					return nullptr; \
+				} \
+				arg = arg->cdr; \
+			} \
+			\
+			return result; \
+		}
 
 	bool ___arithmetic_op_validate_arg(const node_ptr& arg)
 	{
@@ -341,78 +377,8 @@ namespace slist
 		return result;
 	}
 
-	node_ptr ___add(context& ctx, const node_ptr& root)
-	{		
-		if (root->length() < 2)
-		{
-			log_errorln("'+' expects at least one argument");
-			return nullptr;
-		}
-
-		MAKE_ARITHMETIC_OP(Add, add, +);
-
-		node_ptr arg = root->cdr;
-
-		node_ptr result(new node);
-		result->type = arg->car->type;
-		result->value = arg->car->value;
-
-		if (!___arithmetic_op_validate_arg(result))
-		{
-			return nullptr;
-		}
-
-		arg = arg->cdr;
-		while (arg != nullptr)
-		{
-			result = ___arithmetic_op_helper(result, arg->car, add);
-			if (result == nullptr)
-			{
-				return nullptr;
-			}
-			arg = arg->cdr;
-		}
-
-		return result;
-	}
-
-	node_ptr ___sub(context& ctx, const node_ptr& root)
-	{
-		if (root->length() < 2)
-		{
-			log_errorln("'-' expects at least one argument");
-			return nullptr;
-		}
-
-		MAKE_ARITHMETIC_OP(Sub, sub, -);
-
-		node_ptr arg = root->cdr;
-
-		node_ptr result(new node);
-		result->type = arg->car->type;
-		result->value = arg->car->value;
-
-		if (!___arithmetic_op_validate_arg(result))
-		{
-			return nullptr;
-		}
-
-		arg = arg->cdr;
-		while (arg != nullptr)
-		{
-			result = ___arithmetic_op_helper(result, arg->car, sub);
-			if (result == nullptr)
-			{
-				return nullptr;
-			}
-			arg = arg->cdr;
-		}
-
-		return result;
-	}
-
-	node_ptr ___mult(context& ctx, const node_ptr& root)
-	{
-		return root;
-	}
+	MAKE_ARITHMETIC_FUNC(___add, +)
+	MAKE_ARITHMETIC_FUNC(___sub, -)
+	MAKE_ARITHMETIC_FUNC(___mul, *)
+	MAKE_ARITHMETIC_FUNC(___div, /)
 }

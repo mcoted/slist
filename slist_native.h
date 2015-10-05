@@ -22,6 +22,8 @@ namespace slist
 	node_ptr ___println (context& ctx, const node_ptr& root);
 	node_ptr ___add     (context& ctx, const node_ptr& root);
 	node_ptr ___sub     (context& ctx, const node_ptr& root);
+	node_ptr ___mul     (context& ctx, const node_ptr& root);
+	node_ptr ___div     (context& ctx, const node_ptr& root);
 }
 
 #endif
