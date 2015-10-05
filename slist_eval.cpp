@@ -44,6 +44,35 @@ namespace slist
 		return result;
 	}
 
+	node_ptr eval(context& ctx, const funcdef_ptr& f, const node_ptr& args)
+	{
+		if (f == nullptr)
+		{
+			return nullptr;
+		}
+
+		if (f->is_native)
+		{
+			// Build a root node
+			node_ptr name_node(new node);
+			name_node->type = node_type::string;
+			name_node->value = f->name;
+
+			node_ptr root(new node);
+			root->type = node_type::pair;
+			root->car = name_node;
+			root->cdr = args;
+
+			return f->native_func(ctx, root);
+		}
+		else 
+		{
+			return eval(ctx, f->body);
+		}
+
+		return nullptr;
+	}
+
 	node_ptr exec(context& ctx, const std::string& str)
 	{
 		node_ptr result;
@@ -115,7 +144,7 @@ namespace slist
 		log_traceln("Evaluating Procedure (apply):\n", nullptr, proc);
 		auto old_env = ctx.active_env;
 		ctx.active_env = proc->env;
-		node_ptr res = eval(ctx, proc->body);
+		node_ptr res = eval(ctx, proc, args);
 		ctx.active_env = old_env;
 
 		return res;

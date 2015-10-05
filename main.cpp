@@ -32,8 +32,6 @@ int main(int argc, char **argv)
 		// "(define (f x y) (begin (println x) (println y)))"
 		// "(f 1 2)"
 
-		// NOT YET WORKING
-		// Probably a problem with 'apply' on native procedure
 		"(define variadic-test-1 (lambda values (apply + values)))"
 		"(variadic-test-1 1 2 3)"
 

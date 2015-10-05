@@ -181,7 +181,14 @@ namespace
 		node_ptr var = f->variables;
 		while (var != nullptr)
 		{
-			log_internal(var->car->value + " ", level);
+            if (var->car != nullptr)
+            {
+                log_internal(var->car->value + " ", level);
+            }
+            else
+            {
+                log_internal("nil", level);
+            }
 			var = var->cdr;
 		}
 		log_internal("\n", level);
