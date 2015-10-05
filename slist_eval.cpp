@@ -67,26 +67,49 @@ namespace slist
 
 		node_ptr var = proc->variables;
 		node_ptr arg = args;
-		while (var != nullptr)
+
+		if (var != nullptr && var->type == node_type::string)
 		{
-			if (var->type == node_type::string)
+			// This is a variadic argument, grab all the args
+			env->register_variable(var->value, eval(ctx, args));
+		}
+		else 
+		{
+			while (var != nullptr)
 			{
-				// This is a variadic argument, grab all the args
-				env->register_variable(var->value, eval(ctx, args));
-				break;
+				node_ptr var_name = var->car;
+				if (var_name == nullptr || var_name->type != node_type::string)
+				{
+					log_errorln("Invalid variable:\n", var_name);
+					return nullptr;
+				}
+
+				if (var_name->value == ".")
+				{
+					// The next argument is a variadic one
+					var = var->cdr;
+					if (var == nullptr)
+					{
+						log_errorln("Missing variadic argument after '.'");
+						return nullptr;
+					}
+
+					var_name = var->car;
+					if (var_name == nullptr || var_name->type != node_type::string)
+					{
+						log_errorln("Invalid variable:\n", var_name);
+						return nullptr;
+					}
+
+					env->register_variable(var_name->value, arg);
+					break;
+				}
+
+				env->register_variable(var_name->value, eval(ctx, arg->car));
+
+				arg = arg->cdr;
+				var = var->cdr;
 			}
-
-			node_ptr var_name = var->car;
-			if (var_name->type != node_type::string)
-			{
-				log_errorln("Invalid variable:\n", var_name);
-				return nullptr;
-			}
-
-			env->register_variable(var_name->value, eval(ctx, arg->car));
-
-			arg = arg->cdr;
-			var = var->cdr;
 		}
 
 		log_traceln("Evaluating Procedure (apply):\n", nullptr, proc);

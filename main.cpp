@@ -26,16 +26,16 @@ int main(int argc, char **argv)
 		// "(println (add-2 1))"
 		// "(println (add-1 3))"
 
-		"(define (add x y) (+ x y))"
-		"(apply add (list 1 2))"
+		// "(define (add x y) (+ x y))"
+		// "(apply add (list 1 2))"
 
 		// "(define (f x y) (begin (println x) (println y)))"
 		// "(f 1 2)"
 
 		// NOT YET WORKING
 		// Probably a problem with 'apply' on native procedure
-		// "(define variadic-test-1 (lambda values (apply + values)))"
-		// "(variadic-test-1 1 2 3)"
+		"(define variadic-test-1 (lambda values (apply + values)))"
+		"(variadic-test-1 1 2 3)"
 
 		);
 
