@@ -19,6 +19,8 @@ int main(int argc, char **argv)
 		// "(* 1 2 3)"
 		// "(/ 1.0 2 3)"
 
+		// "((lambda () 1))"
+
 		// "(define (make-adder x) (lambda (a) (___add x a)))"
 		// "(define add-1 (make-adder 1))"
 		// "(define add-2 (make-adder 2))"
@@ -45,8 +47,14 @@ int main(int argc, char **argv)
 		// "(define (variadic-test-4 x . rest) (begin (println x) (apply + rest)))"
 		// "(variadic-test-4 9 1 2 3)"
 
-		"(define let-test-1 (lambda (x) (let ((y 2)) (+ x y))))"
-		"(let-test-1 1)"
+		// "(define (expanded-let-test x) ((lambda (y) (+ x y)) 2))"
+		// "(expanded-let-test 1)"
+
+		// "(define let-test-1 (lambda (x) (let ((y 2)) (+ x y))))"
+		// "(let-test-1 1)"
+
+		"(define (make-list value count) (if (> count 0) (cons value (make-list value (- count 1))) (list)))"
+		"(make-list 1 5)"
 
 		);
 

@@ -64,6 +64,7 @@ namespace slist
 
 		funcdef_ptr func(new funcdef);
 		func->env->parent = ctx.active_env;
+		func->is_native = false;
 		func->name = root->get(0)->value; // "lambda"
 		func->variables = root->get(1);
 		func->body = root->get(2);
@@ -119,16 +120,7 @@ namespace slist
 
 	node_ptr ___list(context& ctx, const node_ptr& root)
 	{
-		if (root->length() == 1)
-		{
-			node_ptr result(new node);
-			result->type = node_type::empty;
-			return result;
-		}
-		else 
-		{
-			return root->cdr;
-		}
+        return root->cdr;
 	}
 
 	node_ptr ___car(context& ctx, const node_ptr& root)
@@ -204,7 +196,7 @@ namespace slist
 		auto pred = eval(ctx, root->get(1));
 		if (pred == nullptr || pred->type != node_type::boolean)
 		{
-			log_errorln("'empty?' predicate did not evaluate to a boolean value");
+			log_errorln("Predicate did not evaluate to a boolean value");
 			return nullptr;
 		}
 
@@ -357,4 +349,31 @@ namespace slist
 	MAKE_ARITHMETIC_FUNC(___sub, -)
 	MAKE_ARITHMETIC_FUNC(___mul, *)
 	MAKE_ARITHMETIC_FUNC(___div, /)
+
+	node_ptr ___gt(context& ctx, const node_ptr& root)
+	{
+		if (root->length() < 3)
+		{
+			log_errorln("'>' expects 2 numeric arguments");
+			return nullptr;
+		}
+
+		node_ptr a1 = eval(ctx, root->get(1));
+		node_ptr a2 = eval(ctx, root->get(2));
+
+		if ((a1 == nullptr || (a1->type != node_type::integer && a1->type != node_type::number)) ||
+			(a2 == nullptr || (a2->type != node_type::integer && a2->type != node_type::number)))
+		{
+			log_errorln("'>' expects 2 numeric arguments");
+			return nullptr;
+		}
+
+		bool greater = std::stof(a1->value) > std::stof(a2->value);
+
+		node_ptr result(new node);
+		result->type = node_type::boolean;
+		result->value = greater ? "true" : "false";
+
+		return result;
+	}
 }

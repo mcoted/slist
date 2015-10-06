@@ -192,7 +192,7 @@ namespace slist
 			auto proc = keyval.second->proc;
 			if (proc != nullptr)
 			{
-				if (proc->body == nullptr)
+				if (proc->is_native)
 				{
 					log_traceln("<native func>");					
 				}
@@ -200,6 +200,10 @@ namespace slist
 				{
 					log_traceln("", proc->body);
 				}
+			}
+			else 
+			{
+				log_traceln(keyval.second->value);
 			}
 		}
 		log_traceln("]");

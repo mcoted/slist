@@ -104,7 +104,7 @@ namespace slist
 		}
 		else 
 		{
-			while (var != nullptr)
+			while (var != nullptr && arg != nullptr)
 			{
 				node_ptr var_name = var->car;
 				if (var_name == nullptr || var_name->type != node_type::string)
@@ -164,9 +164,9 @@ namespace
 		}
 
 		node_ptr op_node = root->get(0);
-        funcdef_ptr proc;
+        funcdef_ptr proc = op_node->proc;
 
-        if (op_node->type == node_type::pair)
+        if (proc == nullptr && op_node->type == node_type::pair)
         {
             node_ptr eval_node = eval(ctx, op_node);
             if (eval_node == nullptr || eval_node->proc == nullptr)
@@ -195,7 +195,7 @@ namespace
 			return apply(ctx, root->cdr, proc);
 		}
 
-		log_errorln("Operator is not a procedure:\n", nullptr, proc);
+		log_errorln("Operator is not a procedure: ", op_node);
 
 		return nullptr;
 	}
