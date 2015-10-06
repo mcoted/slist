@@ -42,8 +42,11 @@ int main(int argc, char **argv)
 		// "(define (variadic-test-3 . values) (apply + values))"
 		// "(variadic-test-3 1 2 3)"
 
-		"(define (variadic-test-4 x . rest) (begin (println x) (apply + rest)))"
-		"(variadic-test-4 9 1 2 3)"
+		// "(define (variadic-test-4 x . rest) (begin (println x) (apply + rest)))"
+		// "(variadic-test-4 9 1 2 3)"
+
+		"(define let-test-1 (lambda (x) (let ((y 2)) (+ x y))))"
+		"(let-test-1 1)"
 
 		);
 

@@ -30,6 +30,7 @@ namespace slist
 		register_native("list",    &___list);
 		register_native("car",     &___car);
 		register_native("cdr",     &___cdr);
+		register_native("let",     &___let);
 		register_native("begin",   &___begin);
 		register_native("if",      &___if);
 		register_native("length",  &___length);

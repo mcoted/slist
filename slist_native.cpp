@@ -168,6 +168,18 @@ namespace slist
         return empty;
 	}
 
+	node_ptr ___let(context& ctx, const node_ptr& root)
+	{
+		// Let is syntactic sugar:
+		//    (lambda (x)
+		//        (let ((y 2)) (+ x y))) 
+		// <-->
+		//    (lambda (x)
+		//        ((lambda (y) (+ x y)) 1))
+
+		return root;
+	}
+
 	node_ptr ___begin(context& ctx, const node_ptr& root)
 	{
 		node_ptr n = root->cdr;

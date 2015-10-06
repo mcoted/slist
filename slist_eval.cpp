@@ -195,7 +195,9 @@ namespace
 			return apply(ctx, root->cdr, proc);
 		}
 
-		return root;
+		log_errorln("Operator is not a procedure:\n", nullptr, proc);
+
+		return nullptr;
 	}
 
 	slist::node_ptr eval_string(slist::context& ctx, const slist::node_ptr& root)
