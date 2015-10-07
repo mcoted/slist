@@ -169,7 +169,58 @@ namespace slist
 		//    (lambda (x)
 		//        ((lambda (y) (+ x y)) 1))
 
-		return root;
+		if (root->length() != 3)
+		{
+			log_errorln("Invalid 'let' syntax: ", root);
+			return nullptr;
+		}
+
+		environment_ptr env(new environment);
+		env->parent = ctx.active_env;
+
+		node_ptr bindings = root->get(1);
+		if (bindings == nullptr || bindings->type != node_type::pair)
+		{
+			log_errorln("Invalid bindings for 'let': ", root);
+			return nullptr;
+		}
+
+		node_ptr binding = bindings;
+		while (binding != nullptr)
+		{
+			node_ptr name_value = binding->car;
+			if (name_value == nullptr || name_value->length() != 2)
+			{
+				log_errorln("Invalid 'let' binding: ", binding);
+				return nullptr;
+			}
+
+			node_ptr var_name = eval(ctx, name_value->get(0));
+			node_ptr value = eval(ctx, name_value->get(1));
+
+			if (var_name->type != node_type::string)
+			{
+				log_errorln("Invalid variable name in binding: ", name_value);
+				return nullptr;
+			}
+
+			env->register_variable(var_name->value, value);
+
+			binding = binding->cdr;
+		}
+
+		funcdef_ptr func(new funcdef);
+		func->env = env;
+		func->is_native = false;
+		func->name = root->get(0)->value; // "let"
+		func->body = root->get(2);
+
+		node_ptr res(new node);
+		res->proc = func;
+
+		log_traceln("'let' proc:\n", nullptr, func);
+
+		return eval(ctx, func, nullptr);
 	}
 
 	node_ptr ___begin(context& ctx, const node_ptr& root)

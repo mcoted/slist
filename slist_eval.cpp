@@ -63,11 +63,21 @@ namespace slist
 			root->car = name_node;
 			root->cdr = args;
 
-			return f->native_func(ctx, root);
+			auto prev_env = ctx.active_env;	
+			ctx.active_env = f->env;
+			auto result = f->native_func(ctx, root);
+			ctx.active_env = prev_env;
+
+			return result;
 		}
 		else 
 		{
-			return eval(ctx, f->body);
+			auto prev_env = ctx.active_env;
+			ctx.active_env = f->env;
+			auto result = eval(ctx, f->body);
+			ctx.active_env = prev_env;
+
+			return result;
 		}
 
 		return nullptr;
