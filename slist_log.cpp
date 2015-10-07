@@ -151,7 +151,7 @@ namespace
 		for (auto& keyval : env->bindings)
 		{
 			log_internal("\"" + keyval.first + "\": ", level);
-			if (keyval.second->car == nullptr && keyval.second->proc != nullptr)
+			if (keyval.second != nullptr && keyval.second->car == nullptr && keyval.second->proc != nullptr)
 			{
 				log_internal("<native func>\n", level);
 			}

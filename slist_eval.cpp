@@ -110,7 +110,7 @@ namespace slist
 		if (var != nullptr && var->type == node_type::string)
 		{
 			// This is a variadic argument, grab all the args
-			env->register_variable(var->value, eval(ctx, args));
+			env->register_variable(var->value, args);
 		}
 		else 
 		{
@@ -152,12 +152,7 @@ namespace slist
 		}
 
 		log_traceln("Evaluating Procedure (apply):\n", nullptr, proc);
-		auto old_env = ctx.active_env;
-		ctx.active_env = proc->env;
-		node_ptr res = eval(ctx, proc, args);
-		ctx.active_env = old_env;
-
-		return res;
+		return eval(ctx, proc, args);
 	}
 }
 
