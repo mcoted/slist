@@ -30,7 +30,7 @@ namespace slist
 
 			node_ptr name_node(new node);
 			name_node->value = "lambda";
-			name_node->type = node_type::string;			
+			name_node->type = node_type::name;			
 			lambda_node->append(name_node);
 			lambda_node->append(args);
 			lambda_node->append(body);
@@ -39,7 +39,7 @@ namespace slist
 
             ctx.global_env->register_variable(name->value, ___lambda(ctx, lambda_node));
 		}
-		else if (first->type == node_type::string)
+		else if (first->type == node_type::name)
 		{
             node_ptr res = eval(ctx, body);
 			ctx.global_env->register_variable(first->value, res);            
@@ -75,6 +75,17 @@ namespace slist
 		log_traceln("Lambda proc:\n", nullptr, func);
 
 		return res;
+	}
+
+	node_ptr ___eval(context& ctx, const node_ptr& root)
+	{
+		if (root->length() != 2)
+		{
+			log_errorln("'eval' expects one argument: ", root);
+			return nullptr;
+		}
+
+		return eval(ctx, root->get(1));
 	}
 
 	node_ptr ___apply(context& ctx, const node_ptr& root)
@@ -160,6 +171,68 @@ namespace slist
         return empty;
 	}
 
+	node_ptr ___quote_arg(context& ctx, node_ptr arg)
+	{
+		node_ptr result;
+		if (arg->type == node_type::name || arg->type == node_type::name)
+		{
+			ctx.symbols.insert(arg->value);
+
+			result.reset(new node);
+			result->type = node_type::name;
+			result->value = arg->value;			
+		}
+		else if (arg->type == node_type::integer || arg->type == node_type::number)
+		{
+			return arg;
+		}
+		else if (arg->type == node_type::pair)
+		{
+			result.reset(new node);
+			result->type = node_type::pair;
+
+			while (arg != nullptr)
+			{
+				if (arg->car == nullptr)
+				{
+					continue;
+				}
+				node_ptr n = ___quote_arg(ctx, arg->car);
+				if (n != nullptr)
+				{
+					result->append(n);
+				}
+				else 
+				{
+					log_errorln("Cannot quote: ", arg->car);
+					return nullptr;
+				}
+				
+				arg = arg->cdr;
+			}
+		}
+		else 
+		{
+			log_errorln("Invalid argument to quote: ", arg);
+			return nullptr;
+		}
+		
+		return result;
+	}
+
+	node_ptr ___quote(context& ctx, const node_ptr& root)
+	{
+		if (root->length() != 2)
+		{
+			log_errorln("'quote' expects one argument:\n", root);
+			return nullptr;
+		}
+
+		node_ptr arg = root->get(1);
+
+		return ___quote_arg(ctx, arg);
+	}
+
 	node_ptr ___let(context& ctx, const node_ptr& root)
 	{
 		// Let is syntactic sugar:
@@ -198,7 +271,7 @@ namespace slist
 			node_ptr var_name = eval(ctx, name_value->get(0));
 			node_ptr value = eval(ctx, name_value->get(1));
 
-			if (var_name->type != node_type::string)
+			if (var_name->type != node_type::name)
 			{
 				log_errorln("Invalid variable name in binding: ", name_value);
 				return nullptr;
@@ -220,7 +293,7 @@ namespace slist
 
 		log_traceln("'let' proc:\n", nullptr, func);
 
-		return eval(ctx, func, nullptr);
+		return eval(ctx, func, nullptr);	
 	}
 
 	node_ptr ___begin(context& ctx, const node_ptr& root)
@@ -326,24 +399,24 @@ namespace slist
 	}
 
 	template<class Op>
-	node_ptr ___arithmetic_op_helper(node_ptr result, const node_ptr& arg, const Op& op)
+	node_ptr ___arithmetic_op_helper(const node_ptr& n, const node_ptr& arg, const Op& op)
 	{
 		if (!___arithmetic_op_validate_arg(arg))
 		{
 			return nullptr;
 		}
 
-		if (result->type == node_type::number || arg->type == node_type::number)
+        node_ptr result(new node);
+		if (n->type == node_type::number || arg->type == node_type::number)
 		{
 			result->type = node_type::number;
-			result->value = op.perform_float(result->value, arg->value);
+			result->value = op.perform_float(n->value, arg->value);
 		}
 		else 
 		{
 			result->type = node_type::integer;
-			result->value = op.perform_int(result->value, arg->value);
+			result->value = op.perform_int(n->value, arg->value);
 		}
-
 		return result;
 	}
 
@@ -367,7 +440,7 @@ namespace slist
 		{ \
 			if (root->length() < 2) \
 			{ \
-				log_errorln("'OP' expects at least one argument"); \
+				log_errorln("'" #OP "' expects at least one argument"); \
 				return nullptr; \
 			} \
 			\
@@ -401,30 +474,36 @@ namespace slist
 	MAKE_ARITHMETIC_FUNC(___mul, *)
 	MAKE_ARITHMETIC_FUNC(___div, /)
 
-	node_ptr ___gt(context& ctx, const node_ptr& root)
-	{
-		if (root->length() < 3)
-		{
-			log_errorln("'>' expects 2 numeric arguments");
-			return nullptr;
+	#define MAKE_COMPARISON_OP_FUNC(FUNC_NAME, OP) \
+		node_ptr FUNC_NAME(context& ctx, const node_ptr& root) \
+		{ \
+			if (root->length() < 3) \
+			{ \
+				log_errorln("'" #OP "' expects 2 numeric arguments"); \
+				return nullptr; \
+			} \
+			\
+			node_ptr a1 = eval(ctx, root->get(1)); \
+			node_ptr a2 = eval(ctx, root->get(2)); \
+			\
+			if ((a1 == nullptr || (a1->type != node_type::integer && a1->type != node_type::number)) || \
+				(a2 == nullptr || (a2->type != node_type::integer && a2->type != node_type::number))) \
+			{ \
+				log_errorln("'" #OP "' expects 2 numeric arguments"); \
+				return nullptr; \
+			} \
+			\
+			bool greater = std::stof(a1->value) OP std::stof(a2->value); \
+			\
+			node_ptr result(new node); \
+			result->type = node_type::boolean; \
+			result->value = greater ? "true" : "false"; \
+			\
+			return result; \
 		}
 
-		node_ptr a1 = eval(ctx, root->get(1));
-		node_ptr a2 = eval(ctx, root->get(2));
-
-		if ((a1 == nullptr || (a1->type != node_type::integer && a1->type != node_type::number)) ||
-			(a2 == nullptr || (a2->type != node_type::integer && a2->type != node_type::number)))
-		{
-			log_errorln("'>' expects 2 numeric arguments");
-			return nullptr;
-		}
-
-		bool greater = std::stof(a1->value) > std::stof(a2->value);
-
-		node_ptr result(new node);
-		result->type = node_type::boolean;
-		result->value = greater ? "true" : "false";
-
-		return result;
-	}
+	MAKE_COMPARISON_OP_FUNC(___lt, <)
+	MAKE_COMPARISON_OP_FUNC(___gt, >)
+	MAKE_COMPARISON_OP_FUNC(___le, <=)
+	MAKE_COMPARISON_OP_FUNC(___ge, >=)
 }

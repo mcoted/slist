@@ -113,16 +113,6 @@ namespace slist
 	 	env.reset(new environment);
 	 }
 
-	 environment::environment()
-	 {
-	 }
-
-	 environment::environment(const environment& other)
-	 	: parent(other.parent)
-	 	, bindings(other.bindings)
- 	{	 		
- 	}
-
 	void environment::register_variable(const std::string& name, node_ptr n)
 	{
 		bindings[name] = n;
@@ -221,8 +211,7 @@ namespace slist
 			case node_type::boolean: return "boolean";
 			case node_type::integer: return "integer";
 			case node_type::number:  return "number";
-			case node_type::string:  return "string";
-			case node_type::symbol:  return "symbol";
+			case node_type::name:    return "name";
 		}
 
 		return "<undefined>";

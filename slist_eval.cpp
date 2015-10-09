@@ -7,7 +7,7 @@
 namespace
 {
 	slist::node_ptr eval_list(slist::context& ctx, const slist::node_ptr& root);
-	slist::node_ptr eval_string(slist::context& ctx, const slist::node_ptr& root);
+	slist::node_ptr eval_name(slist::context& ctx, const slist::node_ptr& root);
 }
 
 namespace slist
@@ -28,18 +28,18 @@ namespace slist
 			case node_type::pair:
 				result = eval_list(ctx, root);
                 break;
-			case node_type::string:
-				result =  eval_string(ctx, root);
+			case node_type::name:
+				result =  eval_name(ctx, root);
                 break;
 			case node_type::integer:
 			case node_type::number:
-				result = root;
-                break;
+                return root;
 			default:
 				break;
 		}
 
-		log_traceln("Result: ", result);
+		log_trace("Result of ", root);
+		log_traceln(" -> ", result);
 
 		return result;
 	}
@@ -55,7 +55,7 @@ namespace slist
 		{
 			// Build a root node
 			node_ptr name_node(new node);
-			name_node->type = node_type::string;
+			name_node->type = node_type::name;
 			name_node->value = f->name;
 
 			node_ptr root(new node);
@@ -100,14 +100,15 @@ namespace slist
 
 	node_ptr apply(context& ctx, const node_ptr& args, const funcdef_ptr& proc)
 	{
-		// Clone the environement to make sure they are not shared between evals
-        environment_ptr env(new environment(*(proc->env)));
+		// Create a new environement to make sure they are not shared between evals
+        environment_ptr env(new environment);
+        env->parent = proc->env;
 		proc->env = env;
 
 		node_ptr var = proc->variables;
 		node_ptr arg = args;
 
-		if (var != nullptr && var->type == node_type::string)
+		if (var != nullptr && var->type == node_type::name)
 		{
 			// This is a variadic argument, grab all the args
 			env->register_variable(var->value, args);
@@ -117,7 +118,7 @@ namespace slist
 			while (var != nullptr && arg != nullptr)
 			{
 				node_ptr var_name = var->car;
-				if (var_name == nullptr || var_name->type != node_type::string)
+				if (var_name == nullptr || var_name->type != node_type::name)
 				{
 					log_errorln("Invalid variable:\n", var_name);
 					return nullptr;
@@ -134,7 +135,7 @@ namespace slist
 					}
 
 					var_name = var->car;
-					if (var_name == nullptr || var_name->type != node_type::string)
+					if (var_name == nullptr || var_name->type != node_type::name)
 					{
 						log_errorln("Invalid variable:\n", var_name);
 						return nullptr;
@@ -151,7 +152,7 @@ namespace slist
 			}
 		}
 
-		log_traceln("Evaluating Procedure (apply):\n", nullptr, proc);
+		log_traceln("Evaluating Procedure from 'apply':\n", nullptr, proc);
 		return eval(ctx, proc, args);
 	}
 }
@@ -205,13 +206,15 @@ namespace
 		return nullptr;
 	}
 
-	slist::node_ptr eval_string(slist::context& ctx, const slist::node_ptr& root)
+	slist::node_ptr eval_name(slist::context& ctx, const slist::node_ptr& root)
 	{
-		slist::node_ptr var_node = ctx.active_env->lookup_variable(root->value);
-		if (var_node != nullptr)
+		using namespace slist;
+		auto var_node = ctx.active_env->lookup_variable(root->value);
+		if (var_node == nullptr)
 		{
-			return var_node;
+			log_errorln("Could not evaluate variable: ", root);
+			return nullptr;
 		}
-		return root;
+        return var_node;
 	}
 }

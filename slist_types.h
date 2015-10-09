@@ -28,8 +28,7 @@ namespace slist
 		boolean,
 		integer,
 		number,
-		string,
-		symbol
+		name,
 	};
 
 	struct node : public std::enable_shared_from_this<node>
@@ -52,7 +51,7 @@ namespace slist
 		funcdef_ptr proc;
 	};
 
-	struct funcdef
+	struct funcdef : public std::enable_shared_from_this<funcdef>
 	{
 		funcdef();
 
@@ -73,11 +72,8 @@ namespace slist
 		environment_ptr env;
 	};
 
-	struct environment
+	struct environment : public std::enable_shared_from_this<environment>
 	{
-		environment();
-		environment(const environment& other);
-
 		void register_variable(const std::string& name, node_ptr n);
 		node_ptr lookup_variable(const std::string& name);
 

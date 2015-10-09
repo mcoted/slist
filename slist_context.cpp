@@ -25,11 +25,13 @@ namespace slist
 
 		register_native("define",  &___define);
 		register_native("lambda",  &___lambda);
+		register_native("eval",    &___eval);
 		register_native("apply",   &___apply);
 		register_native("cons",    &___cons);
 		register_native("list",    &___list);
 		register_native("car",     &___car);
 		register_native("cdr",     &___cdr);
+		register_native("quote",   &___quote);
 		register_native("let",     &___let);
 		register_native("begin",   &___begin);
 		register_native("if",      &___if);
@@ -43,7 +45,10 @@ namespace slist
 		register_native("*", &___mul);
 		register_native("/", &___div);
 
-		register_native(">", &___gt);
+		register_native("<",  &___lt);
+		register_native(">",  &___gt);
+		register_native("<=", &___le);
+		register_native(">=", &___ge);
 
 		// Execute the builtins script to register the builtin procedures
 		//exec(*this, builtin___add);

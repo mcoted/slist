@@ -1,7 +1,7 @@
 #ifndef SLIST_CONTEXT_H
 #define SLIST_CONTEXT_H
 
-#include <vector>
+#include <unordered_set>
 
 #include "slist_types.h"
 
@@ -16,6 +16,9 @@ namespace slist
 
 		environment_ptr global_env;
 		environment_ptr active_env;
+
+		typedef std::unordered_set<std::string> symbol_set;
+		symbol_set symbols;
 	};
 }
 

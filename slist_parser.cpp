@@ -233,11 +233,11 @@ namespace
 		}
 		else if (is_symbol)
 		{
-			type = node_type::symbol;
+			type = node_type::name;
 		}
 		else 
 		{
-			type = node_type::string;
+			type = node_type::name;
 		}
 
 		return type;
