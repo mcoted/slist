@@ -85,7 +85,7 @@ namespace slist
 			return nullptr;
 		}
 
-		return eval(ctx, root->get(1));
+		return eval(ctx, eval(ctx, root->get(1)));
 	}
 
 	node_ptr ___apply(context& ctx, const node_ptr& root)
