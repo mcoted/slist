@@ -39,6 +39,8 @@ namespace slist
 		register_native("empty?",  &___empty);
 		register_native("print",   &___print);
 		register_native("println", &___println);
+		register_native("eq?",     &___eq);
+		register_native("equal?",  &___equal);
 
 		register_native("+", &___add);
 		register_native("-", &___sub);
