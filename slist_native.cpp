@@ -268,25 +268,29 @@ namespace slist
 				return nullptr;
 			}
 
-			node_ptr var_name = eval(ctx, name_value->get(0));
-			node_ptr value = eval(ctx, name_value->get(1));
+			node_ptr var_name = name_value->get(0);
+            if (var_name->type != node_type::name)
+            {
+                log_errorln("Invalid variable name in binding: ", name_value);
+                return nullptr;
+            }
 
-			if (var_name->type != node_type::name)
-			{
-				log_errorln("Invalid variable name in binding: ", name_value);
-				return nullptr;
-			}
-
+            node_ptr value = eval(ctx, name_value->get(1));
 			env->register_variable(var_name->value, value);
 
 			binding = binding->cdr;
 		}
 
+		auto old_active_env = ctx.active_env;
+		ctx.active_env = env;
+
 		funcdef_ptr func(new funcdef);
 		func->env = env;
 		func->is_native = false;
 		func->name = root->get(0)->value; // "let"
-		func->body = root->get(2);
+		func->body = eval(ctx, root->get(2)); // Need to eval here
+
+		ctx.active_env = old_active_env;
 
 		node_ptr res(new node);
 		res->proc = func;
@@ -390,9 +394,14 @@ namespace slist
 
 	bool ___arithmetic_op_validate_arg(const node_ptr& arg)
 	{
+        if (arg == nullptr)
+        {
+            log_errorln("Invalid argument to arithmetic operator: nullptr");
+            return false;
+        }
 		if (arg->type != node_type::integer && arg->type != node_type::number)
 		{
-			log_errorln("Invalid argument to '+':", arg);
+			log_errorln("Invalid argument to arithmetic operator:", arg);
 			return false;
 		}
 		return true;

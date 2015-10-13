@@ -108,9 +108,6 @@ namespace
 
 		switch (n->type)
 		{
-			case slist::node_type::empty:
-				log_internal("'()", level);
-			break;
 			case slist::node_type::pair:
 				if (!in_pair)
 				{
@@ -136,8 +133,20 @@ namespace
 				}
 				break;
 			default:
-				log_internal(n->value, level);
-			break;
+				if (n->proc != nullptr)
+				{
+					log_internal("procedure: " + n->proc->name, level);
+					if (n->proc->body != nullptr)
+					{
+						log_internal(" ", level);
+						log(n->proc->body, level);
+					}
+				}
+				else 
+				{
+					log_internal(n->value, level);				
+				}
+				break;
 		}
 	}
 

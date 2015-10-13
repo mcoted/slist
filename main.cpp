@@ -35,6 +35,21 @@ int main(int argc, char **argv)
 		// "(println (add-2 1))"
 		// "(println (add-1 3))"
 
+		// "(define inner-lambda-test (lambda (x) (lambda (y) (+ x y))))"
+		// "((inner-lambda-test 1) 2)"
+
+		// "(define (expanded-let-add-4-test y)"
+		// "    ((lambda (x)"
+		// "         (+ x y)) 4))"
+		// "(expanded-let-add-4-test 6)"
+
+		// "(define (add-4-inside-let y)"
+		// "	(let ((x 4))"
+		// "		(+ x y)))"
+		// "(add-4-inside-let 6)"
+		// "(add-4-inside-let 7)"
+		// "(add-4-inside-let 6)"
+
 		// "(define (add x y) (+ x y))"
 		// "(apply add (list 1 2))"
 
@@ -76,7 +91,8 @@ int main(int argc, char **argv)
 		// "(let-test-1 1)"
 
 		// "(quote a)"
-		"(eval (quote (+ 1 2)))"
+		// "(quote (1 2 3))"
+		// "(eval (quote (+ 1 2)))"
 
 		// TODO: 
 		//  - Symbols
