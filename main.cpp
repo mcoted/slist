@@ -21,10 +21,11 @@ int main(int argc, char **argv)
         // "(eq? 1 1)"
         // "(eq? 1 2)"
 
-        // "(define value (quote (1 2)))"
-        // "(define other-value (quote (1 2)))"
-        // "(eq? value value)"
-        // "(eq? value other-value)"
+        "(define value (quote (1 2)))"
+        "(define other-value (quote (1 2)))"
+        "(eq? value value)"
+        "(eq? value other-value)"
+        "(equal? value other-value)"
 
         // "(+ 1 2 3)"
         // "(- 1 2 3)"

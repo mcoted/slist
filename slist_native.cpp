@@ -425,7 +425,33 @@ namespace slist
 
 	node_ptr ___equal(context& ctx, const node_ptr& root)
 	{
-		return nullptr;
+		if (root->length() != 3)
+		{
+			log_errorln("'eq?' requires 2 arguments: ", root);
+			return nullptr;
+		}
+
+		node_ptr v1 = eval(ctx, root->get(1));
+		node_ptr v2 = eval(ctx, root->get(2));
+
+		bool value = false;
+		if (v1->type == v2->type)
+		{
+			if (v1->type == node_type::integer || v1->type == node_type::number)
+			{
+				value = v1->value == v2->value;
+			}
+			else 
+			{
+				value = (v1->value == v2->value);
+			}
+		}
+
+		node_ptr result(new node);
+		result->type = node_type::boolean;
+		result->value = value ? "true" : "false";
+
+		return result;
 	}
 
 	bool ___arithmetic_op_validate_arg(const node_ptr& arg)
