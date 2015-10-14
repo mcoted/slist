@@ -41,16 +41,21 @@ namespace slist
 		register_native("println", &___println);
 		register_native("eq?",     &___eq);
 		register_native("equal?",  &___equal);
+		register_native("not",     &___not);
 
 		register_native("+", &___add);
 		register_native("-", &___sub);
 		register_native("*", &___mul);
 		register_native("/", &___div);
 
+		register_native("=",  &___e);
+		register_native("!=", &___ne);
 		register_native("<",  &___lt);
 		register_native(">",  &___gt);
 		register_native("<=", &___le);
 		register_native(">=", &___ge);
+
+		register_native("assert", &___assert);
 
 		// Execute the builtins script to register the builtin procedures
 		//exec(*this, builtin___add);

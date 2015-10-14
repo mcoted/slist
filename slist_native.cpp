@@ -3,6 +3,7 @@
 #include "slist_eval.h"
 #include "slist_log.h"
 #include <algorithm>
+#include <stdexcept>
 
 namespace slist
 {
@@ -454,6 +455,29 @@ namespace slist
 		return result;
 	}
 
+	node_ptr ___not(context& ctx, const node_ptr& root)
+	{
+		if (root->length() != 2)
+		{
+			log_errorln("'not' requires 1 argument: ", root);
+			return nullptr;
+		}
+
+		node_ptr arg = eval(ctx, root->get(1));
+
+		if (arg->type != node_type::boolean)
+		{
+			log_errorln("'not' argument did not evaluate to a boolean value: ", arg);
+			return nullptr;
+		}
+
+		node_ptr result(new node);
+		result->type = node_type::boolean;
+		result->value = arg->value == "true" ? "false" : "true";
+
+		return result;
+	}
+
 	bool ___arithmetic_op_validate_arg(const node_ptr& arg)
 	{
         if (arg == nullptr)
@@ -573,14 +597,34 @@ namespace slist
 			return result; \
 		}
 
-	MAKE_COMPARISON_OP_FUNC(___e, ==)
-	MAKE_COMPARISON_OP_FUNC(___lt, <)
-	MAKE_COMPARISON_OP_FUNC(___gt, >)
+	MAKE_COMPARISON_OP_FUNC(___e,  ==)
+	MAKE_COMPARISON_OP_FUNC(___ne, !=)
+	MAKE_COMPARISON_OP_FUNC(___lt, < )
+	MAKE_COMPARISON_OP_FUNC(___gt, > )
 	MAKE_COMPARISON_OP_FUNC(___le, <=)
 	MAKE_COMPARISON_OP_FUNC(___ge, >=)
 
 	node_ptr ___assert(context& ctx, const node_ptr& root)
 	{
+		if (root->length() != 2)
+		{
+			log_errorln("'assert' requires 1 argument: ", root);
+			return nullptr;
+		}
+
+		node_ptr arg = eval(ctx, root->get(1));
+
+		if (arg->type != node_type::boolean)
+		{
+			log_errorln("'assert' argument did not evaluate to a boolean value: ", arg);
+			return nullptr;
+		}
+
+		if (arg->value != "true")
+		{
+			throw std::runtime_error("assert failure!");
+		}
+
 		return nullptr;
 	}
 }

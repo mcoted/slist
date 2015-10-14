@@ -14,6 +14,8 @@ int main(int argc, char **argv)
 
     node_ptr n = parse(
 
+        ""
+
         // "1"
 
         // "(eval 1)"
@@ -21,16 +23,23 @@ int main(int argc, char **argv)
         // "(eq? 1 1)"
         // "(eq? 1 2)"
 
-        "(define value (quote (1 2)))"
-        "(define other-value (quote (1 2)))"
-        "(eq? value value)"
-        "(eq? value other-value)"
-        "(equal? value other-value)"
+        // "(define value (quote (1 2)))"
+        // "(define other-value (quote (1 2)))"
+        // "(eq? value value)"
+        // "(eq? value other-value)"
+        // "(equal? value other-value)"
 
         // "(+ 1 2 3)"
         // "(- 1 2 3)"
         // "(* 1 2 3)"
         // "(/ 1.0 2 3)"
+
+        // "(= 1 1)"
+        // "(= 1 2)"
+        // "(< 1 2)"
+        // "(<= 2 2)"
+        // "(> 1 2)"
+        // "(>= 1 2)"
 
         // "((lambda () 1))"
 

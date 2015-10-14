@@ -25,11 +25,13 @@ namespace slist
 	node_ptr ___println (context& ctx, const node_ptr& root);
 	node_ptr ___eq      (context& ctx, const node_ptr& root);
 	node_ptr ___equal   (context& ctx, const node_ptr& root);	
+	node_ptr ___not     (context& ctx, const node_ptr& root);	
 	node_ptr ___add     (context& ctx, const node_ptr& root);
 	node_ptr ___sub     (context& ctx, const node_ptr& root);
 	node_ptr ___mul     (context& ctx, const node_ptr& root);
 	node_ptr ___div     (context& ctx, const node_ptr& root);
 	node_ptr ___e       (context& ctx, const node_ptr& root);
+	node_ptr ___ne      (context& ctx, const node_ptr& root);
 	node_ptr ___lt      (context& ctx, const node_ptr& root);
 	node_ptr ___gt      (context& ctx, const node_ptr& root);
 	node_ptr ___le      (context& ctx, const node_ptr& root);
