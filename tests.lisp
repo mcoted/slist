@@ -47,7 +47,7 @@
 (___run_test (= (apply add (list 1 2)) 3))
 
 (define (f x y) (begin (+ x y) (+ x y)))
-___run_test (= (f 1 2) 3))
+(___run_test (= (f 1 2) 3))
 
 (define variadic-test-1 (lambda values (apply + values)))
 (___run_test (= (variadic-test-1 1 2 3) 6))
@@ -85,3 +85,11 @@ ___run_test (= (f 1 2) 3))
 
 (___run_test (equal? (quote (1 2 3)) (list 1 2 3)))
 (___run_test (= (eval (quote (+ 1 2))) 3))
+
+(define (long-sum n)
+    (if (= n 1)
+        1
+        (+ 1 (long-sum (- n 1)))))
+(___run_test (= (long-sum 100) 100))
+;(___run_test (= (long-sum 1000) 1000))
+

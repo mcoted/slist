@@ -10,6 +10,7 @@
 
 namespace 
 {
+	bool get_next_char(std::istream& in, char& ch);
 	bool parse_list(std::istream& in, slist::node_ptr result);
 	bool parse_token(std::istream& in, slist::node_ptr& result);
 	slist::node_type find_type(const std::string& str);
@@ -30,9 +31,7 @@ namespace slist
 
 		while (true)
 		{
-			in >> ch;
-
-			if (!in)
+			if (!get_next_char(in, ch))
 			{
 				break;
 			}
@@ -46,6 +45,13 @@ namespace slist
 				if (parse_list(in, list))
 				{
 					result->append(list);
+				}
+			}
+			else if (ch == ';')
+			{
+				while (in && ch != '\n')
+				{
+					get_next_char(in , ch);
 				}
 			}
 			else
@@ -87,6 +93,19 @@ namespace slist
 
 namespace 
 {
+	bool get_next_char(std::istream& in, char& ch)
+	{
+		while (in)
+		{
+			ch = in.get();
+			if (std::isspace(ch) == 0)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
 	bool parse_list(std::istream& in, slist::node_ptr result)
 	{
 		using namespace slist;
@@ -95,14 +114,12 @@ namespace
 		char ch = 0;
 		bool parsed = false;
 
-		in >> ch;
+		get_next_char(in, ch);
 		assert(ch == '(');
 
 		while (true)
 		{
-			in >> ch;
-
-			if (!in)
+			if (!get_next_char(in, ch))
 			{
 				break;
 			}
@@ -148,9 +165,7 @@ namespace
 	bool parse_token(std::istream& in, slist::node_ptr& result)
 	{
 		char ch = 0;
-		in >> ch;
-        
-		if (in)
+		if (get_next_char(in, ch))
 		{
 			in.putback(ch);
 
@@ -160,13 +175,13 @@ namespace
 			{
 				in.get(ch);
 
-				if (in && ch != '(' && ch != ')' && !std::isspace(ch))
+				if (in && ch != '(' && ch != ')' && !std::isspace(ch) && ch != ';')
 				{
 					str += ch;
 				}
 				else 
 				{
-					if (ch == '(' || ch == ')')
+					if (ch == '(' || ch == ')' || ch == ';')
 					{
 						in.putback(ch);
 					}
