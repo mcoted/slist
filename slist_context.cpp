@@ -57,6 +57,8 @@ namespace slist
 
 		register_native("assert", &___assert);
 
+		register_native("___run_test", &___run_test);
+
 		// Execute the builtins script to register the builtin procedures
 		//exec(*this, builtin___add);
 	}

@@ -201,7 +201,7 @@ namespace
 
 		for (char ch : str)
 		{
-			if (std::isdigit(ch))
+			if (std::isdigit(ch) || ch == '-')
 			{
 				has_only_digits = !has_alpha;
 			}

@@ -2,7 +2,7 @@
 #include "slist_parser.h"
 #include "slist_log.h"
 
-#include <iostream>
+#include <istream>
 
 namespace
 {
@@ -96,6 +96,21 @@ namespace slist
 			}
 		}
 		return result;
+	}
+
+	node_ptr exec(context& ctx, std::istream& in)
+	{
+		std::string s;
+
+		const size_t size = 1024;
+		char buffer[1024];
+		while (in.read(buffer, size))
+		{
+			s.append(buffer, size);
+		}
+		s.append(buffer, in.gcount());
+
+		return exec(ctx, s);
 	}
 
 	node_ptr apply(context& ctx, const node_ptr& args, const funcdef_ptr& proc)
