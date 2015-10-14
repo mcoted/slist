@@ -4,6 +4,7 @@
 
 namespace
 {
+    bool should_execute = false;
     std::vector<std::string> parse_arguments(int argc, char **argv);
 }
 
@@ -19,16 +20,24 @@ int main(int argc, char **argv)
     }
     else if (trailing.size() == 1)
     {
-        std::ifstream in(trailing[0]);
-        if (in)
+        if (should_execute)
         {
             context ctx;
-            exec(ctx, in);
+            exec(ctx, trailing[0]);
         }
         else 
         {
-            log_errorln("Invalid input file: " + trailing[0]);
-            return -1;
+            std::ifstream in(trailing[0]);
+            if (in)
+            {
+                context ctx;
+                exec(ctx, in);
+            }
+            else 
+            {
+                log_errorln("Invalid input file: " + trailing[0]);
+                return -1;
+            }            
         }
     }
     else 
@@ -87,6 +96,16 @@ namespace
                 else 
                 {
                     log_error("Invalid argument to '-v'/'--log-level'\n");
+                }
+            }
+            if (strcmp(arg, "-e") == 0 || strcmp(arg, "--exec") == 0)
+            {
+                ++i;
+                if (i < argc && argv[i] != nullptr)
+                {
+                    arg = argv[i];
+                    trailing.push_back(arg);
+                    should_execute = true;
                 }
             }
             else 

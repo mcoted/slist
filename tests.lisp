@@ -91,5 +91,8 @@
         1
         (+ 1 (long-sum (- n 1)))))
 (___run_test (= (long-sum 100) 100))
-;(___run_test (= (long-sum 1000) 1000))
+;(___run_test (= (long-sum 1000) 1000)) ;; TODO: Need tail-recursive-call optimization
+
+
+
 
