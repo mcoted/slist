@@ -11,6 +11,9 @@
 (___run_test (not (eq? v0 v1)))
 (___run_test (equal? v0 v1))
 
+(___run_test (equal? (list 1 2 3) (list 1 2 3)))
+(___run_test (not (equal? (list 1 2 3) (list 1 2 4))))
+
 (___run_test (= (+ 1 2 3) 6))
 (___run_test (= (- 1 2 3) -4))
 (___run_test (= (* 1 2 3) 6))
@@ -94,8 +97,9 @@
 ;(___run_test (= (long-sum 1000) 1000)) ;; TODO: Need tail-recursive-call optimization
 
 (___run_test (eq? 'a 'a))
+(___run_test (eq? 'a (quote a)))
 
-(define symb-symb ''a)
-(___run_test (not (eq? 'a symb-symb')))
-(___run_test (equal? 'a symb-symb))
+(define quote-a ''a)
+(___run_test (not (eq? ''a quote-a)))
+(___run_test (equal? ''a quote-a))
 

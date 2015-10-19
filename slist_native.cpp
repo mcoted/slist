@@ -429,6 +429,35 @@ namespace slist
 		return result;
 	}
 
+	bool ___equal_helper(context& ctx, const node_ptr& arg1, const node_ptr& arg2)
+	{
+		if (arg1 == nullptr && arg2 == nullptr)
+		{
+			return true;
+		}
+		else if (arg1 == nullptr || arg2 == nullptr)
+		{
+			return false;
+		}
+		else 
+		{
+			bool result = false;
+			if (arg1->type == arg2->type)
+			{
+				if (arg1->type == node_type::integer || arg1->type == node_type::number)
+				{
+					result = (arg1->value == arg2->value);
+				}
+				else if (arg1->type == node_type::pair)
+				{
+					result = ___equal_helper(ctx, arg1->car, arg2->car) &&
+					         ___equal_helper(ctx, arg1->cdr, arg2->cdr);
+				}
+			}
+			return result;
+		}
+	}
+
 	node_ptr ___equal(context& ctx, const node_ptr& root)
 	{
 		if (root->length() != 3)
@@ -437,21 +466,10 @@ namespace slist
 			return nullptr;
 		}
 
-		node_ptr v1 = eval(ctx, root->get(1));
-		node_ptr v2 = eval(ctx, root->get(2));
+		node_ptr arg1 = eval(ctx, root->get(1));
+		node_ptr arg2 = eval(ctx, root->get(2));
 
-		bool value = false;
-		if (v1->type == v2->type)
-		{
-			if (v1->type == node_type::integer || v1->type == node_type::number)
-			{
-				value = v1->value == v2->value;
-			}
-			else 
-			{
-				value = (v1->value == v2->value);
-			}
-		}
+		bool value = ___equal_helper(ctx, arg1, arg2);
 
 		node_ptr result(new node);
 		result->type = node_type::boolean;
