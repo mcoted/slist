@@ -32,6 +32,7 @@ namespace slist
 		register_native("car",     &___car);
 		register_native("cdr",     &___cdr);
 		register_native("quote",   &___quote);
+		register_native("'",       &___quote);		
 		register_native("let",     &___let);
 		register_native("begin",   &___begin);
 		register_native("if",      &___if);
@@ -74,5 +75,26 @@ namespace slist
 		n->proc = f;
 
 		global_env->register_variable(name, n);
+	}
+
+	node_ptr context::lookup_symbol(const std::string& name)
+	{
+		auto it = symbols.find(name);
+		if (it != symbols.end())
+		{
+			return it->second;
+		}
+		return nullptr;
+	}
+
+	void context::insert_symbol(const node_ptr& node)
+	{
+		if (node == nullptr || node->type != node_type::name)
+		{
+			log_errorln("Trying to insert an invalid symbol: ", node);
+			return;
+		}
+
+		symbols[node->value] = node;
 	}
 }

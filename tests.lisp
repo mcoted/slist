@@ -93,6 +93,9 @@
 (___run_test (= (long-sum 100) 100))
 ;(___run_test (= (long-sum 1000) 1000)) ;; TODO: Need tail-recursive-call optimization
 
+(___run_test (eq? 'a 'a))
 
-
+(define symb-symb ''a)
+(___run_test (not (eq? 'a symb-symb')))
+(___run_test (equal? 'a symb-symb))
 

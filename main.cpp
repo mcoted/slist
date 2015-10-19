@@ -22,8 +22,25 @@ int main(int argc, char **argv)
     {
         if (should_execute)
         {
+            node_ptr n = parse(trailing[0]);
+
+            if (get_log_level() >= log_level::trace)
+            {
+                log_traceln("");
+                debug_print_node(n);
+                log_traceln("");
+            }
+
             context ctx;
-            exec(ctx, trailing[0]);
+            while (n != nullptr)
+            {
+                auto r = eval(ctx, n->car);
+                if (r != nullptr)
+                {
+                    outputln("", r);
+                }
+                n = n->cdr;
+            }
         }
         else 
         {
@@ -98,7 +115,7 @@ namespace
                     log_error("Invalid argument to '-v'/'--log-level'\n");
                 }
             }
-            if (strcmp(arg, "-e") == 0 || strcmp(arg, "--exec") == 0)
+            else if (strcmp(arg, "-e") == 0 || strcmp(arg, "--exec") == 0)
             {
                 ++i;
                 if (i < argc && argv[i] != nullptr)

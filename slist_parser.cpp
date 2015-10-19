@@ -11,6 +11,7 @@
 namespace 
 {
 	bool get_next_char(std::istream& in, char& ch);
+	char peek_next_char(std::istream& in);
 	bool parse_list(std::istream& in, slist::node_ptr result);
 	bool parse_token(std::istream& in, slist::node_ptr& result);
 	slist::node_type find_type(const std::string& str);
@@ -22,6 +23,7 @@ namespace slist
 	node_ptr parse(const std::string& str)
 	{
 		std::istringstream in(str);
+		in >> std::noskipws;
 
 		node_ptr result(new node);
 		result->type = node_type::pair;
@@ -51,8 +53,10 @@ namespace slist
 			{
 				while (in && ch != '\n')
 				{
-					get_next_char(in , ch);
+                    log_traceln(std::string(&ch, 1));
+					in.get(ch);
 				}
+                log_traceln("OK!");
 			}
 			else
 			{
@@ -104,6 +108,11 @@ namespace
 			}
 		}
 		return false;
+	}
+
+	char peek_next_char(std::istream& in)
+	{
+		return static_cast<char>(in.peek());
 	}
 
 	bool parse_list(std::istream& in, slist::node_ptr result)
@@ -164,6 +173,8 @@ namespace
 
 	bool parse_token(std::istream& in, slist::node_ptr& result)
 	{
+		using namespace slist;
+
 		char ch = 0;
 		if (get_next_char(in, ch))
 		{
@@ -175,7 +186,39 @@ namespace
 			{
 				in.get(ch);
 
-				if (in && ch != '(' && ch != ')' && !std::isspace(ch) && ch != ';')
+				if (in && ch == '\'')
+				{
+					result->type = node_type::pair;
+
+					node_ptr sym(new node);
+					sym->type = node_type::name;
+					sym->value = "'";
+
+					result->append(sym);
+
+					char next_ch = peek_next_char(in);
+					if (next_ch == '(')
+					{
+						node_ptr sublist(new node);
+						sublist->type = node_type::pair;
+
+						if (parse_list(in, sublist))
+						{
+							result->append(sublist);
+						}
+					}
+					else 
+					{
+						node_ptr subname(new node);
+						if (parse_token(in, subname))
+						{
+							result->append(subname);
+						}
+					}
+                    
+                    return true;
+				}
+				else if (in && ch != '(' && ch != ')' && !std::isspace(ch) && ch != ';')
 				{
 					str += ch;
 				}
@@ -211,7 +254,6 @@ namespace
 		int dot_count = 0;
 		bool has_only_digits = false;
 		bool has_alpha = false;
-		bool is_symbol = false;
 		bool is_first_char = true;
 
 		for (char ch : str)
@@ -223,11 +265,6 @@ namespace
 			else if (ch == '.')
 			{
 				++dot_count;
-			}
-			else if (ch =='\'' && str.length() > 0)
-			{
-				is_symbol = is_first_char;
-				has_alpha = true;
 			}
 			else
 			{
@@ -245,10 +282,6 @@ namespace
 		else if (has_only_digits && dot_count == 0)
 		{
 			type = node_type::integer;
-		}
-		else if (is_symbol)
-		{
-			type = node_type::name;
 		}
 		else 
 		{

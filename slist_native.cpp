@@ -175,13 +175,18 @@ namespace slist
 	node_ptr ___quote_arg(context& ctx, node_ptr arg)
 	{
 		node_ptr result;
-		if (arg->type == node_type::name || arg->type == node_type::name)
+		if (arg->type == node_type::name)
 		{
-			ctx.symbols.insert(arg->value);
-
-			result.reset(new node);
-			result->type = node_type::name;
-			result->value = arg->value;			
+			auto symb = ctx.lookup_symbol(arg->value);
+			if (symb != nullptr)
+			{
+				result = symb;
+			}
+			else 
+			{
+				ctx.insert_symbol(arg);
+				result = arg;
+			}
 		}
 		else if (arg->type == node_type::integer || arg->type == node_type::number)
 		{
