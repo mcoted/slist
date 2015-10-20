@@ -1,10 +1,12 @@
 #include "slist.h"
 #include <cstdlib>
 #include <fstream>
+#include <iostream>
 
 namespace
 {
     bool should_execute = false;
+    void repl();
     std::vector<std::string> parse_arguments(int argc, char **argv);
 }
 
@@ -16,7 +18,7 @@ int main(int argc, char **argv)
 
     if (trailing.empty()) 
     {
-        // TODO: REPL
+        repl();
     }
     else if (trailing.size() == 1)
     {
@@ -63,31 +65,41 @@ int main(int argc, char **argv)
         return -1;
     }
 
-    // node_ptr n = parse("");
-
-    // if (get_log_level() >= log_level::trace)
-    // {
-    //     log_traceln("");
-    //     debug_print_node(n);
-    //     log_traceln("");
-    // }
-
-    // context ctx;
-    // while (n != nullptr)
-    // {
-    //     auto r = eval(ctx, n->car);
-    //     if (r != nullptr)
-    //     {
-    //         outputln("", r);
-    //     }
-    //     n = n->cdr;
-    // }
-
     return 0;
 }
 
 namespace
 {
+    void repl()
+    {
+        using namespace slist;
+
+        context ctx;
+        std::string input;
+
+        while (true)
+        {
+            output("> ");
+            std::getline(std::cin, input);
+
+            if (!std::cin)
+            {
+                break;
+            }
+
+            auto n = parse(input);
+            while (n != nullptr)
+            {
+                auto r = eval(ctx, n->car);
+                if (r != nullptr)
+                {
+                    outputln("", r);
+                }
+                n = n->cdr;
+            }
+        }
+    }
+
     std::vector<std::string> parse_arguments(int argc, char **argv)
     {
         using namespace std;
