@@ -368,6 +368,8 @@ namespace slist
 		}
 
 		auto arg = eval(ctx, root->get(1));
+
+		// TODO: I need a more 'standard' way to define an empty node
         bool is_empty = (arg == nullptr)                ||
                         (arg->car == nullptr)           ||
                         (arg->type == node_type::empty) ||
@@ -444,7 +446,9 @@ namespace slist
 			bool result = false;
 			if (arg1->type == arg2->type)
 			{
-				if (arg1->type == node_type::integer || arg1->type == node_type::number)
+				if (arg1->type == node_type::integer || 
+					arg1->type == node_type::number  ||
+					arg1->type == node_type::string)
 				{
 					result = (arg1->value == arg2->value);
 				}

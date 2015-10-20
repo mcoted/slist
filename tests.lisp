@@ -94,12 +94,13 @@
         1
         (+ 1 (long-sum (- n 1)))))
 (___run_test (= (long-sum 100) 100))
-;(___run_test (= (long-sum 1000) 1000)) ;; TODO: Need tail-recursive-call optimization
+;(___run_test (= (long-sum 1000) 1000)) ;; TODO: Need tail-call optimization
 
 (___run_test (eq? 'a 'a))
 (___run_test (eq? 'a (quote a)))
 
 (define quote-a ''a)
 (___run_test (not (eq? ''a quote-a)))
-(___run_test (equal? ''a quote-a))
 
+(define some-string "hello")
+(___run_test (equal? some-string "hello"))
