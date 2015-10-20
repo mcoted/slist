@@ -384,7 +384,7 @@ namespace slist
 	{
 		if (root->length() > 1)
 		{
-			output("", eval(ctx, root->cdr->car));			
+			output("", eval(ctx, root->cdr->car), nullptr, true);
 		}
 		return nullptr;
 	}
@@ -393,7 +393,7 @@ namespace slist
 	{
 		if (root->length() > 1)
 		{
-			outputln("", eval(ctx, root->cdr->car));			
+			outputln("", eval(ctx, root->cdr->car), nullptr, true);
 		}
 		return nullptr;
 	}

@@ -16,8 +16,8 @@ namespace slist
 	log_level get_log_level();
 	void set_log_level(log_level level);
 
-	void output(const std::string& str = "", node_ptr n = nullptr, funcdef_ptr f = nullptr);
-	void outputln(const std::string& str = "", node_ptr n = nullptr, funcdef_ptr f = nullptr);
+	void output(const std::string& str = "", node_ptr n = nullptr, funcdef_ptr f = nullptr, bool from_print = false);
+	void outputln(const std::string& str = "", node_ptr n = nullptr, funcdef_ptr f = nullptr, bool from_print = false);
 
 	void log_warning(const std::string& str = "", node_ptr n = nullptr, funcdef_ptr f = nullptr);
 	void log_warningln(const std::string& str = "", node_ptr n = nullptr, funcdef_ptr f = nullptr);

@@ -12,8 +12,12 @@ namespace
 {
 	bool get_next_char(std::istream& in, char& ch);
 	char peek_next_char(std::istream& in);
+	
 	bool parse_list(std::istream& in, slist::node_ptr result);
 	bool parse_token(std::istream& in, slist::node_ptr& result);
+	bool parse_string(std::istream& in, slist::node_ptr& result);
+	bool parse_comment(std::istream& in);
+
 	slist::node_type find_type(const std::string& str);
 	std::string type_to_string(slist::node_type type);
 }
@@ -49,14 +53,18 @@ namespace slist
 					result->append(list);
 				}
 			}
+			else if(ch == '"')
+			{
+				in.putback(ch);
+				node_ptr string_node(new node);
+				if (parse_string(in, string_node))
+				{
+					result->append(string_node);
+				}
+			}
 			else if (ch == ';')
 			{
-				while (in && ch != '\n')
-				{
-                    log_traceln(std::string(&ch, 1));
-					in.get(ch);
-				}
-                log_traceln("OK!");
+				parse_comment(in);
 			}
 			else
 			{
@@ -126,6 +134,8 @@ namespace
 		get_next_char(in, ch);
 		assert(ch == '(');
 
+		// TODO: This is basically 'parse()' repeated here... call it directly instead?
+
 		while (true)
 		{
 			if (!get_next_char(in, ch))
@@ -149,6 +159,19 @@ namespace
 			{
 				parsed = true;
 				break;
+			}
+			else if(ch == '"')
+			{
+				in.putback(ch);
+				node_ptr string_node(new node);
+				if (parse_string(in, string_node))
+				{
+					result->append(string_node);
+				}
+			}
+			else if (ch == ';')
+			{
+				parse_comment(in);
 			}
 			else 
 			{
@@ -239,6 +262,56 @@ namespace
 		}
 
 		return false;
+	}
+
+	bool parse_string(std::istream& in, slist::node_ptr& result)
+	{
+		using namespace slist;
+
+		char ch = '\0';
+		get_next_char(in, ch);
+		if (ch == '"')
+		{
+			std::string str;
+
+			while (true)
+			{
+				get_next_char(in, ch);
+
+				if (!in)
+				{
+					break;
+				}
+
+				if (ch == '\\' && peek_next_char(in) == '"')
+				{
+					get_next_char(in, ch);
+					str += ch;
+				}
+				else if (ch == '"')
+				{
+					break;
+				}
+
+				str += ch;
+			}
+
+			result->type = node_type::string;
+			result->value = str;
+
+			return true;
+		}
+		return false;
+	}
+
+	bool parse_comment(std::istream& in)
+	{
+		char ch = '\0';
+		while (in && ch != '\n')
+		{
+			in.get(ch);
+		}
+		return true;
 	}
 
 	slist::node_type find_type(const std::string& str)

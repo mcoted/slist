@@ -4,17 +4,6 @@
 #include "slist_log.h"
 #include <algorithm>
 
-namespace
-{
-	// const char * builtin___add = 
-	// "(define (+ . values) (___sum values))"
-	// "(define (___sum values)"
-	// "    (if (empty? values)"
-	// "        0"
-	// "        (___add (car values) (___sum (cdr values)))))"
-	// ;
-}
-
 namespace slist
 {
 	context::context()
@@ -61,7 +50,7 @@ namespace slist
 		register_native("___run_test", &___run_test);
 
 		// Execute the builtins script to register the builtin procedures
-		//exec(*this, builtin___add);
+		//exec(*this, builtins);
 	}
 
 	void context::register_native(const std::string& name, funcdef::callback func)

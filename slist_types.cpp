@@ -212,6 +212,7 @@ namespace slist
 			case node_type::integer: return "integer";
 			case node_type::number:  return "number";
 			case node_type::name:    return "name";
+			case node_type::string:  return "string";
 		}
 
 		return "<undefined>";

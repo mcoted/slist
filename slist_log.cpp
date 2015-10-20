@@ -4,6 +4,7 @@
 namespace
 {
 	slist::log_level global_log_level = slist::log_level::warning;
+	bool global_log_from_print = false;
 
 	void log(const std::string& str, slist::log_level level, bool in_pair = false);
 	void log(const slist::node_ptr& n, slist::log_level level, bool in_pair = false);
@@ -23,16 +24,18 @@ namespace slist
 		global_log_level = level;
 	}
 
-	void output(const std::string& str, node_ptr n, funcdef_ptr f)
+	void output(const std::string& str, node_ptr n, funcdef_ptr f, bool from_print)
 	{
+		global_log_from_print = from_print;
 		log(str, log_level::always);
 		log(n, log_level::always);
 		log(f, log_level::always);
+		global_log_from_print = false;
 	}
 
-	void outputln(const std::string& str, node_ptr n, funcdef_ptr f)
+	void outputln(const std::string& str, node_ptr n, funcdef_ptr f, bool from_print)
 	{
-		output(str, n, f);
+		output(str, n, f, from_print);
 		log("\n", log_level::always);
 	}
 
@@ -141,6 +144,18 @@ namespace
 					{
 						log_internal(")", level);
 					}					
+				}
+				break;
+			case node_type::string:
+				{
+					if (global_log_from_print)
+					{
+						log_internal(n->value, level);
+					}
+					else
+					{
+						log_internal("\"" + n->value + "\"", level);						
+					}
 				}
 				break;
 			default:

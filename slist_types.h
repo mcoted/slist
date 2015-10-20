@@ -29,6 +29,7 @@ namespace slist
 		integer,
 		number,
 		name,
+		string,
 	};
 
 	struct node : public std::enable_shared_from_this<node>

@@ -33,6 +33,7 @@ namespace slist
                 break;
 			case node_type::integer:
 			case node_type::number:
+			case node_type::string:
                 return root;
 			default:
 				break;
