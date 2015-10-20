@@ -109,27 +109,38 @@ namespace
 		switch (n->type)
 		{
 			case slist::node_type::pair:
-				if (!in_pair)
+				if (n->car != nullptr && 
+					n->car->type == node_type::name && 
+					n->car->value == "'")
 				{
-					log_internal("(", level);
+					// Quote, skip the list format
+					log(n->car, level, true);
+					log(n->cdr, level, true);
 				}
-				log(n->car, level, false);
-				if (n->cdr != nullptr)
+				else 
 				{
-					if (n->cdr->type == slist::node_type::pair)
+					if (!in_pair)
 					{
-						log_internal(" ", level);
-						log(n->cdr, level, true);
+						log_internal("(", level);
 					}
-					else
+					log(n->car, level, false);
+					if (n->cdr != nullptr)
 					{
-						log_internal(" . ", level);
-						log(n->cdr, level, true);
-					}	
-				} 
-				if (!in_pair)
-				{
-					log_internal(")", level);
+						if (n->cdr->type == slist::node_type::pair)
+						{
+							log_internal(" ", level);
+							log(n->cdr, level, true);
+						}
+						else
+						{
+							log_internal(" . ", level);
+							log(n->cdr, level, true);
+						}	
+					} 
+					if (!in_pair)
+					{
+						log_internal(")", level);
+					}					
 				}
 				break;
 			default:
