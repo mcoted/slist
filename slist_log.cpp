@@ -114,7 +114,7 @@ namespace
 					n->car->value == "'")
 				{
 					// Quote, skip the list format
-					log(n->car, level, true);
+					log(n->car, level, false);
 					log(n->cdr, level, true);
 				}
 				else 
