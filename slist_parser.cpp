@@ -331,9 +331,17 @@ namespace
 
 		for (char ch : str)
 		{
-			if (std::isdigit(ch) || ch == '-')
+			if (std::isdigit(ch))
 			{
 				has_only_digits = !has_alpha;
+			}
+			else if (ch == '-')
+			{
+				if (has_only_digits)
+				{
+					has_only_digits = false;
+					break;
+				}
 			}
 			else if (ch == '.')
 			{
@@ -343,6 +351,7 @@ namespace
 			{
 				has_alpha = true;
 				has_only_digits = false;
+				break;
 			}
 
 			is_first_char = false;
