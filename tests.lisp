@@ -5,8 +5,8 @@
 (run-test (not (eq? 1 2)))
 (run-test (not (equal? 1 2)))
 
-(define v0 (quote (1 2)))
-(define v1 (quote (1 2)))
+(define v0 '(1 2))
+(define v1 '(1 2))
 (run-test (eq? v0 v0))
 (run-test (not (eq? v0 v1)))
 (run-test (equal? v0 v1))
@@ -47,7 +47,7 @@
 (run-test (= (add-4-inside-let 6) 10))
 
 (define (add x y) (+ x y))
-(run-test (= (apply add (list 1 2)) 3))
+(run-test (= (apply add '(1 2)) 3))
 
 (define (f x y) (begin (+ x y) (+ x y)))
 (run-test (= (f 1 2) 3))
@@ -72,7 +72,7 @@
     (if (> count 0)
         (cons value (make-list value (- count 1)))
         (list)))
-(run-test (equal? (make-list 1 5) (list 1 1 1 1 1)))
+(run-test (equal? (make-list 1 5) '(1 1 1 1 1)))
 
 (define (fact n)
     (if (<= n 1)
