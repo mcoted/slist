@@ -104,3 +104,7 @@
 
 (define some-string "hello")
 (run-test (equal? some-string "hello"))
+
+(define set-value 1)
+(set! set-value 2)
+(run-test (= set-value 2))

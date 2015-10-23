@@ -7,8 +7,6 @@ namespace slist
 {
 	struct context;
 	
-	node_ptr native_define   (context& ctx, const node_ptr& root);
-	node_ptr native_lambda   (context& ctx, const node_ptr& root);
 	node_ptr native_eval     (context& ctx, const node_ptr& root);	
 	node_ptr native_apply    (context& ctx, const node_ptr& root);
 	node_ptr native_cons     (context& ctx, const node_ptr& root);
@@ -16,6 +14,9 @@ namespace slist
 	node_ptr native_car      (context& ctx, const node_ptr& root);
 	node_ptr native_cdr      (context& ctx, const node_ptr& root);
 	node_ptr native_quote    (context& ctx, const node_ptr& root);
+	node_ptr native_lambda   (context& ctx, const node_ptr& root);
+	node_ptr native_define   (context& ctx, const node_ptr& root);
+	node_ptr native_set      (context& ctx, const node_ptr& root);
 	node_ptr native_let      (context& ctx, const node_ptr& root);
 	node_ptr native_begin    (context& ctx, const node_ptr& root);
 	node_ptr native_if       (context& ctx, const node_ptr& root);

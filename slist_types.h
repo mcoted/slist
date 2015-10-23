@@ -77,6 +77,7 @@ namespace slist
 	{
 		void register_variable(const std::string& name, node_ptr n);
 		node_ptr lookup_variable(const std::string& name);
+		void set_variable(const std::string& name, node_ptr n);
 
 		environment_ptr parent;
 

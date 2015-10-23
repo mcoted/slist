@@ -29,7 +29,7 @@ namespace slist
 				result = eval_list(ctx, root);
                 break;
 			case node_type::name:
-				result =  eval_name(ctx, root);
+				result = eval_name(ctx, root);
                 break;
 			case node_type::integer:
 			case node_type::number:

@@ -135,6 +135,22 @@ namespace slist
 		return nullptr;
 	}
 
+	void environment::set_variable(const std::string& name, node_ptr n)
+	{
+		environment *env = this;
+		while (env != nullptr)
+		{
+			auto it = env->bindings.find(name);
+			if (it != env->bindings.end())
+			{
+				it->second = n;
+				break;
+			}
+
+			env = env->parent.get();
+		}
+	}
+
 	void print_node(const node_ptr& n)
 	{
 		debug_print_node(n);

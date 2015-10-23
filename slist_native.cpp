@@ -7,77 +7,6 @@
 
 namespace slist
 {
-	node_ptr native_define(context& ctx, const node_ptr& root)
-	{
-		if (root->length() < 3)
-		{
-			log_errorln("Invalid arguments for 'define'\n", root);
-			return nullptr;
-		}
-
-		node_ptr first = root->get(1);
-		node_ptr body = root->get(2);
-
-		if (first->type == node_type::pair)
-		{
-			// Lambda syntactic sugar
-			// (define (f x) (...)) -> (define f (lambda (x) (...))
-
-			node_ptr name = first->car;
-			node_ptr args = first->cdr;
-
-			node_ptr lambda_node(new node);
-			lambda_node->type = node_type::pair;
-
-			node_ptr name_node(new node);
-			name_node->value = "lambda";
-			name_node->type = node_type::name;			
-			lambda_node->append(name_node);
-			lambda_node->append(args);
-			lambda_node->append(body);
-
-			log_traceln("LAMBDA FROM SCRATCH:\n", lambda_node);
-
-            ctx.global_env->register_variable(name->value, native_lambda(ctx, lambda_node));
-		}
-		else if (first->type == node_type::name)
-		{
-            node_ptr res = eval(ctx, body);
-			ctx.global_env->register_variable(first->value, res);            
-		}
-
-		return nullptr;
-	}
-
-	node_ptr native_lambda(context& ctx, const node_ptr& root)
-	{
-		if (root->proc != nullptr)
-		{
-			log_warningln("Evaluating a lambda that already has a procedure. Was it evaluated twice?");
-			return root;
-		}
-
-		if (root->length() != 3)
-		{
-			log_errorln("Invalid lambda format\n", root);
-			return nullptr;
-		}
-
-		funcdef_ptr func(new funcdef);
-		func->env->parent = ctx.active_env;
-		func->is_native = false;
-		func->name = root->get(0)->value; // "lambda"
-		func->variables = root->get(1);
-		func->body = root->get(2);
-
-		node_ptr res(new node);
-		res->proc = func;
-
-		log_traceln("Lambda proc:\n", nullptr, func);
-
-		return res;
-	}
-
 	node_ptr native_eval(context& ctx, const node_ptr& root)
 	{
 		if (root->length() != 2)
@@ -237,6 +166,93 @@ namespace slist
 		node_ptr arg = root->get(1);
 
 		return native_quote_arg(ctx, arg);
+	}
+
+	node_ptr native_lambda(context& ctx, const node_ptr& root)
+	{
+		if (root->proc != nullptr)
+		{
+			log_warningln("Evaluating a lambda that already has a procedure. Was it evaluated twice?");
+			return root;
+		}
+
+		if (root->length() != 3)
+		{
+			log_errorln("Invalid lambda format\n", root);
+			return nullptr;
+		}
+
+		funcdef_ptr func(new funcdef);
+		func->env->parent = ctx.active_env;
+		func->is_native = false;
+		func->name = root->get(0)->value; // "lambda"
+		func->variables = root->get(1);
+		func->body = root->get(2);
+
+		node_ptr res(new node);
+		res->proc = func;
+
+		log_traceln("Lambda proc:\n", nullptr, func);
+
+		return res;
+	}
+
+	node_ptr native_define(context& ctx, const node_ptr& root)
+	{
+		if (root->length() < 3)
+		{
+			log_errorln("Invalid arguments for 'define'\n", root);
+			return nullptr;
+		}
+
+		node_ptr first = root->get(1);
+		node_ptr body = root->get(2);
+
+		if (first->type == node_type::pair)
+		{
+			// Lambda syntactic sugar
+			// (define (f x) (...)) -> (define f (lambda (x) (...))
+
+			node_ptr name = first->car;
+			node_ptr args = first->cdr;
+
+			node_ptr lambda_node(new node);
+			lambda_node->type = node_type::pair;
+
+			node_ptr name_node(new node);
+			name_node->value = "lambda";
+			name_node->type = node_type::name;			
+			lambda_node->append(name_node);
+			lambda_node->append(args);
+			lambda_node->append(body);
+
+			log_traceln("Lambda from scratch:\n", lambda_node);
+
+            ctx.global_env->register_variable(name->value, native_lambda(ctx, lambda_node));
+		}
+		else if (first->type == node_type::name)
+		{
+            node_ptr res = eval(ctx, body);
+			ctx.global_env->register_variable(first->value, res);            
+		}
+
+		return nullptr;
+	}
+
+	node_ptr native_set(context& ctx, const node_ptr& root)
+	{
+		if (root->length() != 3)
+		{
+			log_errorln("Invalid 'set!' syntax: ", root);
+			return nullptr;
+		}
+
+		node_ptr name = root->get(1);
+		node_ptr arg = root->get(2);
+
+		ctx.active_env->set_variable(name->value, arg);
+
+		return nullptr;
 	}
 
 	node_ptr native_let(context& ctx, const node_ptr& root)

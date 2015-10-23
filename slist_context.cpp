@@ -12,8 +12,6 @@ namespace slist
 		global_env.reset(new environment);
 		active_env = global_env;
 
-		register_native("define",  &native_define);
-		register_native("lambda",  &native_lambda);
 		register_native("eval",    &native_eval);
 		register_native("apply",   &native_apply);
 		register_native("cons",    &native_cons);
@@ -22,6 +20,9 @@ namespace slist
 		register_native("cdr",     &native_cdr);
 		register_native("quote",   &native_quote);
 		register_native("'",       &native_quote);		
+		register_native("lambda",  &native_lambda);
+		register_native("define",  &native_define);
+		register_native("set!",    &native_set);
 		register_native("let",     &native_let);
 		register_native("begin",   &native_begin);
 		register_native("if",      &native_if);
