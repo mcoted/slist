@@ -12,42 +12,42 @@ namespace slist
 		global_env.reset(new environment);
 		active_env = global_env;
 
-		register_native("define",  &___define);
-		register_native("lambda",  &___lambda);
-		register_native("eval",    &___eval);
-		register_native("apply",   &___apply);
-		register_native("cons",    &___cons);
-		register_native("list",    &___list);
-		register_native("car",     &___car);
-		register_native("cdr",     &___cdr);
-		register_native("quote",   &___quote);
-		register_native("'",       &___quote);		
-		register_native("let",     &___let);
-		register_native("begin",   &___begin);
-		register_native("if",      &___if);
-		register_native("length",  &___length);
-		register_native("empty?",  &___empty);
-		register_native("print",   &___print);
-		register_native("println", &___println);
-		register_native("eq?",     &___eq);
-		register_native("equal?",  &___equal);
-		register_native("not",     &___not);
+		register_native("define",  &native_define);
+		register_native("lambda",  &native_lambda);
+		register_native("eval",    &native_eval);
+		register_native("apply",   &native_apply);
+		register_native("cons",    &native_cons);
+		register_native("list",    &native_list);
+		register_native("car",     &native_car);
+		register_native("cdr",     &native_cdr);
+		register_native("quote",   &native_quote);
+		register_native("'",       &native_quote);		
+		register_native("let",     &native_let);
+		register_native("begin",   &native_begin);
+		register_native("if",      &native_if);
+		register_native("length",  &native_length);
+		register_native("empty?",  &native_empty);
+		register_native("print",   &native_print);
+		register_native("println", &native_println);
+		register_native("eq?",     &native_eq);
+		register_native("equal?",  &native_equal);
+		register_native("not",     &native_not);
 
-		register_native("+", &___add);
-		register_native("-", &___sub);
-		register_native("*", &___mul);
-		register_native("/", &___div);
+		register_native("+", &native_add);
+		register_native("-", &native_sub);
+		register_native("*", &native_mul);
+		register_native("/", &native_div);
 
-		register_native("=",  &___e);
-		register_native("!=", &___ne);
-		register_native("<",  &___lt);
-		register_native(">",  &___gt);
-		register_native("<=", &___le);
-		register_native(">=", &___ge);
+		register_native("=",  &native_e);
+		register_native("!=", &native_ne);
+		register_native("<",  &native_lt);
+		register_native(">",  &native_gt);
+		register_native("<=", &native_le);
+		register_native(">=", &native_ge);
 
-		register_native("assert", &___assert);
+		register_native("assert", &native_assert);
 
-		register_native("___run_test", &___run_test);
+		register_native("run-test", &native_run_test);
 
 		// Execute the builtins script to register the builtin procedures
 		//exec(*this, builtins);

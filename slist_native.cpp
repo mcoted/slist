@@ -7,7 +7,7 @@
 
 namespace slist
 {
-	node_ptr ___define(context& ctx, const node_ptr& root)
+	node_ptr native_define(context& ctx, const node_ptr& root)
 	{
 		if (root->length() < 3)
 		{
@@ -38,7 +38,7 @@ namespace slist
 
 			log_traceln("LAMBDA FROM SCRATCH:\n", lambda_node);
 
-            ctx.global_env->register_variable(name->value, ___lambda(ctx, lambda_node));
+            ctx.global_env->register_variable(name->value, native_lambda(ctx, lambda_node));
 		}
 		else if (first->type == node_type::name)
 		{
@@ -49,7 +49,7 @@ namespace slist
 		return nullptr;
 	}
 
-	node_ptr ___lambda(context& ctx, const node_ptr& root)
+	node_ptr native_lambda(context& ctx, const node_ptr& root)
 	{
 		if (root->proc != nullptr)
 		{
@@ -78,7 +78,7 @@ namespace slist
 		return res;
 	}
 
-	node_ptr ___eval(context& ctx, const node_ptr& root)
+	node_ptr native_eval(context& ctx, const node_ptr& root)
 	{
 		if (root->length() != 2)
 		{
@@ -89,7 +89,7 @@ namespace slist
 		return eval(ctx, eval(ctx, root->get(1)));
 	}
 
-	node_ptr ___apply(context& ctx, const node_ptr& root)
+	node_ptr native_apply(context& ctx, const node_ptr& root)
 	{
 		if (root->length() < 3)
 		{
@@ -114,7 +114,7 @@ namespace slist
 		return apply(ctx, args, func_node->proc);
 	}
 
-	node_ptr ___cons(context& ctx, const node_ptr& root)
+	node_ptr native_cons(context& ctx, const node_ptr& root)
 	{
 		if (root->length() != 3)
 		{
@@ -130,12 +130,12 @@ namespace slist
 		return result;
 	}
 
-	node_ptr ___list(context& ctx, const node_ptr& root)
+	node_ptr native_list(context& ctx, const node_ptr& root)
 	{
         return root->cdr;
 	}
 
-	node_ptr ___car(context& ctx, const node_ptr& root)
+	node_ptr native_car(context& ctx, const node_ptr& root)
 	{
 		if (root->length() < 2 || root->get(1) == nullptr)
 		{
@@ -152,7 +152,7 @@ namespace slist
         return nullptr;
 	}
 
-	node_ptr ___cdr(context& ctx, const node_ptr& root)
+	node_ptr native_cdr(context& ctx, const node_ptr& root)
 	{
 		if (root->length() < 2 || root->get(1) == nullptr)
 		{
@@ -172,7 +172,7 @@ namespace slist
         return empty;
 	}
 
-	node_ptr ___quote_arg(context& ctx, node_ptr arg)
+	node_ptr native_quote_arg(context& ctx, node_ptr arg)
 	{
 		node_ptr result;
 		if (arg->type == node_type::name)
@@ -203,7 +203,7 @@ namespace slist
 				{
 					continue;
 				}
-				node_ptr n = ___quote_arg(ctx, arg->car);
+				node_ptr n = native_quote_arg(ctx, arg->car);
 				if (n != nullptr)
 				{
 					result->append(n);
@@ -226,7 +226,7 @@ namespace slist
 		return result;
 	}
 
-	node_ptr ___quote(context& ctx, const node_ptr& root)
+	node_ptr native_quote(context& ctx, const node_ptr& root)
 	{
 		if (root->length() != 2)
 		{
@@ -236,10 +236,10 @@ namespace slist
 
 		node_ptr arg = root->get(1);
 
-		return ___quote_arg(ctx, arg);
+		return native_quote_arg(ctx, arg);
 	}
 
-	node_ptr ___let(context& ctx, const node_ptr& root)
+	node_ptr native_let(context& ctx, const node_ptr& root)
 	{
 		// Let is syntactic sugar:
 		//    (lambda (x)
@@ -306,7 +306,7 @@ namespace slist
 		return eval(ctx, func, nullptr);	
 	}
 
-	node_ptr ___begin(context& ctx, const node_ptr& root)
+	node_ptr native_begin(context& ctx, const node_ptr& root)
 	{
 		node_ptr n = root->cdr;
 		node_ptr result;
@@ -319,7 +319,7 @@ namespace slist
 		return result;
 	}
 
-	node_ptr ___if(context& ctx, const node_ptr& root)
+	node_ptr native_if(context& ctx, const node_ptr& root)
 	{
 		if (root->length() != 4)
 		{
@@ -342,7 +342,7 @@ namespace slist
 		return eval(ctx, root->get(3));
 	}
 
-	node_ptr ___length(context& ctx, const node_ptr& root)
+	node_ptr native_length(context& ctx, const node_ptr& root)
 	{
 		if (root->length() != 2)
 		{
@@ -359,7 +359,7 @@ namespace slist
 		return result;
 	}
 
-	node_ptr ___empty(context& ctx, const node_ptr& root)
+	node_ptr native_empty(context& ctx, const node_ptr& root)
 	{
 		if (root->length() != 2)
 		{
@@ -382,7 +382,7 @@ namespace slist
 		return result;
 	}
 
-	node_ptr ___print(context& ctx, const node_ptr& root)
+	node_ptr native_print(context& ctx, const node_ptr& root)
 	{
 		if (root->length() > 1)
 		{
@@ -391,7 +391,7 @@ namespace slist
 		return nullptr;
 	}
 
-	node_ptr ___println(context& ctx, const node_ptr& root)
+	node_ptr native_println(context& ctx, const node_ptr& root)
 	{
 		if (root->length() > 1)
 		{
@@ -400,7 +400,7 @@ namespace slist
 		return nullptr;
 	}
 
-	node_ptr ___eq(context& ctx, const node_ptr& root)
+	node_ptr native_eq(context& ctx, const node_ptr& root)
 	{
 		if (root->length() != 3)
 		{
@@ -431,7 +431,7 @@ namespace slist
 		return result;
 	}
 
-	bool ___equal_helper(context& ctx, const node_ptr& arg1, const node_ptr& arg2)
+	bool native_equal_helper(context& ctx, const node_ptr& arg1, const node_ptr& arg2)
 	{
 		if (arg1 == nullptr && arg2 == nullptr)
 		{
@@ -454,15 +454,15 @@ namespace slist
 				}
 				else if (arg1->type == node_type::pair)
 				{
-					result = ___equal_helper(ctx, arg1->car, arg2->car) &&
-					         ___equal_helper(ctx, arg1->cdr, arg2->cdr);
+					result = native_equal_helper(ctx, arg1->car, arg2->car) &&
+					         native_equal_helper(ctx, arg1->cdr, arg2->cdr);
 				}
 			}
 			return result;
 		}
 	}
 
-	node_ptr ___equal(context& ctx, const node_ptr& root)
+	node_ptr native_equal(context& ctx, const node_ptr& root)
 	{
 		if (root->length() != 3)
 		{
@@ -473,7 +473,7 @@ namespace slist
 		node_ptr arg1 = eval(ctx, root->get(1));
 		node_ptr arg2 = eval(ctx, root->get(2));
 
-		bool value = ___equal_helper(ctx, arg1, arg2);
+		bool value = native_equal_helper(ctx, arg1, arg2);
 
 		node_ptr result(new node);
 		result->type = node_type::boolean;
@@ -482,7 +482,7 @@ namespace slist
 		return result;
 	}
 
-	node_ptr ___not(context& ctx, const node_ptr& root)
+	node_ptr native_not(context& ctx, const node_ptr& root)
 	{
 		if (root->length() != 2)
 		{
@@ -505,7 +505,7 @@ namespace slist
 		return result;
 	}
 
-	bool ___arithmetic_op_validate_arg(const node_ptr& arg)
+	bool native_arithmetic_op_validate_arg(const node_ptr& arg)
 	{
         if (arg == nullptr)
         {
@@ -521,9 +521,9 @@ namespace slist
 	}
 
 	template<class Op>
-	node_ptr ___arithmetic_op_helper(const node_ptr& n, const node_ptr& arg, const Op& op)
+	node_ptr native_arithmetic_op_helper(const node_ptr& n, const node_ptr& arg, const Op& op)
 	{
-		if (!___arithmetic_op_validate_arg(arg))
+		if (!native_arithmetic_op_validate_arg(arg))
 		{
 			return nullptr;
 		}
@@ -572,7 +572,7 @@ namespace slist
 			\
 			node_ptr result = eval(ctx, arg->car); \
 			\
-			if (!___arithmetic_op_validate_arg(result)) \
+			if (!native_arithmetic_op_validate_arg(result)) \
 			{ \
 				return nullptr; \
 			} \
@@ -580,7 +580,7 @@ namespace slist
 			arg = arg->cdr; \
 			while (arg != nullptr) \
 			{ \
-				result = ___arithmetic_op_helper(result, eval(ctx, arg->car), op); \
+				result = native_arithmetic_op_helper(result, eval(ctx, arg->car), op); \
 				if (result == nullptr) \
 				{ \
 					return nullptr; \
@@ -591,10 +591,10 @@ namespace slist
 			return result; \
 		}
 
-	MAKE_ARITHMETIC_FUNC(___add, +)
-	MAKE_ARITHMETIC_FUNC(___sub, -)
-	MAKE_ARITHMETIC_FUNC(___mul, *)
-	MAKE_ARITHMETIC_FUNC(___div, /)
+	MAKE_ARITHMETIC_FUNC(native_add, +)
+	MAKE_ARITHMETIC_FUNC(native_sub, -)
+	MAKE_ARITHMETIC_FUNC(native_mul, *)
+	MAKE_ARITHMETIC_FUNC(native_div, /)
 
 	#define MAKE_COMPARISON_OP_FUNC(FUNC_NAME, OP) \
 		node_ptr FUNC_NAME(context& ctx, const node_ptr& root) \
@@ -624,14 +624,14 @@ namespace slist
 			return result; \
 		}
 
-	MAKE_COMPARISON_OP_FUNC(___e,  ==)
-	MAKE_COMPARISON_OP_FUNC(___ne, !=)
-	MAKE_COMPARISON_OP_FUNC(___lt, < )
-	MAKE_COMPARISON_OP_FUNC(___gt, > )
-	MAKE_COMPARISON_OP_FUNC(___le, <=)
-	MAKE_COMPARISON_OP_FUNC(___ge, >=)
+	MAKE_COMPARISON_OP_FUNC(native_e,  ==)
+	MAKE_COMPARISON_OP_FUNC(native_ne, !=)
+	MAKE_COMPARISON_OP_FUNC(native_lt, < )
+	MAKE_COMPARISON_OP_FUNC(native_gt, > )
+	MAKE_COMPARISON_OP_FUNC(native_le, <=)
+	MAKE_COMPARISON_OP_FUNC(native_ge, >=)
 
-	node_ptr ___assert(context& ctx, const node_ptr& root)
+	node_ptr native_assert(context& ctx, const node_ptr& root)
 	{
 		if (root->length() != 2)
 		{
@@ -655,11 +655,11 @@ namespace slist
 		return nullptr;
 	}
 
-	node_ptr ___run_test(context& ctx, const node_ptr& root)
+	node_ptr native_run_test(context& ctx, const node_ptr& root)
 	{
 		if (root->length() != 2)
 		{
-			log_errorln("'___run_test' expects 1 predicate argument: ", root);
+			log_errorln("'native_run_test' expects 1 predicate argument: ", root);
 			return nullptr;
 		}
 
@@ -668,7 +668,7 @@ namespace slist
 
 		if (arg->type != node_type::boolean)
 		{
-			log_errorln("'___run_test' argument did not evaluate to a boolean value: ", arg);
+			log_errorln("'native_run_test' argument did not evaluate to a boolean value: ", arg);
 			return nullptr;
 		}
 
