@@ -9,17 +9,18 @@
 #include <iostream>
 
 namespace 
-{
-	bool get_next_char(std::istream& in, char& ch);
-	char peek_next_char(std::istream& in);
-	
-	bool parse_list(std::istream& in, slist::node_ptr result);
+{	
+	bool parse_expr(std::istream& in, slist::node_ptr& result);
+	bool parse_list(std::istream& in, slist::node_ptr& result);
 	bool parse_token(std::istream& in, slist::node_ptr& result);
 	bool parse_string(std::istream& in, slist::node_ptr& result);
 	bool parse_comment(std::istream& in);
 
 	slist::node_type find_type(const std::string& str);
 	std::string type_to_string(slist::node_type type);
+
+	bool get_next_char(std::istream& in, char& ch);
+	char peek_next_char(std::istream& in);
 }
 
 namespace slist
@@ -32,49 +33,10 @@ namespace slist
 		node_ptr result(new node);
 		result->type = node_type::pair;
 
-		char ch;
-		std::string tok;
-
-		while (true)
+		if (!parse_expr(in, result))
 		{
-			if (!get_next_char(in, ch))
-			{
-				break;
-			}
-
-			in.putback(ch);
-			if (ch == '(')
-			{
-				node_ptr list(new node);
-				list->type = node_type::pair;
-
-				if (parse_list(in, list))
-				{
-					result->append(list);
-				}
-			}
-			else if(ch == '"')
-			{
-				in.putback(ch);
-				node_ptr string_node(new node);
-				if (parse_string(in, string_node))
-				{
-					result->append(string_node);
-				}
-			}
-			else if (ch == ';')
-			{
-				parse_comment(in);
-			}
-			else
-			{
-				node_ptr token(new node);
-				if (parse_token(in, token))
-				{
-					result->append(token);
-				}
-				break;
-			}				
+			log_errorln("Could not parse expression");
+			return nullptr;
 		}
         
 		return result;
@@ -105,48 +67,27 @@ namespace slist
 
 namespace 
 {
-	bool get_next_char(std::istream& in, char& ch)
-	{
-		while (in)
-		{
-			ch = in.get();
-			if (std::isspace(ch) == 0)
-			{
-				return true;
-			}
-		}
-		return false;
-	}
-
-	char peek_next_char(std::istream& in)
-	{
-		return static_cast<char>(in.peek());
-	}
-
-	bool parse_list(std::istream& in, slist::node_ptr result)
+	bool parse_expr(std::istream& in, slist::node_ptr& result)
 	{
 		using namespace slist;
 
-		std::string tok;
-		char ch = 0;
-		bool parsed = false;
-
-		get_next_char(in, ch);
-		assert(ch == '(');
-
-		// TODO: This is basically 'parse()' repeated here... call it directly instead?
+		char ch;
 
 		while (true)
 		{
-			if (!get_next_char(in, ch))
+			if (!get_next_char(in, ch) || !in)
 			{
 				break;
 			}
 
+			in.putback(ch);
+            
+            if (ch == ')')
+            {
+                break;
+            }
 			if (ch == '(')
 			{
-				in.putback(ch);
-
 				node_ptr list(new node);
 				list->type = node_type::pair;
 
@@ -154,44 +95,70 @@ namespace
 				{
 					result->append(list);
 				}
-			}
-			else if (ch == ')')
-			{
-				parsed = true;
-				break;
+				else 
+				{
+					log_errorln("Parse list failed");
+					return false;
+				}
 			}
 			else if(ch == '"')
 			{
-				in.putback(ch);
 				node_ptr string_node(new node);
 				if (parse_string(in, string_node))
 				{
 					result->append(string_node);
+				}
+				else 
+				{
+					log_errorln("Parse string failed");
+					return false;
 				}
 			}
 			else if (ch == ';')
 			{
 				parse_comment(in);
 			}
-			else 
+			else
 			{
-				in.putback(ch);
-
 				node_ptr token(new node);
 				if (parse_token(in, token))
 				{
 					result->append(token);
 				}
-			}
-		}
-
-		if (!parsed)
-		{
-            log_errorln(std::string("Parsing failed at char: '") + std::string(&ch, 1));
-			return false;
+				else 
+				{
+					log_errorln("Parse token failed");
+					return false;
+				}
+			}				
 		}
 
 		return true;
+	}
+
+	bool parse_list(std::istream& in, slist::node_ptr& result)
+	{
+		using namespace slist;
+
+		std::string tok;
+		char ch = 0;
+
+		get_next_char(in, ch);
+		if (ch != '(')
+        {
+            log_errorln("Trying to parse a list that doesn't begin with '('");
+            return false;
+        }
+
+		bool parsed = parse_expr(in, result);
+        
+        if (parsed && (!get_next_char(in, ch) || ch != ')'))
+        {
+            log_errorln("List doesn't end with ')'");
+            return false;
+        }
+
+        return parsed;
 	}
 
 	bool parse_token(std::istream& in, slist::node_ptr& result)
@@ -371,5 +338,23 @@ namespace
 		}
 
 		return type;
+	}
+	
+	bool get_next_char(std::istream& in, char& ch)
+	{
+		while (in)
+		{
+			ch = in.get();
+			if (std::isspace(ch) == 0)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	char peek_next_char(std::istream& in)
+	{
+		return static_cast<char>(in.peek());
 	}
 }
