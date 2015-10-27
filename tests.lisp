@@ -108,3 +108,5 @@
 (define set-value 1)
 (set! set-value 2)
 (run-test (= set-value 2))
+(set! set-value (+ set-value 1))
+(run-test (= set-value 3))

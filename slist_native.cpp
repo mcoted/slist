@@ -248,7 +248,7 @@ namespace slist
 		}
 
 		node_ptr name = root->get(1);
-		node_ptr arg = root->get(2);
+		node_ptr arg = eval(ctx, root->get(2));
 
 		ctx.active_env->set_variable(name->value, arg);
 
