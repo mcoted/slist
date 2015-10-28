@@ -2,8 +2,7 @@ SList - A Lightweight Lisp Compiler
 ===================================
 
 SList is a lightweight Lisp compiler written in C++.  It is designed to
-be easy to embed in any existing C++ projet to add Lisp scripting support.
-It also provides a basic interactive prompt.
+be added as a scripting language into existing C++ projects.
 
  * It supports every basic Lisp concepts.
  * It has no external dependencies.
@@ -93,20 +92,6 @@ in the context using the ```register_native``` method.
 
 The above example will call ```my_func``` with a node representing 
 ```(my-func (+ 1 2))``` in the ```root``` variable, represented as a list.  
-
-<!---
-It would look like this:
-
-			 +-----+--+    +-----+--+
-	root ->  |     |  |->  |     |  |-> #nil
-			 +--|--+--+    +--|--+--+
-			    |             |
-			 "my-func"     +-----+--+   +-----+--+    +-----+--+
-			 			   |     |  |-> |     |  |->  |     |  |-> #nil
-			 			   +--|--+--+   +--|--+--+    +--|--+--+
-			 			      |            |             |
-			 			      +            1             2
--->
 
 Normally, you would prefer to get the value ```3``` instead of ```(+ 1 2)``` in your function.
 To do this, it is your responsibility to call ```eval``` once, and only once, for each argument. When the node represents a list, you can use the ```get``` helper method to get a 

@@ -26,7 +26,13 @@ namespace slist
 	node_ptr native_println  (context& ctx, const node_ptr& root);
 	node_ptr native_eq       (context& ctx, const node_ptr& root);
 	node_ptr native_equal    (context& ctx, const node_ptr& root);	
-	node_ptr native_not      (context& ctx, const node_ptr& root);	
+	node_ptr native_not      (context& ctx, const node_ptr& root);
+	node_ptr native_is_pair  (context& ctx, const node_ptr& root);
+	node_ptr native_is_bool  (context& ctx, const node_ptr& root);
+	node_ptr native_is_int   (context& ctx, const node_ptr& root);
+	node_ptr native_is_number(context& ctx, const node_ptr& root);
+	node_ptr native_is_string(context& ctx, const node_ptr& root);
+	node_ptr native_is_symbol(context& ctx, const node_ptr& root);
 	node_ptr native_add      (context& ctx, const node_ptr& root);
 	node_ptr native_sub      (context& ctx, const node_ptr& root);
 	node_ptr native_mul      (context& ctx, const node_ptr& root);

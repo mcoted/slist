@@ -34,6 +34,13 @@ namespace slist
 		register_native("equal?",  &native_equal);
 		register_native("not",     &native_not);
 
+		register_native("pair?",   &native_is_pair);
+		register_native("boolean?",&native_is_bool);
+		register_native("integer?",&native_is_int);
+		register_native("number?", &native_is_number);
+		register_native("string?", &native_is_string);
+		register_native("symbol?", &native_is_symbol);
+
 		register_native("+", &native_add);
 		register_native("-", &native_sub);
 		register_native("*", &native_mul);

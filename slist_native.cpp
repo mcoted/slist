@@ -522,6 +522,54 @@ namespace slist
 		return result;
 	}
 
+	#define MAKE_PREDICATE_FUNC(FUNCNAME, TYPE) \
+		node_ptr FUNCNAME(context& ctx, const node_ptr& root) \
+		{ \
+			if (root->length() != 2) \
+			{ \
+				log_errorln("'" #TYPE "?' expects one argument: ", root); \
+				return nullptr; \
+			} \
+			\
+			node_ptr arg = eval(ctx, root->get(1)); \
+			\
+			node_ptr result(new node); \
+			result->set_bool(arg->type == node_type::TYPE); \
+			\
+			return result; \
+		}
+
+	MAKE_PREDICATE_FUNC(native_is_pair,    pair)
+	MAKE_PREDICATE_FUNC(native_is_bool,    boolean)
+	MAKE_PREDICATE_FUNC(native_is_int,     integer)
+	MAKE_PREDICATE_FUNC(native_is_number,  number)
+	MAKE_PREDICATE_FUNC(native_is_string,  string)
+
+	node_ptr native_is_symbol(context& ctx, const node_ptr& root)
+	{
+		if (root->length() != 2)
+		{
+			log_errorln("'symbol?' expects one argument: ", root);
+			return nullptr;
+		}
+
+		node_ptr arg = eval(ctx, root->get(1)); 
+
+		bool is_symbol = false;
+		if (arg->type == node_type::name)
+		{
+			if (ctx.symbols.find(arg->value) != ctx.symbols.end())
+			{
+				is_symbol = true;
+			}
+		}
+
+		node_ptr result(new node);
+		result->set_bool(is_symbol);
+		
+		return result;
+	}
+
 	bool native_arithmetic_op_validate_arg(const node_ptr& arg)
 	{
         if (arg == nullptr)

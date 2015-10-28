@@ -85,6 +85,12 @@ namespace slist
 		return v == "true";
 	}
 
+	void node::set_bool(bool v)
+	{
+		type = node_type::boolean;
+		value = v ? "true" : "false";
+	}
+
 	int node::to_int() const 
 	{
 		if (type != node_type::integer) 
@@ -93,6 +99,12 @@ namespace slist
 			return 0;
 		}
 		return std::stoi(value);
+	}
+
+	void node::set_int(int v)
+	{
+		type = node_type::integer;
+		value = std::to_string(v);
 	}
 
 	float node::to_float() const
@@ -105,6 +117,12 @@ namespace slist
 			return 0;			
 		}
 		return std::stof(value);
+	}
+
+	void node::set_float(float v)
+	{
+		type = node_type::number;
+		value = std::to_string(v);
 	}
 
 	funcdef::funcdef()

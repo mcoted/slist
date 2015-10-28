@@ -40,8 +40,13 @@ namespace slist
 		node_ptr pop();
 
 		bool to_bool() const;
+		void set_bool(bool value);
+
 		int to_int() const;
+		void set_int(int value);
+
 		float to_float() const;
+		void set_float(float value);
 
 		node_type type;
 		std::string value;

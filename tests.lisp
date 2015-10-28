@@ -110,3 +110,10 @@
 (run-test (= set-value 2))
 (set! set-value (+ set-value 1))
 (run-test (= set-value 3))
+
+(run-test (pair? '(1 2)))
+(run-test (boolean? (eq? 1 1)))
+(run-test (integer? 1))
+(run-test (number? 1.1))
+(run-test (string? "hello"))
+(run-test (symbol? 'a))
