@@ -1,4 +1,6 @@
+.DS_Store
 slist
+build
 CMakeCache.txt
 CMakeFiles
 Makefile

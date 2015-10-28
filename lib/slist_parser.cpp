@@ -17,7 +17,6 @@ namespace
 	bool parse_comment(std::istream& in);
 
 	slist::node_type find_type(const std::string& str);
-	std::string type_to_string(slist::node_type type);
 
 	bool get_next_char(std::istream& in, char& ch);
 	char peek_next_char(std::istream& in);
