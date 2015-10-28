@@ -2,6 +2,7 @@
 #include "slist_context.h"
 #include "slist_eval.h"
 #include "slist_log.h"
+
 #include <algorithm>
 #include <stdexcept>
 
