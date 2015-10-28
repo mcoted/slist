@@ -1,8 +1,8 @@
 SList - A Lightweight Lisp Compiler
 ===================================
 
-SList is a lightweight Lisp compiler written in C++.  It is designed to
-be added as a scripting language into existing C++ projects.
+SList is a lightweight Lisp compiler written in C++.  It is designed as a
+scripting language to be added in existing C++ projects.
 
  * It supports every basic Lisp concepts.
  * It has no external dependencies.
@@ -15,46 +15,20 @@ Installation
 
 SLisp uses [CMake](https://cmake.org) for its build system.
 
-1. Building the interactive interpreter on Unix systems:
+- Building the interactive interpreter on Unix systems:
 
  * run ```cmake .``` from the root folder
  * run ```make```
 
-2. Building the interactive interpreter on Windows:
+- Building the interactive interpreter on Windows:
 
  * Run ```cmake .``` from the root folder
  * Open the generated Visual Studio project
 
-3. Embedding SList in your existing project:
+- Embedding SList in your existing project:
 
  * Simply add the .h and .cpp (but not main.cpp) files from the root
    folder in your project
-
-
-Command-line Usage
-------------------
-
-When the compilation is completed, you can run the generated ```slist```
-executable from the command-line.
-
-##### Basic Usage
-
-	> ./slist filename.lisp
-
-##### Options:
-
-```--exec expr | -e expr```: Evaluate ```expr``` right away, skips interactive prompt. 
-
-Example:
-
-	> ./slist -e "(println 'hi)"
-	hi
-
-```--log-level level | -l level```: Sets the logging level. ```level``` can be 1, 2, 3.
-
- * 1: Errors only
- * 2: Warnings and errors
- * 3: Debug logs
 
 
 Embedding SList in Your Project
@@ -69,7 +43,7 @@ a Lisp expression, you only need to create a new context, and call ```exec```.
 	context ctx;
 	exec(ctx, "(println (+ 1 2))");
 
-##### Extending SList with your own native functions
+##### Calling C++ functions from SList
 
 You can augment the SList environment with your own functions by registering them
 in the context using the ```register_native``` method.
@@ -85,7 +59,7 @@ in the context using the ```register_native``` method.
 	int main(int argc, char *argv[])
 	{
 		context ctx;
-		ctx.register_native("my-func", &my_func);
+		ctx.register_native("my-func", &my_func); // "my-func" is now part of SList's language
 		exec(ctx, "(my-func (+ 1 2))");
 		return 0;
 	}
@@ -104,3 +78,35 @@ node at the specifed index in the list.
 		arg = eval(ctx, arg); // arg is now 3
 		return arg;
 	}
+
+
+Command-line Usage
+------------------
+
+When the compilation is completed, you can run the generated ```slist```
+executable from the command-line.
+
+##### Basic Usage
+
+To run the interactive interpreter:
+
+	% ./slist
+
+To run the script in ```file.lisp```:
+
+	% ./slist file.lisp
+
+##### Options:
+
+```--exec expr | -e expr```: Evaluate ```expr``` right away, skips interactive prompt. 
+
+Example:
+
+	> ./slist -e "(println 'hi)"
+	hi
+
+```--log-level level | -l level```: Sets the logging level. ```level``` can be 1, 2, 3.
+
+ * 1: Errors only
+ * 2: Warnings and errors
+ * 3: Debug logs

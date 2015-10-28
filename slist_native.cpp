@@ -52,7 +52,7 @@ namespace slist
 			return nullptr;
 		}
 
-		node_ptr result(new node);
+		node_ptr result(std::make_shared<node>());
 		result->type = node_type::pair;
 		result->car = eval(ctx, root->get(1));
 		result->cdr = eval(ctx, root->get(2));
@@ -96,7 +96,7 @@ namespace slist
             return n->cdr;
         }
         
-        node_ptr empty(new node);
+        node_ptr empty(std::make_shared<node>());
         empty->type = node_type::pair;
 
         return empty;
@@ -124,7 +124,7 @@ namespace slist
 		}
 		else if (arg->type == node_type::pair)
 		{
-			result.reset(new node);
+			result = std::make_shared<node>();
 			result->type = node_type::pair;
 
 			while (arg != nullptr)
@@ -190,7 +190,7 @@ namespace slist
 		func->variables = root->get(1);
 		func->body = root->get(2);
 
-		node_ptr res(new node);
+		node_ptr res(std::make_shared<node>());
 		res->proc = func;
 
 		log_traceln("Lambda proc:\n", nullptr, func);
@@ -217,10 +217,10 @@ namespace slist
 			node_ptr name = first->car;
 			node_ptr args = first->cdr;
 
-			node_ptr lambda_node(new node);
+			node_ptr lambda_node(std::make_shared<node>());
 			lambda_node->type = node_type::pair;
 
-			node_ptr name_node(new node);
+			node_ptr name_node(std::make_shared<node>());
 			name_node->value = "lambda";
 			name_node->type = node_type::name;			
 			lambda_node->append(name_node);
@@ -315,7 +315,7 @@ namespace slist
 
 		ctx.active_env = old_active_env;
 
-		node_ptr res(new node);
+		node_ptr res(std::make_shared<node>());
 		res->proc = func;
 
 		log_traceln("'let' proc:\n", nullptr, func);
@@ -369,9 +369,8 @@ namespace slist
 
 		auto arg = eval(ctx, root->get(1));
 
-		node_ptr result(new node);
-		result->type = node_type::integer;
-		result->value = std::to_string(arg->length());
+		node_ptr result(std::make_shared<node>());
+		result->set_int(arg->length());
 
 		return result;
 	}
@@ -392,9 +391,8 @@ namespace slist
                         (arg->type == node_type::empty) ||
                         (arg->length() == 0);
 
-		node_ptr result(new node);
-		result->type = node_type::boolean;
-		result->value = is_empty ? "true" : "false";
+		node_ptr result(std::make_shared<node>());
+		result->set_bool(is_empty);
 
 		return result;
 	}
@@ -441,9 +439,8 @@ namespace slist
 			}
 		}
 
-		node_ptr result(new node);
-		result->type = node_type::boolean;
-		result->value = value ? "true" : "false";
+		node_ptr result(std::make_shared<node>());
+		result->set_bool(value);
 
 		return result;
 	}
@@ -492,9 +489,8 @@ namespace slist
 
 		bool value = native_equal_helper(ctx, arg1, arg2);
 
-		node_ptr result(new node);
-		result->type = node_type::boolean;
-		result->value = value ? "true" : "false";
+		node_ptr result(std::make_shared<node>());
+		result->set_bool(value);
 
 		return result;
 	}
@@ -515,9 +511,8 @@ namespace slist
 			return nullptr;
 		}
 
-		node_ptr result(new node);
-		result->type = node_type::boolean;
-		result->value = arg->value == "true" ? "false" : "true";
+		node_ptr result(std::make_shared<node>());
+		result->set_bool(!arg->to_bool());
 
 		return result;
 	}
@@ -533,7 +528,7 @@ namespace slist
 			\
 			node_ptr arg = eval(ctx, root->get(1)); \
 			\
-			node_ptr result(new node); \
+			node_ptr result(std::make_shared<node>()); \
 			result->set_bool(arg->type == node_type::TYPE); \
 			\
 			return result; \
@@ -564,7 +559,7 @@ namespace slist
 			}
 		}
 
-		node_ptr result(new node);
+		node_ptr result(std::make_shared<node>());
 		result->set_bool(is_symbol);
 		
 		return result;
@@ -593,16 +588,14 @@ namespace slist
 			return nullptr;
 		}
 
-        node_ptr result(new node);
+        node_ptr result(std::make_shared<node>());
 		if (n->type == node_type::number || arg->type == node_type::number)
 		{
-			result->type = node_type::number;
-			result->value = op.perform_float(n->value, arg->value);
+			result->set_float(op.perform_float(n->value, arg->value));
 		}
 		else 
 		{
-			result->type = node_type::integer;
-			result->value = op.perform_int(n->value, arg->value);
+			result->set_int(op.perform_int(n->value, arg->value));
 		}
 		return result;
 	}
@@ -610,15 +603,15 @@ namespace slist
 	#define MAKE_ARITHMETIC_OP(OP) \
 		struct OperatorWrapper \
 		{ \
-			std::string perform_int(const std::string& arg1, const std::string& arg2) const \
+			int perform_int(const std::string& arg1, const std::string& arg2) const \
 			{ \
 				using namespace std; \
-				return to_string(stoi(arg1) OP stoi(arg2)); \
+				return stoi(arg1) OP stoi(arg2); \
 			} \
-			std::string perform_float(const std::string& arg1, const std::string& arg2) const \
+			float perform_float(const std::string& arg1, const std::string& arg2) const \
 			{ \
 				using namespace std; \
-				return to_string(stof(arg1) OP stof(arg2)); \
+				return stof(arg1) OP stof(arg2); \
 			} \
 		} op;
 
@@ -680,11 +673,10 @@ namespace slist
 				return nullptr; \
 			} \
 			\
-			bool greater = std::stof(a1->value) OP std::stof(a2->value); \
+			bool value = std::stof(a1->value) OP std::stof(a2->value); \
 			\
-			node_ptr result(new node); \
-			result->type = node_type::boolean; \
-			result->value = greater ? "true" : "false"; \
+			node_ptr result(std::make_shared<node>()); \
+			result->set_bool(value); \
 			\
 			return result; \
 		}

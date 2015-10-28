@@ -41,17 +41,17 @@ namespace slist
 		register_native("string?", &native_is_string);
 		register_native("symbol?", &native_is_symbol);
 
-		register_native("+", &native_add);
-		register_native("-", &native_sub);
-		register_native("*", &native_mul);
-		register_native("/", &native_div);
+		register_native("+",       &native_add);
+		register_native("-",       &native_sub);
+		register_native("*",       &native_mul);
+		register_native("/",       &native_div);
 
-		register_native("=",  &native_e);
-		register_native("!=", &native_ne);
-		register_native("<",  &native_lt);
-		register_native(">",  &native_gt);
-		register_native("<=", &native_le);
-		register_native(">=", &native_ge);
+		register_native("=",       &native_e);
+		register_native("!=",      &native_ne);
+		register_native("<",       &native_lt);
+		register_native(">",       &native_gt);
+		register_native("<=",      &native_le);
+		register_native(">=",      &native_ge);
 
 		register_native("assert", &native_assert);
 
@@ -68,7 +68,7 @@ namespace slist
 		f->is_native = true;
 		f->native_func = func;
 
-		node_ptr n(new node);
+		node_ptr n(std::make_shared<node>());
 		n->proc = f;
 
 		global_env->register_variable(name, n);

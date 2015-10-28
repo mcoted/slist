@@ -30,7 +30,7 @@ namespace slist
 		std::istringstream in(str);
 		in >> std::noskipws;
 
-		node_ptr result(new node);
+		node_ptr result(std::make_shared<node>());
 		result->type = node_type::pair;
 
 		if (!parse_expr(in, result))
@@ -88,7 +88,7 @@ namespace
             }
 			if (ch == '(')
 			{
-				node_ptr list(new node);
+				node_ptr list(std::make_shared<node>());
 				list->type = node_type::pair;
 
 				if (parse_list(in, list))
@@ -103,7 +103,7 @@ namespace
 			}
 			else if(ch == '"')
 			{
-				node_ptr string_node(new node);
+				node_ptr string_node(std::make_shared<node>());
 				if (parse_string(in, string_node))
 				{
 					result->append(string_node);
@@ -120,7 +120,7 @@ namespace
 			}
 			else
 			{
-				node_ptr token(new node);
+				node_ptr token(std::make_shared<node>());
 				if (parse_token(in, token))
 				{
 					result->append(token);
@@ -180,7 +180,7 @@ namespace
 				{
 					result->type = node_type::pair;
 
-					node_ptr sym(new node);
+					node_ptr sym(std::make_shared<node>());
 					sym->type = node_type::name;
 					sym->value = "'";
 
@@ -189,7 +189,7 @@ namespace
 					char next_ch = peek_next_char(in);
 					if (next_ch == '(')
 					{
-						node_ptr sublist(new node);
+						node_ptr sublist(std::make_shared<node>());
 						sublist->type = node_type::pair;
 
 						if (parse_list(in, sublist))
@@ -199,7 +199,7 @@ namespace
 					}
 					else 
 					{
-						node_ptr subname(new node);
+						node_ptr subname(std::make_shared<node>());
 						if (parse_token(in, subname))
 						{
 							result->append(subname);

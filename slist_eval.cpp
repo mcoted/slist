@@ -55,11 +55,11 @@ namespace slist
 		if (f->is_native)
 		{
 			// Build a root node
-			node_ptr name_node(new node);
+			node_ptr name_node(std::make_shared<node>());
 			name_node->type = node_type::name;
 			name_node->value = f->name;
 
-			node_ptr root(new node);
+			node_ptr root(std::make_shared<node>());
 			root->type = node_type::pair;
 			root->car = name_node;
 			root->cdr = args;

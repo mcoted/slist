@@ -48,7 +48,7 @@ namespace slist
 			p = p->cdr.get();
 		}
 
-		node_ptr next(new node);
+		node_ptr next(std::make_shared<node>());
         next->type = node_type::pair;
 		next->car = n;
 		p->cdr = next;
