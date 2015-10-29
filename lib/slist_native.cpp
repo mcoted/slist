@@ -183,7 +183,7 @@ namespace slist
 			return nullptr;
 		}
 
-		funcdef_ptr func(std::make_shared<funcdef>());
+		procedure_ptr func(std::make_shared<procedure>());
 		func->env->parent = ctx.active_env;
 		func->is_native = false;
 		func->name = root->get(0)->value; // "lambda"
@@ -307,7 +307,7 @@ namespace slist
 		auto old_active_env = ctx.active_env;
 		ctx.active_env = env;
 
-		funcdef_ptr func(std::make_shared<funcdef>());
+		procedure_ptr func(std::make_shared<procedure>());
 		func->env = env;
 		func->is_native = false;
 		func->name = root->get(0)->value; // "let"

@@ -8,7 +8,7 @@ namespace
 
 	void log(const std::string& str, slist::log_level level, bool in_pair = false);
 	void log(const slist::node_ptr& n, slist::log_level level, bool in_pair = false);
-	void log(const slist::funcdef_ptr& f, slist::log_level level, bool in_pair = false);
+	void log(const slist::procedure_ptr& f, slist::log_level level, bool in_pair = false);
 	void log_internal(const std::string& str, slist::log_level level);
 }
 
@@ -24,7 +24,7 @@ namespace slist
 		global_log_level = level;
 	}
 
-	void output(const std::string& str, node_ptr n, funcdef_ptr f, bool from_print)
+	void output(const std::string& str, node_ptr n, procedure_ptr f, bool from_print)
 	{
 		global_log_from_print = from_print;
 		log(str, log_level::always);
@@ -33,46 +33,46 @@ namespace slist
 		global_log_from_print = false;
 	}
 
-	void outputln(const std::string& str, node_ptr n, funcdef_ptr f, bool from_print)
+	void outputln(const std::string& str, node_ptr n, procedure_ptr f, bool from_print)
 	{
 		output(str, n, f, from_print);
 		log("\n", log_level::always);
 	}
 
-	void log_warning(const std::string& str, node_ptr n, funcdef_ptr f)
+	void log_warning(const std::string& str, node_ptr n, procedure_ptr f)
 	{
 		log(str, log_level::warning);
 		log(n, log_level::warning);
 		log(f, log_level::warning);
 	}	
 
-	void log_warningln(const std::string& str, node_ptr n, funcdef_ptr f)
+	void log_warningln(const std::string& str, node_ptr n, procedure_ptr f)
 	{
 		log_warning(str, n, f);
 		log("\n", log_level::warning);
 	}
 
-	void log_error(const std::string& str, node_ptr n, funcdef_ptr f)
+	void log_error(const std::string& str, node_ptr n, procedure_ptr f)
 	{
 		log(str, log_level::error);
 		log(n, log_level::error);
 		log(f, log_level::error);
 	}
 
-	void log_errorln(const std::string& str, node_ptr n, funcdef_ptr f)
+	void log_errorln(const std::string& str, node_ptr n, procedure_ptr f)
 	{
 		log_error(str, n, f);
 		log("\n", log_level::error);
 	}
 
-	void log_trace(const std::string& str, node_ptr n, funcdef_ptr f)
+	void log_trace(const std::string& str, node_ptr n, procedure_ptr f)
 	{
 		log(str, log_level::trace);
 		log(n, log_level::trace);
 		log(f, log_level::trace);
 	}
 
-	void log_traceln(const std::string& str, node_ptr n, funcdef_ptr f)
+	void log_traceln(const std::string& str, node_ptr n, procedure_ptr f)
 	{
 		log_trace(str, n, f);
 		log("\n", log_level::trace);
@@ -200,7 +200,7 @@ namespace
 		log_env(env->parent, level);
 	}
 
-	void log(const slist::funcdef_ptr& f, slist::log_level level, bool in_pair)
+	void log(const slist::procedure_ptr& f, slist::log_level level, bool in_pair)
 	{
 		using namespace slist;
 

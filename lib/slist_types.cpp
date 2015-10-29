@@ -125,7 +125,7 @@ namespace slist
 		value = std::to_string(v);
 	}
 
-	funcdef::funcdef()
+	procedure::procedure()
 		 : is_native(false)
 	 {
 	 	env = std::make_shared<environment>();

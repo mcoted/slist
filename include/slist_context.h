@@ -11,7 +11,7 @@ namespace slist
 	{
 		context();
 
-		void     register_native(const std::string& name, funcdef::callback func);
+		void     register_native(const std::string& name, procedure::callback func);
 		node_ptr lookup_symbol(const std::string& name);
 		void     insert_symbol(const node_ptr& node);
 

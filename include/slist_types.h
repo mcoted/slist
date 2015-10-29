@@ -15,8 +15,8 @@ namespace slist
 	struct node;
 	typedef std::shared_ptr<node> node_ptr;	
 
-	struct funcdef;
-	typedef std::shared_ptr<funcdef> funcdef_ptr;
+	struct procedure;
+	typedef std::shared_ptr<procedure> procedure_ptr;
 
 	struct environment;
 	typedef std::shared_ptr<environment> environment_ptr;
@@ -54,12 +54,12 @@ namespace slist
 		node_ptr car;
 		node_ptr cdr;
 
-		funcdef_ptr proc;
+		procedure_ptr proc;
 	};
 
-	struct funcdef : public std::enable_shared_from_this<funcdef>
+	struct procedure : public std::enable_shared_from_this<procedure>
 	{
-		funcdef();
+		procedure();
 
 		std::string name;
 

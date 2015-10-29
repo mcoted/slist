@@ -45,7 +45,7 @@ namespace slist
 		return result;
 	}
 
-	node_ptr eval(context& ctx, const funcdef_ptr& f, const node_ptr& args)
+	node_ptr eval(context& ctx, const procedure_ptr& f, const node_ptr& args)
 	{
 		if (f == nullptr)
 		{
@@ -114,7 +114,7 @@ namespace slist
 		return exec(ctx, s);
 	}
 
-	node_ptr apply(context& ctx, const node_ptr& args, const funcdef_ptr& proc)
+	node_ptr apply(context& ctx, const node_ptr& args, const procedure_ptr& proc)
 	{
 		// Create a new environement to make sure they are not shared between evals
         environment_ptr env(std::make_shared<environment>());
@@ -186,7 +186,7 @@ namespace
 		}
 
 		node_ptr op_node = root->get(0);
-        funcdef_ptr proc = op_node->proc;
+        procedure_ptr proc = op_node->proc;
 
         if (proc == nullptr && op_node->type == node_type::pair)
         {

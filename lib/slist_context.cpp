@@ -61,9 +61,9 @@ namespace slist
 		//exec(*this, builtins);
 	}
 
-	void context::register_native(const std::string& name, funcdef::callback func)
+	void context::register_native(const std::string& name, procedure::callback func)
 	{
-		funcdef_ptr f(std::make_shared<funcdef>());
+		procedure_ptr f(std::make_shared<procedure>());
 		f->env->parent = active_env;
 		f->is_native = true;
 		f->native_func = func;
