@@ -9,4 +9,4 @@ set(CMAKE_CXX_FLAGS_RELEASE        "-O4 -DNDEBUG")
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
 
 add_subdirectory(lib)
-add_subdirectory(repl)
+add_subdirectory(slist)

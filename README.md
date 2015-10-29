@@ -20,7 +20,7 @@ SLisp uses [CMake](https://cmake.org) for its build system.
  * run ```make```
 
  The library will be built in the ```lib``` subfolder, and the interactive
- interpreter will be in ```repl/repl```.
+ interpreter will be in ```slist```.
 
 - Building the interactive interpreter on Windows:
 
@@ -29,8 +29,8 @@ SLisp uses [CMake](https://cmake.org) for its build system.
 
 - Embedding SList in your existing project:
 
- * Simply add the ```.h``` and ```.cpp``` files from the lib
-   folder in your project
+ * Simply add the ```.h``` files from ```include``` and the ```.cpp``` files 
+ from the lib folder in your project
 
 
 ### Supported Lisp Features

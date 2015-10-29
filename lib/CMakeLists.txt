@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.3)
 include_directories(${PROJECT_SOURCE_DIR}/include/)
 
 add_library(
-	slist 
+	slistlib
 	slist_types.cpp
 	slist_context.cpp
 	slist_eval.cpp
@@ -11,3 +11,5 @@ add_library(
 	slist_native.cpp
 	slist_log.cpp
 )
+
+set_target_properties(slistlib PROPERTIES OUTPUT_NAME slist)
