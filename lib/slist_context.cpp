@@ -9,7 +9,7 @@ namespace slist
 	context::context()
 	{
 		// Prepare global environment
-		global_env.reset(new environment);
+		global_env = std::make_shared<environment>();
 		active_env = global_env;
 
 		register_native("eval",    &native_eval);
@@ -63,7 +63,7 @@ namespace slist
 
 	void context::register_native(const std::string& name, funcdef::callback func)
 	{
-		funcdef_ptr f(new funcdef);
+		funcdef_ptr f(std::make_shared<funcdef>());
 		f->env->parent = active_env;
 		f->is_native = true;
 		f->native_func = func;

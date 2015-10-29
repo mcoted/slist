@@ -117,7 +117,7 @@ namespace slist
 	node_ptr apply(context& ctx, const node_ptr& args, const funcdef_ptr& proc)
 	{
 		// Create a new environement to make sure they are not shared between evals
-        environment_ptr env(new environment);
+        environment_ptr env(std::make_shared<environment>());
         env->parent = proc->env;
 		proc->env = env;
 

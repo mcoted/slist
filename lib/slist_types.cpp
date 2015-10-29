@@ -128,7 +128,7 @@ namespace slist
 	funcdef::funcdef()
 		 : is_native(false)
 	 {
-	 	env.reset(new environment);
+	 	env = std::make_shared<environment>();
 	 }
 
 	void environment::register_variable(const std::string& name, node_ptr n)
