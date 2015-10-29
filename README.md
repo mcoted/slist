@@ -1,5 +1,5 @@
 SList - A Lightweight Lisp Compiler
-===================================
+-----------------------------------
 
 SList is a lightweight Lisp compiler written in C++.  It is designed as a
 scripting language to be added in existing C++ projects.
@@ -10,29 +10,67 @@ scripting language to be added in existing C++ projects.
  * It makes it easy to bridge the native types with Lisp's types.
 
 
-Installation
-------------
+### Installation
 
 SLisp uses [CMake](https://cmake.org) for its build system.
 
 - Building the interactive interpreter on Unix systems:
 
- * run ```cmake .``` from the root folder
+ * Run ```cmake ..``` from the ```build``` folder.
  * run ```make```
+
+ The library will be built in the ```lib``` subfolder, and the interactive
+ interpreter will be in ```repl/repl```.
 
 - Building the interactive interpreter on Windows:
 
- * Run ```cmake .``` from the root folder
- * Open the generated Visual Studio project
+ * Run ```cmake ..``` from the ```build``` folder.
+ * Open the generated Visual Studio project.
 
 - Embedding SList in your existing project:
 
- * Simply add the .h and .cpp (but not main.cpp) files from the root
+ * Simply add the ```.h``` and ```.cpp``` files from the lib
    folder in your project
 
 
-Embedding SList in Your Project
--------------------------------
+### Supported Lisp Features
+
+ * Defines and lambdas
+
+ 		(define ten 10)
+ 		(define add-xy (lambda (x y) (+ x y)))
+ 		(define (mul-xy x y) (* x y))
+ 		(add-xy 2 3) ; gives 5
+ 		(mul-xy 2 3) ; gives 6
+
+ * Symbols
+
+ 		(define a '(1 2 3))
+ 		(car a) ; gives 1
+ 		(cdr a) ; gives (2 3)
+ 		'a ; gives a
+
+ * Let-constructs
+
+ 		(define (add-2 n)
+ 			(let ((x 2))
+ 				(+ x n)))
+ 		(add-2 1) ; gives 3
+
+ * Local environments
+
+ 		(define (make-adder n)
+ 			(lambda (x) (+ n x)))
+ 		(define add-3 (make-adder 3))
+ 		(add-3 1) ; gives 4
+
+ * Builtin procedures:
+
+ 		eval, apply, cons, list, car, cdr, lambda, define, set!, let, begin,
+ 		if, length, empty?, print, println, eq?, equal?, not, pair?, boolean?, 
+ 		integer?, number?, string?, symbol?, +, -, *, /, =, !=, <, >, <=, >=
+
+### Embedding SList in Your Project
 
 ##### Evaluating Lisp expressions from your C++ code
 
@@ -80,8 +118,7 @@ node at the specifed index in the list.
 	}
 
 
-Command-line Usage
-------------------
+### Command-line Usage
 
 When the compilation is completed, you can run the generated ```slist```
 executable from the command-line.
