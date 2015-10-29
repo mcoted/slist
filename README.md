@@ -70,6 +70,8 @@ SLisp uses [CMake](https://cmake.org) for its build system.
  		if, length, empty?, print, println, eq?, equal?, not, pair?, boolean?, 
  		integer?, number?, string?, symbol?, +, -, *, /, =, !=, <, >, <=, >=
 
+ * *TODO: Tail-call optimization*
+
 ### Embedding SList in Your Project
 
 ##### Evaluating Lisp expressions from your C++ code
@@ -80,6 +82,28 @@ a Lisp expression, you only need to create a new context, and call ```exec```.
 	using namespace slist;
 	context ctx;
 	exec(ctx, "(println (+ 1 2))");
+
+```exec``` returns the last evaluated node from the expression.  In the previous case, 
+it would return a node representing the integer value ```3```.  Nodes are strutures that
+can hold any value.  A simplified representation of a node can be this:
+
+	struct node
+	{
+		node_type type; // may be 'pair', 'boolean', 'integer', 
+					    //'number', 'string' or 'name'
+
+		string value; // Every value is encoded in a string at the present time
+
+		node_ptr car; // for pairs
+		node_ptr cdr; // for pairs
+	};
+
+To get an actual result from an ```exec``` call, you just have to read it from the received
+node:
+
+	node_ptr result = exec(ctx, "(+ 1 2)");
+	int i = std::atoi(result->value);
+
 
 ##### Calling C++ functions from SList
 
