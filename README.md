@@ -81,7 +81,7 @@ a Lisp expression, you only need to create a new context, and call ```exec```.
 
 	using namespace slist;
 	context ctx;
-	exec(ctx, "(println (+ 1 2))");
+	exec(ctx, "(+ 1 2)");
 
 ```exec``` returns the last evaluated node from the expression.  In the previous case, 
 it would return a node representing the integer value ```3```.  Nodes are strutures that
