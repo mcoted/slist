@@ -124,8 +124,19 @@ namespace slist
 		}
 		else if (arg->type == node_type::pair)
 		{
-			result = std::make_shared<node>();
-			result->type = node_type::pair;
+			if (arg->length() == 2)
+			{
+				// Check if it's an 'unquote'
+				node_ptr subarg = arg->get(0);
+				if (subarg->type == node_type::name &&
+					(subarg->value == "unquote"))
+				{
+					return eval(ctx, arg->get(1));
+				}
+			}
+
+            result = std::make_shared<node>();
+            result->type = node_type::pair;
 
 			while (arg != nullptr)
 			{
@@ -133,6 +144,7 @@ namespace slist
 				{
 					continue;
 				}
+
 				node_ptr n = native_quote_arg(ctx, arg->car);
 				if (n != nullptr)
 				{
@@ -167,6 +179,17 @@ namespace slist
 		node_ptr arg = root->get(1);
 
 		return native_quote_arg(ctx, arg);
+	}
+
+	node_ptr native_unquote(context& ctx, const node_ptr& root)
+	{
+		if (root->length() != 2)
+		{
+			log_errorln("'unquote' expects one argument:\n", root);
+			return nullptr;
+		}
+
+		return root->get(1);
 	}
 
 	node_ptr native_lambda(context& ctx, const node_ptr& root)
@@ -659,7 +682,7 @@ namespace slist
 		{ \
 			if (root->length() < 3) \
 			{ \
-				log_errorln("'" #OP "' expects 2 numeric arguments"); \
+				log_errorln("'" #OP "' expects arguments"); \
 				return nullptr; \
 			} \
 			\

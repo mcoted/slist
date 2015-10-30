@@ -19,6 +19,7 @@ namespace slist
 		register_native("car",     &native_car);
 		register_native("cdr",     &native_cdr);
 		register_native("quote",   &native_quote);
+		register_native("unquote", &native_unquote);
 		register_native("'",       &native_quote);		
 		register_native("lambda",  &native_lambda);
 		register_native("define",  &native_define);

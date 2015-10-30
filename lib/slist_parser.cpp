@@ -175,13 +175,13 @@ namespace
 			{
 				in.get(ch);
 
-				if (in && ch == '\'')
+				if (in && (ch == '\'' || ch == ','))
 				{
 					result->type = node_type::pair;
 
 					node_ptr sym(std::make_shared<node>());
 					sym->type = node_type::name;
-					sym->value = "'";
+					sym->value = (ch == '\'') ? "quote" : "unquote";
 
 					result->append(sym);
 

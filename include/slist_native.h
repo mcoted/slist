@@ -14,6 +14,7 @@ namespace slist
 	node_ptr native_car       (context& ctx, const node_ptr& root);
 	node_ptr native_cdr       (context& ctx, const node_ptr& root);
 	node_ptr native_quote     (context& ctx, const node_ptr& root);
+	node_ptr native_unquote   (context& ctx, const node_ptr& root);
 	node_ptr native_lambda    (context& ctx, const node_ptr& root);
 	node_ptr native_define    (context& ctx, const node_ptr& root);
 	node_ptr native_set       (context& ctx, const node_ptr& root);

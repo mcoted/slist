@@ -102,6 +102,11 @@
 (define quote-a ''a)
 (run-test (not (eq? ''a quote-a)))
 
+(define one 1)
+(run-test (eq? (quote one) 'one))
+(run-test (= (quote (unquote one)) 1))
+(run-test (= (quote ,one) 1))
+
 (define some-string "hello")
 (run-test (equal? some-string "hello"))
 
