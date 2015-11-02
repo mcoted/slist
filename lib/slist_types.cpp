@@ -5,6 +5,11 @@
 
 namespace slist
 {
+	node::node()
+		: type(node_type::empty)
+	{
+	}
+
 	size_t node::length() const
 	{
 		size_t len = 0;
@@ -153,7 +158,7 @@ namespace slist
 		return nullptr;
 	}
 
-	void environment::set_variable(const std::string& name, node_ptr n)
+	bool environment::set_variable(const std::string& name, node_ptr n)
 	{
 		environment *env = this;
 		while (env != nullptr)
@@ -162,11 +167,12 @@ namespace slist
 			if (it != env->bindings.end())
 			{
 				it->second = n;
-				break;
+				return true;
 			}
 
 			env = env->parent.get();
 		}
+		return false;
 	}
 
 	void print_node(const node_ptr& n)

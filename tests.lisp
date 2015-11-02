@@ -106,6 +106,8 @@
 (run-test (eq? (quote one) 'one))
 (run-test (= (quote (unquote one)) 1))
 (run-test (= (quote ,one) 1))
+(run-test (equal? (list 1 2 3) '(,one 2 3)))
+(run-test (equal? '((1 2)) '((,one 2))))
 
 (define some-string "hello")
 (run-test (equal? some-string "hello"))

@@ -96,7 +96,6 @@ namespace
 				}
 				else 
 				{
-					log_errorln("Parse list failed");
 					return false;
 				}
 			}

@@ -34,6 +34,8 @@ namespace slist
 
 	struct node : public std::enable_shared_from_this<node>
 	{
+		node();
+
 		size_t length() const;
 		node_ptr get(size_t index);
 		void append(const node_ptr& n);
@@ -82,7 +84,7 @@ namespace slist
 	{
 		void register_variable(const std::string& name, node_ptr n);
 		node_ptr lookup_variable(const std::string& name);
-		void set_variable(const std::string& name, node_ptr n);
+		bool set_variable(const std::string& name, node_ptr n);
 
 		environment_ptr parent;
 
