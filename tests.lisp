@@ -1,3 +1,4 @@
+;; Basics
 (run-test (= 1 1))
 (run-test (!= 1 2))
 (run-test (eq? 1 1))
@@ -5,6 +6,15 @@
 (run-test (not (eq? 1 2)))
 (run-test (not (equal? 1 2)))
 
+;; Predicates
+(run-test (pair? '(1 2)))
+(run-test (boolean? (eq? 1 1)))
+(run-test (integer? 1))
+(run-test (number? 1.1))
+(run-test (string? "hello"))
+(run-test (symbol? 'a))
+
+;; Equals
 (define v0 '(1 2))
 (define v1 '(1 2))
 (run-test (eq? v0 v0))
@@ -19,6 +29,14 @@
 (run-test (= (* 1 2 3) 6))
 (run-test (= (/ 1.0 1 2) 0.5))
 
+;; Defines
+(define (f)
+    (begin
+        (define x 5)
+        x))
+(run-test (= (f) 5))
+
+;; Lambdas
 (run-test (= ((lambda () 1)) 1))
 
 (define lambda-test (lambda (x y) (+ x y)))
@@ -52,6 +70,7 @@
 (define (f x y) (begin (+ x y) (+ x y)))
 (run-test (= (f 1 2) 3))
 
+;; Variadic arguments
 (define variadic-test-1 (lambda values (apply + values)))
 (run-test (= (variadic-test-1 1 2 3) 6))
 
@@ -68,6 +87,9 @@
 (define variadic-test-5 (lambda (x . rest) (begin (apply + rest))))
 (run-test (= (variadic-test-5 9 1 2 3) 6))
 
+(define (variadic-test-6 x . rest) (car rest))
+(run-test (= (variadic-test-6 1 (+ 2 3)) 5))
+
 (define (make-list value count)
     (if (> count 0)
         (cons value (make-list value (- count 1)))
@@ -80,6 +102,7 @@
         (* n (fact (- n 1)))))
 (run-test (= (fact 6) 720))
 
+;; Let
 (define (expanded-let-test x) ((lambda (y) (+ x y)) 2))
 (run-test (= (expanded-let-test 1) 3))
 
@@ -89,6 +112,7 @@
 (run-test (equal? (quote (1 2 3)) (list 1 2 3)))
 (run-test (= (eval (quote (+ 1 2))) 3))
 
+;; Recursion
 (define (long-sum n)
     (if (= n 1)
         1
@@ -96,6 +120,7 @@
 (run-test (= (long-sum 100) 100))
 ;(run-test (= (long-sum 1000) 1000)) ;; TODO: Need tail-call optimization
 
+;; Symbols
 (run-test (eq? 'a 'a))
 (run-test (eq? 'a (quote a)))
 
@@ -118,9 +143,11 @@
 (set! set-value (+ set-value 1))
 (run-test (= set-value 3))
 
-(run-test (pair? '(1 2)))
-(run-test (boolean? (eq? 1 1)))
-(run-test (integer? 1))
-(run-test (number? 1.1))
-(run-test (string? "hello"))
-(run-test (symbol? 'a))
+(run-test (= (apply (eval (car '(+ 1 2))) '(3 4)) 7))
+
+;; Macros
+(defmacro (adder-macro x y) '(+ ,x ,y))
+(run-test (= (adder-macro 1 2) 3))
+
+
+

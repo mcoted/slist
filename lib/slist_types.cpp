@@ -132,6 +132,7 @@ namespace slist
 
 	procedure::procedure()
 		 : is_native(false)
+		 , is_macro(false)
 	 {
 	 	env = std::make_shared<environment>();
 	 }

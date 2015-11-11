@@ -17,6 +17,7 @@ namespace slist
 	node_ptr native_unquote   (context& ctx, const node_ptr& root);
 	node_ptr native_lambda    (context& ctx, const node_ptr& root);
 	node_ptr native_define    (context& ctx, const node_ptr& root);
+	node_ptr native_defmacro  (context& ctx, const node_ptr& root);
 	node_ptr native_set       (context& ctx, const node_ptr& root);
 	node_ptr native_let       (context& ctx, const node_ptr& root);
 	node_ptr native_begin     (context& ctx, const node_ptr& root);

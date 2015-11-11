@@ -23,6 +23,7 @@ namespace slist
 		register_native("'",       &native_quote);		
 		register_native("lambda",  &native_lambda);
 		register_native("define",  &native_define);
+		register_native("defmacro",&native_defmacro);
 		register_native("set!",    &native_set);
 		register_native("let",     &native_let);
 		register_native("begin",   &native_begin);

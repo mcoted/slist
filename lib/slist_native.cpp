@@ -221,7 +221,7 @@ namespace slist
 		return res;
 	}
 
-	node_ptr native_define(context& ctx, const node_ptr& root)
+	node_ptr make_define(context& ctx, const node_ptr& root, bool is_macro)
 	{
 		if (root->length() < 3)
 		{
@@ -252,15 +252,31 @@ namespace slist
 
 			log_traceln("Lambda from scratch:\n", lambda_node);
 
-            ctx.global_env->register_variable(name->value, native_lambda(ctx, lambda_node));
+			node_ptr lambda = native_lambda(ctx, lambda_node);
+			if (lambda != nullptr && lambda->proc != nullptr)
+			{
+				lambda->proc->is_macro = is_macro;
+			}
+
+            ctx.active_env->register_variable(name->value, lambda);
 		}
 		else if (first->type == node_type::name)
 		{
             node_ptr res = eval(ctx, body);
-			ctx.global_env->register_variable(first->value, res);            
+			ctx.active_env->register_variable(first->value, res);            
 		}
 
 		return nullptr;
+	}
+
+	node_ptr native_define(context& ctx, const node_ptr& root)
+	{
+		return make_define(ctx, root, false);
+	}
+
+	node_ptr native_defmacro(context& ctx, const node_ptr& root)
+	{
+		return make_define(ctx, root, true);
 	}
 
 	node_ptr native_set(context& ctx, const node_ptr& root)
@@ -347,7 +363,7 @@ namespace slist
 
 		log_traceln("'let' proc:\n", nullptr, func);
 
-		return eval(ctx, func, nullptr);	
+		return eval_procedure(ctx, func, nullptr);	
 	}
 
 	node_ptr native_begin(context& ctx, const node_ptr& root)
@@ -725,7 +741,7 @@ namespace slist
 
 		node_ptr arg = eval(ctx, root->get(1));
 
-		if (arg->type != node_type::boolean)
+		if (arg == nullptr || arg->type != node_type::boolean)
 		{
 			log_errorln("'assert' argument did not evaluate to a boolean value: ", arg);
 			return nullptr;
@@ -750,13 +766,19 @@ namespace slist
 		node_ptr raw_arg = root->get(1);
 		node_ptr arg = eval(ctx, raw_arg);
 
+		output("Testing: ", raw_arg);
+
+        if (arg == nullptr)
+        {
+			outputln("      FAILED");
+            return nullptr;
+        }
+        
 		if (arg->type != node_type::boolean)
 		{
 			log_errorln("'native_run_test' argument did not evaluate to a boolean value: ", arg);
 			return nullptr;
 		}
-
-		output("Testing: ", raw_arg);
 
 		if (arg->value != "true")
 		{

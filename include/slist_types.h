@@ -68,6 +68,7 @@ namespace slist
 		node_ptr variables;
 
 		bool is_native;
+		bool is_macro;
 
 		// Body of the function (non-native)
 		node_ptr body;

@@ -1,4 +1,4 @@
-SList - A Lightweight Lisp Compiler
+	SList - A Lightweight Lisp Compiler
 -----------------------------------
 
 SList is a lightweight Lisp compiler written in C++.  It is designed as a
@@ -69,8 +69,6 @@ SLisp uses [CMake](https://cmake.org) for its build system.
  		eval, apply, cons, list, car, cdr, lambda, define, set!, let, begin,
  		if, length, empty?, print, println, eq?, equal?, not, pair?, boolean?, 
  		integer?, number?, string?, symbol?, +, -, *, /, =, !=, <, >, <=, >=
-
- * *TODO: Tail-call optimization*
 
 ### Embedding SList in Your Project
 
@@ -171,3 +169,8 @@ Example:
  * 1: Errors only
  * 2: Warnings and errors
  * 3: Debug logs
+
+### Future Work
+
+ - Tail call optimization
+ - ...
