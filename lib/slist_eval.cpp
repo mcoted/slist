@@ -157,19 +157,35 @@ namespace slist
 						return nullptr;
 					}
 
-					node_ptr list_arg(std::make_shared<node>());
-					list_arg->type = node_type::pair;
-					while (arg)
+					if (proc->is_macro)
 					{
-						list_arg->append(eval(ctx, arg->car));
-						arg = arg->cdr;
+						// Do not evaluate macro arguments
+						env->register_variable(var_name->value, arg);
 					}
+					else 
+					{
+						node_ptr list_arg(std::make_shared<node>());
+						list_arg->type = node_type::pair;
+						while (arg)
+						{
+							list_arg->append(eval(ctx, arg->car));
+							arg = arg->cdr;
+						}
 
-					env->register_variable(var_name->value, list_arg);
+						env->register_variable(var_name->value, list_arg);
+					}
 					break;
 				}
 
-				env->register_variable(var_name->value, eval(ctx, arg->car));
+				if (proc->is_macro)
+				{
+					// Do not evaluate macro arguments
+					env->register_variable(var_name->value, arg->car);
+				}
+				else 
+				{
+					env->register_variable(var_name->value, eval(ctx, arg->car));					
+				}
 
 				arg = arg->cdr;
 				var = var->cdr;
@@ -177,7 +193,15 @@ namespace slist
 		}
 
 		log_traceln("Evaluating Procedure from 'apply':\n", nullptr, proc);
-		return eval_procedure(ctx, proc, args);
+
+		if (proc->is_macro)
+		{
+			return eval(ctx, eval_procedure(ctx, proc, args));
+		}
+		else 
+		{
+			return eval_procedure(ctx, proc, args);			
+		}
 	}
 }
 

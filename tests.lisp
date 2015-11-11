@@ -146,8 +146,9 @@
 (run-test (= (apply (eval (car '(+ 1 2))) '(3 4)) 7))
 
 ;; Macros
-(defmacro (adder-macro x y) '(+ ,x ,y))
-(run-test (= (adder-macro 1 2) 3))
+
+;(defmacro (adder-macro x y) '(+ ,x ,y))
+;(run-test (= (adder-macro 1 2) 3))
 
 
 
