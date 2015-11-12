@@ -196,11 +196,15 @@ namespace slist
 
 		if (proc->is_macro)
 		{
-			return eval(ctx, eval_procedure(ctx, proc, args));
+			//return eval(ctx, eval_procedure(ctx, proc, args));
+			log_traceln("Macro root: ", nullptr, proc);
+			node_ptr res = eval_procedure(ctx, proc, args);
+			log_traceln("Macro res: ", res);
+			return eval(ctx, res);
 		}
 		else 
 		{
-			return eval_procedure(ctx, proc, args);			
+			return eval_procedure(ctx, proc, args);	
 		}
 	}
 }
@@ -232,8 +236,8 @@ namespace
         }
         else
         {
-            // Look for globals
-            node_ptr val = ctx.global_env->lookup_variable(op_node->value);
+            // Look in environment
+            node_ptr val = ctx.active_env->lookup_variable(op_node->value);
             if (val != nullptr && val->proc != nullptr)
             {
                 proc = val->proc;
