@@ -148,6 +148,9 @@
 
 (run-test (= (apply (eval (car '(+ 1 2))) '(3 4)) 7))
 
+(define (quoted-let) '())
+(quoted-let 1)
+
 ;; Macros
 ;(defmacro (adder-macro x y) '(+ ,x ,y))
 ;(run-test (= (adder-macro 1 2) 3))
@@ -160,10 +163,10 @@
         v))
 (run-test (= (let-test-macro 1) 1))
 
-;(defmacro (let-test-macro-2 a)
-;    '(let ((v (lambda () ,a)))
-;        (v)))
-;(run-test (= (let-test-macro-2 1) 1))
+(defmacro (let-test-macro-2 a)
+    '(let ((v (lambda () ,a)))
+        (v)))
+(run-test (= (let-test-macro-2 1) 1))
 
 ;(defmacro (for v in alist body) '(let ((loop-helper (lambda (x) (begin (set! ,v x) (eval ,body))))) '(loop-helper ,alist)))   (for v in '(1 2 3) (println v))
 

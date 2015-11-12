@@ -142,7 +142,8 @@ namespace slist
 			{
 				if (arg->car == nullptr)
 				{
-					continue;
+                    arg = arg->cdr;
+                    continue;
 				}
 
 				node_ptr n = native_quote_arg(ctx, arg->car);
