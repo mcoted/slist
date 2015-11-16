@@ -222,6 +222,12 @@ namespace
 		}
 
 		node_ptr op_node = root->get(0);
+        if (op_node == nullptr)
+        {
+            log_errorln("Cannot evaluate empty list.");
+            return nullptr;
+        }
+        
         procedure_ptr proc = op_node->proc;
 
         if (proc == nullptr && op_node->type == node_type::pair)

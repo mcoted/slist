@@ -67,6 +67,9 @@
 (define (lambda-in-let-test) (let ((a (lambda () 1))) (a)))
 (run-test (= (lambda-in-let-test) 1))
 
+(define (lambda-in-let-test-2) (let ((a 1) (f (lambda () 2))) (f)))
+(run-test (= (lambda-in-let-test-2) 2))
+
 (define (add x y) (+ x y))
 (run-test (= (apply add '(1 2)) 3))
 
@@ -121,7 +124,7 @@
         1
         (+ 1 (long-sum (- n 1)))))
 (run-test (= (long-sum 100) 100))
-;(run-test (= (long-sum 1000) 1000)) ;; TODO: Need tail-call optimization
+;;(run-test (= (long-sum 1000) 1000)) ;; TODO: Need tail-call optimization
 
 ;; Symbols
 (run-test (eq? 'a 'a))
@@ -152,11 +155,11 @@
 (quoted-let 1)
 
 ;; Macros
-;(defmacro (adder-macro x y) '(+ ,x ,y))
-;(run-test (= (adder-macro 1 2) 3))
-;
-;(defmacro (adder-macro-2 x y) '(+ ,x (eval ,y)))
-;(run-test (= (adder-macro 1 (+ 2 3)) 6))
+(defmacro (adder-macro x y) '(+ ,x ,y))
+(run-test (= (adder-macro 1 2) 3))
+
+(defmacro (adder-macro-2 x y) '(+ ,x (eval ,y)))
+(run-test (= (adder-macro 1 (+ 2 3)) 6))
 
 (defmacro (let-test-macro a)
     '(let ((v ,a))
@@ -167,6 +170,3 @@
     '(let ((v (lambda () ,a)))
         (v)))
 (run-test (= (let-test-macro-2 1) 1))
-
-;(defmacro (for v in alist body) '(let ((loop-helper (lambda (x) (begin (set! ,v x) (eval ,body))))) '(loop-helper ,alist)))   (for v in '(1 2 3) (println v))
-

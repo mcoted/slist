@@ -355,7 +355,7 @@ namespace slist
 		func->env = env;
 		func->is_native = false;
 		func->name = root->get(0)->value; // "let"
-		func->body = eval(ctx, root->get(2)); // Need to eval here
+		func->body = root->get(2);
 
 		ctx.active_env = old_active_env;
 
