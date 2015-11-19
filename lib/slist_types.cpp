@@ -130,6 +130,28 @@ namespace slist
 		value = std::to_string(v);
 	}
 
+	const std::string& node::to_name() const
+	{
+		return value;
+	}
+
+	void node::set_name(const std::string& str)
+	{
+		type = node_type::name;
+		value = str;
+	}
+
+	const std::string& node::to_string() const
+	{
+		return value;
+	}
+
+	void node::set_string(const std::string& str)
+	{
+		type = node_type::string;
+		value = str;
+	}
+
 	procedure::procedure()
 		 : is_native(false)
 		 , is_macro(false)

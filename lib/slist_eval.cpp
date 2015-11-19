@@ -25,6 +25,12 @@ namespace slist
 
 		switch (root->type)
 		{
+			// case node_type::empty:
+			// 	if (root->proc != nullptr)
+			// 	{
+			// 		return eval_procedure(ctx, root->proc, nullptr);
+			// 	}
+			// 	break;
 			case node_type::pair:
 				result = eval_list(ctx, root);
                 break;

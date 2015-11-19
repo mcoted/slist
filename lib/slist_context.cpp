@@ -26,6 +26,7 @@ namespace slist
 		register_native("defmacro",&native_defmacro);
 		register_native("set!",    &native_set);
 		register_native("let",     &native_let);
+		register_native("letrec",  &native_letrec);
 		register_native("begin",   &native_begin);
 		register_native("if",      &native_if);
 		register_native("length",  &native_length);

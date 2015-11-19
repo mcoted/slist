@@ -20,6 +20,7 @@ namespace slist
 	node_ptr native_defmacro  (context& ctx, const node_ptr& root);
 	node_ptr native_set       (context& ctx, const node_ptr& root);
 	node_ptr native_let       (context& ctx, const node_ptr& root);
+	node_ptr native_letrec    (context& ctx, const node_ptr& root);
 	node_ptr native_begin     (context& ctx, const node_ptr& root);
 	node_ptr native_if        (context& ctx, const node_ptr& root);
 	node_ptr native_length    (context& ctx, const node_ptr& root);

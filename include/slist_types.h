@@ -50,6 +50,12 @@ namespace slist
 		float to_float() const;
 		void set_float(float value);
 
+		const std::string& to_name() const;
+		void set_name(const std::string& name);
+
+		const std::string& to_string() const;
+		void set_string(const std::string& str);
+
 		node_type type;
 		std::string value;
 

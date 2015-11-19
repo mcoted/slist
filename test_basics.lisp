@@ -29,6 +29,13 @@
 (run-test (= (* 1 2 3) 6))
 (run-test (= (/ 1.0 1 2) 0.5))
 
+;; Apply/Begin
+(define (add x y) (+ x y))
+(run-test (= (apply add '(1 2)) 3))
+
+(define (f x y) (begin (+ x y) (+ x y)))
+(run-test (= (f 1 2) 3))
+
 ;; Defines
 (define (f)
     (begin
@@ -52,6 +59,7 @@
 (define inner-lambda-test (lambda (x) (lambda (y) (+ x y))))
 (run-test (= ((inner-lambda-test 1) 2) 3))
 
+;; Let
 (define (expanded-let-add-4-test y)
     ((lambda (x)
          (+ x y)) 4))
@@ -70,11 +78,10 @@
 (define (lambda-in-let-test-2) (let ((a 1) (f (lambda () 2))) (f)))
 (run-test (= (lambda-in-let-test-2) 2))
 
-(define (add x y) (+ x y))
-(run-test (= (apply add '(1 2)) 3))
-
-(define (f x y) (begin (+ x y) (+ x y)))
-(run-test (= (f 1 2) 3))
+(define (let-return-symbol)
+    (let ((a 'ok))
+        a))
+(run-test (eq? (let-return-symbol) 'ok))
 
 ;; Variadic arguments
 (define variadic-test-1 (lambda values (apply + values)))

@@ -307,7 +307,14 @@ namespace slist
 		//        (let ((y 2)) (+ x y))) 
 		// <-->
 		//    (lambda (x)
-		//        ((lambda (y) (+ x y)) 1))
+		//        ((lambda (y) (+ x y)) 2))
+
+		// Letrec is equivalent to:
+		//    (lambda (x)
+		//        ((lambda (y)
+		//            (begin
+		//                (set! y 2) ; <-- argument is transfered here
+		//                (+ x y))) '()))
 
 		if (root->length() != 3)
 		{
@@ -352,10 +359,10 @@ namespace slist
 		ctx.active_env = env;
 
 		procedure_ptr func(std::make_shared<procedure>());
-		func->env = env;
 		func->is_native = false;
 		func->name = root->get(0)->value; // "let"
-		func->body = root->get(2);
+		func->env = env;
+		func->body = root->get(2);			
 
 		ctx.active_env = old_active_env;
 
@@ -364,7 +371,102 @@ namespace slist
 
 		log_traceln("'let' proc:\n", nullptr, func);
 
-		return eval_procedure(ctx, func, nullptr);	
+		return eval_procedure(ctx, func, nullptr);
+	}
+
+	node_ptr native_letrec(context& ctx, const node_ptr& root)
+	{
+		// Example:
+		//    (lambda (x)
+		//        (letrec ((y 2)) (+ x y))) 
+
+		// Letrec is equivalent to:
+		//    (lambda (x)
+		//        ((lambda (y)
+		//            (begin
+		//                (set! y 2) ; <-- argument is transfered here
+		//                           ;     (allows recursion)
+		//                (+ x y))) '()))
+
+		if (root->length() != 3)
+		{
+			log_errorln("Invalid 'letrec' syntax: ", root);
+			return nullptr;
+		}
+
+		environment_ptr env(std::make_shared<environment>());
+		env->parent = ctx.active_env;
+
+		node_ptr bindings = root->get(1);
+		if (bindings == nullptr || bindings->type != node_type::pair)
+		{
+			log_errorln("Invalid bindings for 'letrec': ", root);
+			return nullptr;
+		}
+
+		// Build a (begin) node to store the values
+		node_ptr begin_node(std::make_shared<node>());
+		begin_node->type = node_type::pair;
+
+		node_ptr begin_name(std::make_shared<node>());
+		begin_name->set_name("begin");
+		begin_node->append(begin_name);
+
+		node_ptr binding = bindings;
+		while (binding != nullptr)
+		{
+			node_ptr name_value = binding->car;
+			if (name_value == nullptr || name_value->length() != 2)
+			{
+				log_errorln("Invalid 'let' binding: ", binding);
+				return nullptr;
+			}
+
+			node_ptr var_name = name_value->get(0);
+            if (var_name->type != node_type::name)
+            {
+                log_errorln("Invalid variable name in binding: ", name_value);
+                return nullptr;
+            }
+
+           	node_ptr set_node(std::make_shared<node>());
+           	set_node->type = node_type::pair;
+
+           	node_ptr set_name(std::make_shared<node>());
+           	set_name->set_name("define");
+
+           	set_node->append(set_name);
+           	set_node->append(var_name);
+           	set_node->append(eval(ctx, name_value->get(1)));
+
+			log_traceln("SETNODE: ", set_node);
+
+           	begin_node->append(set_node);
+
+			binding = binding->cdr;
+		}
+
+		begin_node->append(root->get(2));
+
+		log_traceln("LETREC: ", begin_node);
+
+		auto old_active_env = ctx.active_env;
+		ctx.active_env = env;
+
+		procedure_ptr func(std::make_shared<procedure>());
+		func->is_native = false;
+		func->name = root->get(0)->value; // "let"
+		func->env = env;
+		func->body = begin_node;
+
+		ctx.active_env = old_active_env;
+
+		node_ptr res(std::make_shared<node>());
+		res->proc = func;
+
+		log_traceln("'let' proc:\n", nullptr, func);
+
+		return eval_procedure(ctx, func, nullptr);
 	}
 
 	node_ptr native_begin(context& ctx, const node_ptr& root)
