@@ -15,6 +15,7 @@ namespace slist
 	node_ptr eval(context& ctx, const node_ptr& root)
 	{
 		log_traceln("Eval: ", root);
+        debug_print_environment(ctx, ctx.active_env);
 
         if (root == nullptr)
         {
@@ -31,6 +32,9 @@ namespace slist
 			// 		return eval_procedure(ctx, root->proc, nullptr);
 			// 	}
 			// 	break;
+            case node_type::empty:
+                result = root;
+                break;
 			case node_type::pair:
 				result = eval_list(ctx, root);
                 break;
@@ -47,6 +51,7 @@ namespace slist
 
 		log_trace("Result of ", root);
 		log_traceln(" -> ", result);
+		debug_print_environment(ctx, ctx.active_env);
 
 		return result;
 	}

@@ -232,35 +232,47 @@ namespace slist
 		}
 	}
 
-	void debug_print_environemnt(const environment_ptr& env)
+	void debug_print_environment(context& ctx, const environment_ptr& env)
 	{
 		if (env == nullptr)
 		{
 			return;
 		}
-		log_traceln("[");
+		else if (env == ctx.global_env)
+		{
+			log_traceln("<globals>");
+			return;
+		}
+
+		log_trace("[");
 		for (auto& keyval : env->bindings)
 		{
-			log_trace("\"" + keyval.first + "\": ");
+			log_trace(keyval.first + ": ");
+            if (keyval.second == nullptr)
+            {
+                log_trace("<null>");
+                continue;
+            }
 			auto proc = keyval.second->proc;
 			if (proc != nullptr)
 			{
 				if (proc->is_native)
 				{
-					log_traceln("<native func>");					
+					log_trace("<native func>");
 				}
 				else 
 				{
-					log_traceln("", proc->body);
+					log_trace("", proc->body);
 				}
 			}
 			else 
 			{
-				log_traceln(keyval.second->value);
+				log_trace(keyval.second->value);
 			}
+			log_trace(", ");
 		}
-		log_traceln("]");
-		debug_print_environemnt(env->parent);
+		log_trace("]");
+		debug_print_environment(ctx, env->parent);
 	}
 
 	std::string type_to_string(slist::node_type type)

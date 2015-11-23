@@ -89,11 +89,14 @@ namespace slist
 
 	struct environment : public std::enable_shared_from_this<environment>
 	{
+		environment() : is_global(false) {}
+
 		void register_variable(const std::string& name, node_ptr n);
 		node_ptr lookup_variable(const std::string& name);
 		bool set_variable(const std::string& name, node_ptr n);
 
 		environment_ptr parent;
+		bool is_global;
 
 		typedef std::unordered_map<std::string, node_ptr> var_map;
 		var_map bindings;
@@ -104,7 +107,7 @@ namespace slist
 	void print_node(const node_ptr& n);
 
 	void debug_print_node(const node_ptr& n, int indent = 0);
-	void debug_print_environemnt(const environment_ptr& env);
+	void debug_print_environment(context& ctx, const environment_ptr& env);
 }
 
 #endif

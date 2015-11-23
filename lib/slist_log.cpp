@@ -178,25 +178,24 @@ namespace
 
 	void log_env(const slist::environment_ptr& env, slist::log_level level)
 	{
-		if (env == nullptr)
+		if (env == nullptr || env->is_global)
 		{
 			return;
 		}
-		log_internal("[\n", level);
+		log_internal("[", level);
 		for (auto& keyval : env->bindings)
 		{
 			log_internal("\"" + keyval.first + "\": ", level);
-			if (keyval.second != nullptr && keyval.second->car == nullptr && keyval.second->proc != nullptr)
+			if (keyval.second != nullptr && keyval.second->car == nullptr && keyval.second->proc != nullptr && keyval.second->proc->is_native)
 			{
-				log_internal("<native func>\n", level);
+				log_internal("<native func>", level);
 			}
 			else 
 			{
 				log(keyval.second, level);
-				log_internal("\n", level);
 			}
 		}
-		log_internal("]\n", level);
+		log_internal("] ", level);
 		log_env(env->parent, level);
 	}
 

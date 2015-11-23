@@ -10,6 +10,8 @@ namespace slist
 	{
 		// Prepare global environment
 		global_env = std::make_shared<environment>();
+		global_env->is_global = true;
+
 		active_env = global_env;
 
 		register_native("eval",    &native_eval);
