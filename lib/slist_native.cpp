@@ -385,7 +385,7 @@ namespace slist
         //        ((lambda (y)
         //            (begin
         //                (set! y 2) ; <-- argument is transfered here
-        //                           ;     (allows recursion)
+        //                           ;     and becomes part of closure's environment
         //                (+ x y))) '()))
 
         if (root->length() != 3)

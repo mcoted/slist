@@ -39,10 +39,5 @@
 ;		1))
 ;
 (define (f v)
-	(letrec ((x (lambda (c) 
-					(begin 
-						(println 'hey)
-						(println c)
-						(if (= c 0) '() (x (- c 1)))))))
+	(letrec ((x (lambda (c) (if (= c 1) 1 (+ 1 (f (- c 1)))))))
 		(x v)))
-(f 3)

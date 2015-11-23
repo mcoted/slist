@@ -83,6 +83,13 @@
         a))
 (run-test (eq? (let-return-symbol) 'ok))
 
+;; Letrec
+(define (letrec-test v)
+    (letrec ((x (lambda (c) (if (= c 1) 1 (+ 1 (letrec-test (- c 1)))))))
+        (x v)))
+
+(run-test (= (letrec-test 3) 3))
+
 ;; Variadic arguments
 (define variadic-test-1 (lambda values (apply + values)))
 (run-test (= (variadic-test-1 1 2 3) 6))
