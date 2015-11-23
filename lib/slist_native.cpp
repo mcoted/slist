@@ -118,7 +118,9 @@ namespace slist
                 result = arg;
             }
         }
-        else if (arg->type == node_type::integer || arg->type == node_type::number)
+        else if (arg->type == node_type::integer || 
+                 arg->type == node_type::number  ||
+                 arg->type == node_type::string)
         {
             return arg;
         }
