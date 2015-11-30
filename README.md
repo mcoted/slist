@@ -1,4 +1,4 @@
-	SList - A Lightweight Lisp Compiler
+    SList - A Lightweight Lisp Compiler
 -----------------------------------
 
 SList is a lightweight Lisp compiler written in C++.  It is designed as a
@@ -37,38 +37,57 @@ SLisp uses [CMake](https://cmake.org) for its build system.
 
  * Defines and lambdas
 
- 		(define ten 10)
- 		(define add-xy (lambda (x y) (+ x y)))
- 		(define (mul-xy x y) (* x y))
- 		(add-xy 2 3) ; gives 5
- 		(mul-xy 2 3) ; gives 6
+        (define ten 10)
+        (define adder (lambda (x y) (+ x y)))
+        (adder 2 3) ; returns 5
+        (define (multiplier x y) (* x y)) ; syntactic sugar for lambda definitions
+        (multiplier 2 3) ; returns 6
 
  * Symbols
 
- 		(define a '(1 2 3))
- 		(car a) ; gives 1
- 		(cdr a) ; gives (2 3)
- 		'a ; gives a
+        (println a)        ; error, unknown variable
+        (println 'a)       ; prints a
+        (println (1 2 3))  ; error, '1' is not a procedure
+        (println '(1 2 3)) ; prints (1 2 3)
 
- * Let-constructs
+ * Let/letrec constructs
 
- 		(define (add-2 n)
- 			(let ((x 2))
- 				(+ x n)))
- 		(add-2 1) ; gives 3
+        (define (add-2 n)
+            (let ((x 2))
+                (+ x n)))
+        (add-2 1) ; returns 3
 
  * Local environments
 
- 		(define (make-adder n)
- 			(lambda (x) (+ n x)))
- 		(define add-3 (make-adder 3))
- 		(add-3 1) ; gives 4
+        (define (make-adder n)
+            (lambda (x) (+ n x)))
+        (define add-3 (make-adder 3))
+        (add-3 1) ; returns 4
+
+ * Macros
+
+        (defmacro (foreach var in values body)
+           '(letrec ((loop (lambda (x)
+                               (if (empty? x)
+                                   '()
+                                   (let ((,var (car x)))
+                                       (begin
+                                           (eval ,body)
+                                           (loop (cdr x))))))))
+               (loop ,values)))
+
+        (foreach a in '(1 2 3) (println a))
+
+        ; prints:
+        ; 1
+        ; 2
+        ; 3
 
  * Builtin procedures:
 
- 		eval, apply, cons, list, car, cdr, lambda, define, set!, let, begin,
- 		if, length, empty?, print, println, eq?, equal?, not, pair?, boolean?, 
- 		integer?, number?, string?, symbol?, +, -, *, /, =, !=, <, >, <=, >=
+        eval, apply, cons, list, car, cdr, lambda, define, defmacro, set!, let, 
+        begin, if, length, empty?, print, println, eq?, equal?, not, pair?, boolean?, 
+        integer?, number?, string?, symbol?, +, -, *, /, =, !=, <, >, <=, >=
 
 ### Embedding SList in Your Project
 
@@ -77,30 +96,30 @@ SLisp uses [CMake](https://cmake.org) for its build system.
 The SList functions and classes reside in the ```slist``` namespace.  To evaluate
 a Lisp expression, you only need to create a new context, and call ```exec```.
 
-	using namespace slist;
-	context ctx;
-	exec(ctx, "(+ 1 2)");
+    using namespace slist;
+    context ctx;
+    exec(ctx, "(+ 1 2)");
 
 ```exec``` returns the last evaluated node from the expression.  In the previous case, 
 it would return a node representing the integer value ```3```.  Nodes are strutures that
 can hold any value.  A simplified representation of a node can be this:
 
-	struct node
-	{
-		node_type type; // may be 'pair', 'boolean', 'integer', 
-					    //'number', 'string' or 'name'
+    struct node
+    {
+        node_type type; // may be 'pair', 'boolean', 'integer', 
+                        //'number', 'string' or 'name'
 
-		string value; // Every value is encoded in a string at the present time
+        string value; // Every value is encoded in a string at the present time
 
-		node_ptr car; // for pairs
-		node_ptr cdr; // for pairs
-	};
+        node_ptr car; // for pairs
+        node_ptr cdr; // for pairs
+    };
 
 To get an actual result from an ```exec``` call, you just have to read it from the received
 node:
 
-	node_ptr result = exec(ctx, "(+ 1 2)");
-	int i = std::atoi(result->value);
+    node_ptr result = exec(ctx, "(+ 1 2)");
+    int i = std::atoi(result->value);
 
 
 ##### Calling C++ functions from SList
@@ -108,21 +127,21 @@ node:
 You can augment the SList environment with your own functions by registering them
 in the context using the ```register_native``` method.
 
-	using namespace slist;
+    using namespace slist;
 
-	node_ptr my_func(context& ctx, const node_ptr& root)
-	{
-		// ...
-		return nullptr;
-	}
+    node_ptr my_func(context& ctx, const node_ptr& root)
+    {
+        // ...
+        return nullptr;
+    }
 
-	int main(int argc, char *argv[])
-	{
-		context ctx;
-		ctx.register_native("my-func", &my_func); // "my-func" is now part of SList's language
-		exec(ctx, "(my-func (+ 1 2))");
-		return 0;
-	}
+    int main(int argc, char *argv[])
+    {
+        context ctx;
+        ctx.register_native("my-func", &my_func); // "my-func" is now part of SList's language
+        exec(ctx, "(my-func (+ 1 2))");
+        return 0;
+    }
 
 The above example will call ```my_func``` with a node representing 
 ```(my-func (+ 1 2))``` in the ```root``` variable, represented as a list.  
@@ -131,13 +150,13 @@ Normally, you would prefer to get the value ```3``` instead of ```(+ 1 2)``` in 
 To do this, it is your responsibility to call ```eval``` once, and only once, for each argument. When the node represents a list, you can use the ```get``` helper method to get a 
 node at the specifed index in the list.
 
-	node_ptr my_func(context& ctx, const node_ptr& root)
-	{
-		// For example, root may contain (my-func (+ 1 2))
-		node_ptr arg = root->get(1); // arg is (+ 1 2)
-		arg = eval(ctx, arg); // arg is now 3
-		return arg;
-	}
+    node_ptr my_func(context& ctx, const node_ptr& root)
+    {
+        // For example, root may contain (my-func (+ 1 2))
+        node_ptr arg = root->get(1); // arg is (+ 1 2)
+        arg = eval(ctx, arg); // arg is now 3
+        return arg;
+    }
 
 
 ### Command-line Usage
@@ -149,11 +168,11 @@ executable from the command-line.
 
 To run the interactive interpreter:
 
-	% ./slist
+    % ./slist
 
 To run the script in ```file.lisp```:
 
-	% ./slist file.lisp
+    % ./slist file.lisp
 
 ##### Options:
 
@@ -161,8 +180,8 @@ To run the script in ```file.lisp```:
 
 Example:
 
-	> ./slist -e "(println 'hi)"
-	hi
+    > ./slist -e "(println 'hi)"
+    hi
 
 ```--log-level level | -l level```: Sets the logging level. ```level``` can be 1, 2, 3.
 
