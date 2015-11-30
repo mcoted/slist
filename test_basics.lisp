@@ -1,3 +1,11 @@
+(defmacro (run-test expr)
+    '(begin
+        (print "Evaluating: ")
+        (print (quote ,expr))
+        (if (eval ,expr)
+            (println "     OK")
+            (println "     FAILED"))))
+
 ;; Basics
 (run-test (= 1 1))
 (run-test (!= 1 2))

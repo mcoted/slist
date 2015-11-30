@@ -241,7 +241,7 @@ namespace
 
 			while (true)
 			{
-				get_next_char(in, ch);
+				in.get(ch);
 
 				if (!in)
 				{

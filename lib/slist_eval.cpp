@@ -41,6 +41,7 @@ namespace slist
 			case node_type::name:
 				result = eval_name(ctx, root);
                 break;
+            case node_type::boolean:
 			case node_type::integer:
 			case node_type::number:
 			case node_type::string:
