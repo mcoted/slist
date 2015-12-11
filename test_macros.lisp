@@ -9,13 +9,3 @@
 		(loop ,values)))
 
 (foreach a in '(1 2 3) (println a))
-
-;(defmacro (run-test2 expr)
-;    '(begin
-;        (print "Evaluating: ")
-;        (print (quote ,expr))
-;        (if (eval ,expr)
-;            (println "     OK")
-;            (println "     FAILED"))))
-;
-;(run-test2 (= 1 1))

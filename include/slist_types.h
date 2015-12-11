@@ -56,8 +56,11 @@ namespace slist
 		const std::string& to_string() const;
 		void set_string(const std::string& str);
 
+		void set_as_tail();
+
 		node_type type;
 		std::string value;
+		bool is_tail; // Used for tail-call elimination
 
 		node_ptr car;
 		node_ptr cdr;
@@ -75,6 +78,7 @@ namespace slist
 
 		bool is_native;
 		bool is_macro;
+		bool is_tail;
 
 		// Body of the function (non-native)
 		node_ptr body;

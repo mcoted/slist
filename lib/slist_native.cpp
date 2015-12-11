@@ -218,10 +218,11 @@ namespace slist
 
         node_ptr res(std::make_shared<node>());
         res->proc = func;
+        res->set_as_tail();
 
-        log_traceln("Lambda proc:\n", nullptr, func);
+        // log_traceln("Lambda proc:\n", nullptr, func);
 
-        return res;
+        return res;        
     }
 
     node_ptr make_define(context& ctx, const node_ptr& root, bool is_macro)
@@ -253,9 +254,10 @@ namespace slist
             lambda_node->append(args);
             lambda_node->append(body);
 
-            log_traceln("Lambda from scratch:\n", lambda_node);
+            // log_traceln("Lambda from scratch:\n", lambda_node);
 
             node_ptr lambda = native_lambda(ctx, lambda_node);
+
             if (lambda != nullptr && lambda->proc != nullptr)
             {
                 lambda->proc->is_macro = is_macro;
@@ -311,13 +313,6 @@ namespace slist
         //    (lambda (x)
         //        ((lambda (y) (+ x y)) 2))
 
-        // Letrec is equivalent to:
-        //    (lambda (x)
-        //        ((lambda (y)
-        //            (begin
-        //                (set! y 2) ; <-- argument is transfered here
-        //                (+ x y))) '()))
-
         if (root->length() != 3)
         {
             log_errorln("Invalid 'let' syntax: ", root);
@@ -364,14 +359,14 @@ namespace slist
         func->is_native = false;
         func->name = root->get(0)->value; // "let"
         func->env = env;
-        func->body = root->get(2);          
+        func->body = root->get(2);
 
         ctx.active_env = old_active_env;
 
         node_ptr res(std::make_shared<node>());
         res->proc = func;
 
-        log_traceln("'let' proc:\n", nullptr, func);
+        // log_traceln("'let' proc:\n", nullptr, func);
 
         return eval_procedure(ctx, func, nullptr);
     }
@@ -469,7 +464,7 @@ namespace slist
         node_ptr res(std::make_shared<node>());
         res->proc = func;
 
-        log_traceln("'letrec' proc:\n", nullptr, func);
+        // log_traceln("'letrec' proc:\n", nullptr, func);
 
         return eval_procedure(ctx, func, nullptr);
     }
@@ -477,9 +472,19 @@ namespace slist
     node_ptr native_begin(context& ctx, const node_ptr& root)
     {
         node_ptr n = root->cdr;
+
         node_ptr result;
-        while (n != nullptr)
+        bool stop = false;
+        while (!stop)
         {
+            if (n->cdr == nullptr)
+            {
+                if (root->is_tail)
+                {
+                    n->car->set_as_tail();
+                }
+                stop = true;
+            }
             result = eval(ctx, n->car);
             n = n->cdr;
         }
@@ -495,6 +500,15 @@ namespace slist
             return nullptr;
         }
 
+        auto true_node = root->get(2);
+        auto false_node = root->get(3);
+
+        if (root->is_tail)
+        {
+            true_node->set_as_tail();
+            false_node->set_as_tail();
+        }
+
         auto pred = eval(ctx, root->get(1));
         if (pred == nullptr || pred->type != node_type::boolean)
         {
@@ -504,10 +518,10 @@ namespace slist
 
         if (pred->to_bool())
         {
-            return eval(ctx, root->get(2));
+            return eval(ctx, true_node);
         }
 
-        return eval(ctx, root->get(3));
+        return eval(ctx, false_node);
     }
 
     node_ptr native_length(context& ctx, const node_ptr& root)

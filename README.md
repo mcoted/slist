@@ -16,15 +16,18 @@ SLisp uses [CMake](https://cmake.org) for its build system.
 
 - Building the interactive interpreter on Unix systems:
 
- * Run ```cmake ..``` from the ```build``` folder.
- * run ```make```
+ * ```./build_unix.sh```
+ * The interpreter will be built in ```build/slist```
+ * The library will be built in ```build/lib```
 
- The library will be built in the ```lib``` subfolder, and the interactive
- interpreter will be in ```slist```.
+ The library will be built in the ```build/lib``` subfolder, and the interactive
+ interpreter will be in ```build/slist```.
 
 - Building the interactive interpreter on Windows:
 
- * Run ```cmake ..``` from the ```build``` folder.
+ * ```mkdir build```
+ * ```cd build```
+ * ```cmake ..```
  * Open the generated Visual Studio project.
 
 - Embedding SList in your existing project:

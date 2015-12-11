@@ -7,6 +7,7 @@ namespace slist
 {
 	node::node()
 		: type(node_type::empty)
+		, is_tail(false)
 	{
 	}
 
@@ -152,9 +153,23 @@ namespace slist
 		value = str;
 	}
 
+	void node::set_as_tail()
+	{
+		is_tail = true;
+		if (proc != nullptr)
+		{
+			proc->is_tail = true;
+			if (proc->body != nullptr)
+			{
+				proc->body->set_as_tail();
+			}
+		}
+	}
+
 	procedure::procedure()
 		 : is_native(false)
 		 , is_macro(false)
+		 , is_tail(false)
 	 {
 	 	env = std::make_shared<environment>();
 	 }

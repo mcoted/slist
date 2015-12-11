@@ -20,6 +20,16 @@ namespace slist
 
 		typedef std::unordered_map<std::string, node_ptr> symbols_map;
 		symbols_map symbols;
+
+		struct callstack_item
+		{
+			node_ptr node;
+			procedure_ptr delayed_proc;
+			node_ptr delayed_args;
+		};
+
+		typedef std::vector<callstack_item> callstack_vector;
+		callstack_vector callstack;
 	};
 }
 

@@ -12,4 +12,4 @@ add_library(
 	slist_log.cpp
 )
 
-set_target_properties(slistlib PROPERTIES OUTPUT_NAME slist)
+set_target_properties(slistlib PROPERTIES OUTPUT_NAME "slist" DEBUG_POSTFIX "d")

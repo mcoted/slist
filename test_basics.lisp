@@ -148,6 +148,15 @@
 (run-test (= (long-sum 100) 100))
 ;;(run-test (= (long-sum 1000) 1000)) ;; TODO: Need tail-call optimization
 
+(define (long-sum-2 n) ;; Tail-call optimized
+    (letrec ((inner-sum (lambda (acc x) 
+                (if (= x 0)
+                    acc
+                    (inner-sum (+ acc 1) (- x 1))))))
+        (inner-sum 0 n)))
+
+(run-test (= (long-sum-2 10) 10))
+
 ;; Symbols
 (run-test (eq? 'a 'a))
 (run-test (eq? 'a (quote a)))
