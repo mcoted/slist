@@ -25,8 +25,8 @@ namespace slist
 {
     node_ptr eval(context& ctx, const node_ptr& root)
     {
-        // log_traceln("Eval: ", root);
-        // debug_print_environment(ctx, ctx.active_env);
+        log_traceln("Eval: ", root);
+        debug_print_environment(ctx, ctx.active_env);
 
         if (root == nullptr)
         {
@@ -38,7 +38,7 @@ namespace slist
 
         ctx.callstack.push_back(item);
 
-        // dump_callstack(ctx);
+        dump_callstack(ctx);
         
         node_ptr result;
 
@@ -62,18 +62,19 @@ namespace slist
                 break;
         }
 
-        // log_trace("Result of ", root);
-        // log_traceln(" -> ", result);
-        // debug_print_environment(ctx, ctx.active_env);
+        log_trace("Result of ", root);
+        log_traceln(" -> ", result);
+        debug_print_environment(ctx, ctx.active_env);
 
         auto& back_item = ctx.callstack.back();
         ctx.callstack.pop_back();
-
+        
         if (back_item.delayed_proc != nullptr)
         {
-            // log_traceln("TAIL CALL ELIMINATION!!!!");
+            log_traceln("TAIL CALL ELIMINATION!!!!");
             result = eval_procedure(ctx, back_item.delayed_proc, back_item.delayed_args);
         }
+
 
         return result;
     }
@@ -108,46 +109,43 @@ namespace slist
         {
             if (f->is_tail)
             {
+                
+                dump_callstack(ctx);
+
+                log_traceln("Trying to unwind the stack:\n", f->body);
+                
                 // Try to unwind the call stack: tail-call elimination
                 int size = static_cast<int>(ctx.callstack.size());
                 int i = size-1;
                 while (i > 0)
                 {
-                    auto& item = ctx.callstack[i];
+                    //auto& item = ctx.callstack[i];
                     auto& prev_item = ctx.callstack[i-1];
-                    if (!prev_item.node->is_tail)
+                    log_traceln("    Prev: ", prev_item.node);
+                    if (prev_item.node == f->body)
                     {
-                        if (i == (size-1))
-                            break;
-                        item.delayed_proc = f;
-                        item.delayed_args = args;
+                        prev_item.delayed_proc = f;
+                        prev_item.delayed_args = args;
                         return nullptr;
                     }
-                    --i;
+                    if (prev_item.node->is_tail)
+                    {
+                        --i;
+                    }
+                    else
+                    {
+                        break;
+                    }
                 }
-                
-                // const size_t size = ctx.callstack.size();
-                // size_t i = 0;
-                // for (auto& item : ctx.callstack)
-                // {
-                //  if (i != (size-1)               &&
-                //      item.node != nullptr        && 
-                //      item.node->proc != nullptr  && 
-                //      item.node->proc == f)
-                //  {
-                //      // We got a match!
-                //      item.delayed_proc = f;
-                //      item.delayed_args = args;
-                //      return nullptr;
-                //  }
-                //  ++i;
-                // }
             }
+            
+            log_traceln("Executing procedure:\n", f->body);
 
             auto prev_env = ctx.active_env;
             ctx.active_env = f->env;
             auto result = eval(ctx, f->body);
             ctx.active_env = prev_env;
+
             return result;
         }
 
