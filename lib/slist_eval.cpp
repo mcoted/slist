@@ -72,6 +72,14 @@ namespace slist
         if (back_item.delayed_proc != nullptr)
         {
             log_traceln("TAIL CALL ELIMINATION!!!!");
+            
+            for (auto& pair : back_item.delayed_proc->env->bindings)
+            {
+                ctx.active_env->register_variable(pair.first, pair.second);
+            }
+
+            back_item.delayed_proc->env = ctx.active_env;
+            
             result = eval_procedure(ctx, back_item.delayed_proc, back_item.delayed_args);
         }
 
@@ -122,14 +130,14 @@ namespace slist
                     //auto& item = ctx.callstack[i];
                     auto& prev_item = ctx.callstack[i-1];
                     log_traceln("    Prev: ", prev_item.node);
-                    if (prev_item.node == f->body)
-                    {
-                        prev_item.delayed_proc = f;
-                        prev_item.delayed_args = args;
-                        return nullptr;
-                    }
                     if (prev_item.node->is_tail)
                     {
+                        if (prev_item.node == f->body)
+                        {
+                            prev_item.delayed_proc = f;
+                            prev_item.delayed_args = args;
+                            return nullptr;
+                        }
                         --i;
                     }
                     else
