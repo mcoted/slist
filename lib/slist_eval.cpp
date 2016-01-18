@@ -32,13 +32,6 @@ namespace slist
         {
             return nullptr;
         }
-
-        context::callstack_item item;
-        item.node = root;
-
-        ctx.callstack.push_back(item);
-
-        dump_callstack(ctx);
         
         node_ptr result;
 
@@ -66,40 +59,34 @@ namespace slist
         log_traceln(" -> ", result);
         debug_print_environment(ctx, ctx.active_env);
 
-        auto& back_item = ctx.callstack.back();
-        ctx.callstack.pop_back();
-        
-        if (back_item.delayed_proc != nullptr)
-        {
-            log_traceln("TAIL CALL ELIMINATION!!!!");
-            
-            for (auto& pair : back_item.delayed_proc->env->bindings)
-            {
-                ctx.active_env->register_variable(pair.first, pair.second);
-            }
-
-            back_item.delayed_proc->env = ctx.active_env;
-            
-            result = eval_procedure(ctx, back_item.delayed_proc, back_item.delayed_args);
-        }
-
-
         return result;
     }
 
-    node_ptr eval_procedure(context& ctx, const procedure_ptr& f, const node_ptr& args)
+    node_ptr eval_procedure(context& ctx, const node_ptr& proc_node, const node_ptr& args)
     {
-        if (f == nullptr)
+        if (proc_node == nullptr)
         {
             return nullptr;
         }
 
-        if (f->is_native)
+        auto proc = proc_node->proc;
+
+        if (proc == nullptr)
+        {
+            return nullptr;
+        }
+
+        context::callstack_item item;
+        item.node = proc_node;
+        
+        ctx.callstack.push_back(item);        
+        
+        if (proc->is_native)
         {
             // Build a root node
             node_ptr name_node(std::make_shared<node>());
             name_node->type = node_type::name;
-            name_node->value = f->name;
+            name_node->value = proc->name;
 
             node_ptr root(std::make_shared<node>());
             root->type = node_type::pair;
@@ -107,57 +94,66 @@ namespace slist
             root->cdr = args;
 
             auto prev_env = ctx.active_env; 
-            ctx.active_env = f->env;
-            auto result = f->native_func(ctx, root);
+            ctx.active_env = proc->env;
+            auto result = proc->native_func(ctx, root);
             ctx.active_env = prev_env;
+
+            ctx.callstack.pop_back();
 
             return result;
         }
         else 
         {
-            if (f->is_tail)
-            {
-                
-                dump_callstack(ctx);
+            node_ptr result;
 
-                log_traceln("Trying to unwind the stack:\n", f->body);
-                
-                // Try to unwind the call stack: tail-call elimination
-                int size = static_cast<int>(ctx.callstack.size());
-                int i = size-1;
-                while (i > 0)
+            while (proc != nullptr)
+            {
+                if (proc->is_tail)
                 {
-                    //auto& item = ctx.callstack[i];
-                    auto& prev_item = ctx.callstack[i-1];
-                    log_traceln("    Prev: ", prev_item.node);
-                    if (prev_item.node->is_tail)
+                    dump_callstack(ctx);
+
+                    log_traceln("Trying to unwind the stack:\n", proc->body);
+                    
+                    // Try to unwind the call stack: tail-call elimination
+                    int size = static_cast<int>(ctx.callstack.size());
+                    int i = size-1;
+                    while (i > 0)
                     {
-                        if (prev_item.node == f->body)
+                        //auto& item = ctx.callstack[i];
+                        auto& prev_item = ctx.callstack[i-1];
+                        log_traceln("    Prev: ", prev_item.node);
+                        if (prev_item.node->is_tail)
                         {
-                            prev_item.delayed_proc = f;
-                            prev_item.delayed_args = args;
-                            return nullptr;
+                            if (prev_item.node == proc->body)
+                            {
+                                prev_item.delayed_proc = proc;
+                                prev_item.delayed_args = args;
+                                return nullptr;
+                            }
+                            --i;
                         }
-                        --i;
-                    }
-                    else
-                    {
-                        break;
+                        else
+                        {
+                            break;
+                        }
                     }
                 }
-            }
-            
-            log_traceln("Executing procedure:\n", f->body);
+                
+                log_traceln("Executing procedure:\n", proc->body);
 
-            auto prev_env = ctx.active_env;
-            ctx.active_env = f->env;
-            auto result = eval(ctx, f->body);
-            ctx.active_env = prev_env;
+                auto prev_env = ctx.active_env;
+                ctx.active_env = proc->env;
+                result = eval(ctx, proc->body);
+                ctx.active_env = prev_env;
+
+                auto& back_item = ctx.callstack.back();
+                proc = back_item.delayed_proc;
+            }
+
+            ctx.callstack.pop_back();                
 
             return result;
         }
-
-        return nullptr;
     }
 
     node_ptr exec(context& ctx, const std::string& str)
@@ -190,8 +186,10 @@ namespace slist
         return exec(ctx, s);
     }
 
-    node_ptr apply(context& ctx, const node_ptr& args, const procedure_ptr& proc)
+    node_ptr apply(context& ctx, const node_ptr& args, const node_ptr& proc_node)
     {
+        auto& proc = proc_node->proc;
+
         // Create a new environement to make sure they are not shared between evals
         environment_ptr env(std::make_shared<environment>());
         env->parent = proc->env;
@@ -273,13 +271,13 @@ namespace slist
         if (proc->is_macro)
         {
             // log_traceln("Macro root: ", nullptr, proc);
-            node_ptr res = eval_procedure(ctx, proc, args);
+            node_ptr res = eval_procedure(ctx, proc_node, args);
             // log_traceln("Macro res: ", res);
             return eval(ctx, res);
         }
         else 
         {
-            return eval_procedure(ctx, proc, args); 
+            return eval_procedure(ctx, proc_node, args); 
         }
     }
 }
@@ -302,8 +300,9 @@ namespace
             log_errorln("Cannot evaluate empty list.");
             return nullptr;
         }
-        
-        procedure_ptr proc = op_node->proc;
+
+        node_ptr proc_node = op_node;
+        procedure_ptr proc = proc_node->proc;
 
         if (proc == nullptr && op_node->type == node_type::pair)
         {
@@ -313,6 +312,7 @@ namespace
                 log_errorln("Error: first argument is not a procedure", root);
                 return nullptr;
             }
+            proc_node = eval_node;
             proc = eval_node->proc;
         }
         else
@@ -321,6 +321,7 @@ namespace
             node_ptr val = ctx.active_env->lookup_variable(op_node->value);
             if (val != nullptr && val->proc != nullptr)
             {
+                proc_node = val;
                 proc = val->proc;
                 if (proc != nullptr && proc->is_native)
                 {
@@ -331,7 +332,7 @@ namespace
 
         if (proc != nullptr)
         {
-            return apply(ctx, root->cdr, proc);
+            return apply(ctx, root->cdr, proc_node);
         }
 
         log_errorln("Operator is not a procedure: ", op_node);

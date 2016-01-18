@@ -41,7 +41,7 @@ namespace slist
             return nullptr;
         }
 
-        return apply(ctx, args, func_node->proc);
+        return apply(ctx, args, func_node);
     }
 
     node_ptr native_cons(context& ctx, const node_ptr& root)
@@ -368,7 +368,7 @@ namespace slist
 
         // log_traceln("'let' proc:\n", nullptr, func);
 
-        return eval_procedure(ctx, func, nullptr);
+        return eval_procedure(ctx, res, nullptr);
     }
 
     node_ptr native_letrec(context& ctx, const node_ptr& root)
@@ -466,7 +466,7 @@ namespace slist
 
         // log_traceln("'letrec' proc:\n", nullptr, func);
 
-        return eval_procedure(ctx, func, nullptr);
+        return eval_procedure(ctx, res, nullptr);
     }
 
     node_ptr native_begin(context& ctx, const node_ptr& root)
