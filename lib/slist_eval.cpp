@@ -8,17 +8,6 @@ namespace
 {
     slist::node_ptr eval_list(slist::context& ctx, const slist::node_ptr& root);
     slist::node_ptr eval_name(slist::context& ctx, const slist::node_ptr& root);
-
-    void dump_callstack(slist::context& ctx)
-    {
-        using namespace slist;
-        int index = 0;
-        for (auto& item : ctx.callstack)
-        {
-            log_traceln("[" + std::to_string(index) + "]: ", item.node);
-            ++index;
-        }
-    }
 }
 
 namespace slist
@@ -26,7 +15,6 @@ namespace slist
     node_ptr eval(context& ctx, const node_ptr& root)
     {
         log_traceln("Eval: ", root);
-        debug_print_environment(ctx, ctx.active_env);
 
         if (root == nullptr)
         {
@@ -110,7 +98,7 @@ namespace slist
             {
                 if (proc->is_tail)
                 {
-                    dump_callstack(ctx);
+                    ctx.debug_dump_callstack();
 
                     log_traceln("Trying to unwind the stack:\n", proc->body);
                     
@@ -124,7 +112,7 @@ namespace slist
                         log_traceln("    Prev: ", prev_item.node);
                         if (prev_item.node->is_tail)
                         {
-                            if (prev_item.node == proc->body)
+                            if (prev_item.node->proc == proc)
                             {
                                 prev_item.delayed_proc = proc;
                                 prev_item.delayed_args = args;
@@ -148,6 +136,11 @@ namespace slist
 
                 auto& back_item = ctx.callstack.back();
                 proc = back_item.delayed_proc;
+
+                if (proc != nullptr)
+                {
+                    log_traceln("STACK OPTIM!!");
+                }
             }
 
             ctx.callstack.pop_back();                

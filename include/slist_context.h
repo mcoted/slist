@@ -30,6 +30,8 @@ namespace slist
 
 		typedef std::vector<callstack_item> callstack_vector;
 		callstack_vector callstack;
+
+		void debug_dump_callstack();
 	};
 }
 

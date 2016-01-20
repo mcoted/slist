@@ -97,4 +97,15 @@ namespace slist
 
         symbols[node->value] = node;
     }
+
+    void context::debug_dump_callstack()
+    {
+        using namespace slist;
+        int index = 0;
+        for (auto& item : callstack)
+        {
+            log_traceln("[" + std::to_string(index) + "]: ", item.node);
+            ++index;
+        }
+    }
 }
