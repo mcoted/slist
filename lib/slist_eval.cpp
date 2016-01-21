@@ -14,6 +14,7 @@ namespace slist
 {
     node_ptr eval(context& ctx, const node_ptr& root)
     {
+        ctx.debug_dump_callstack();
         log_traceln("Eval: ", root);
 
         if (root == nullptr)
@@ -69,6 +70,14 @@ namespace slist
         
         ctx.callstack.push_back(item);        
         
+        struct auto_pop_callstack
+        {
+            auto_pop_callstack(context& ctx) : ctx(ctx) {}
+            ~auto_pop_callstack() { ctx.callstack.pop_back(); }
+            
+            context& ctx;
+        } auto_stack_popper(ctx);
+        
         if (proc->is_native)
         {
             // Build a root node
@@ -85,8 +94,6 @@ namespace slist
             ctx.active_env = proc->env;
             auto result = proc->native_func(ctx, root);
             ctx.active_env = prev_env;
-
-            ctx.callstack.pop_back();
 
             return result;
         }
@@ -139,11 +146,14 @@ namespace slist
 
                 if (proc != nullptr)
                 {
+                    context::callstack_item item;
+                    item.node = proc_node;
+                    ctx.callstack.pop_back();
+                    ctx.callstack.push_back(item);
                     log_traceln("STACK OPTIM!!");
+                    // TODO: Merge environments??
                 }
             }
-
-            ctx.callstack.pop_back();                
 
             return result;
         }
