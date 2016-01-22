@@ -141,6 +141,8 @@ namespace slist
                 result = eval(ctx, proc->body);
                 ctx.active_env = prev_env;
 
+                auto prev_proc = proc;
+                
                 auto& back_item = ctx.callstack.back();
                 proc = back_item.delayed_proc;
 
@@ -150,8 +152,17 @@ namespace slist
                     item.node = proc_node;
                     ctx.callstack.pop_back();
                     ctx.callstack.push_back(item);
+
+                    proc->env->parent = prev_env;
+                    
+//                    // TODO: Merge environments??
+//                    log_traceln("Prev proc env:");
+//                    debug_print_environment(ctx, prev_env);
+//
+//                    log_traceln("Proc env:");
+//                    debug_print_environment(ctx, proc->env);
+                    
                     log_traceln("STACK OPTIM!!");
-                    // TODO: Merge environments??
                 }
             }
 
