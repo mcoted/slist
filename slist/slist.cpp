@@ -28,9 +28,9 @@ int main(int argc, char **argv)
 
             if (get_log_level() >= log_level::trace)
             {
-                log_traceln("");
+                LOG_TRACELN("");
                 debug_print_node(n);
-                log_traceln("");
+                LOG_TRACELN("");
             }
 
             context ctx;

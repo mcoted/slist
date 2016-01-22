@@ -104,7 +104,8 @@ namespace slist
         int index = 0;
         for (auto& item : callstack)
         {
-            log_traceln("[" + std::to_string(index) + "]: ", item.node);
+            (void)item;
+            LOG_TRACELN2("[" + std::to_string(index) + "]: ", item.node);
             ++index;
         }
     }

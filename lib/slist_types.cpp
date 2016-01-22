@@ -222,23 +222,23 @@ namespace slist
 	{
 		for (int i = 0; i < indent; ++i)
 		{
-			log_trace("    ");
+			LOG_TRACE("    ");
 		}
 
 		if (n == nullptr)
 		{
-			log_traceln("nil");
+			LOG_TRACELN("nil");
             return;
 		}
 
-		log_trace("[" + type_to_string(n->type) + "]");		
+		LOG_TRACE("[" + type_to_string(n->type) + "]");		
 
 		if (n->value.length() > 0)
 		{
-			log_trace(" \"" + n->value + "\"");
+			LOG_TRACE(" \"" + n->value + "\"");
 		}
 
-		log_traceln();
+		LOG_TRACELN();
 
 		if (n->type == node_type::pair)
 		{
@@ -255,17 +255,17 @@ namespace slist
 		}
 		else if (env == ctx.global_env)
 		{
-			log_traceln("<globals>");
+			LOG_TRACELN("<globals>");
 			return;
 		}
 
-		log_trace("[");
+		LOG_TRACE("[");
 		for (auto& keyval : env->bindings)
 		{
-			log_trace(keyval.first + ": ");
+			LOG_TRACE(keyval.first + ": ");
             if (keyval.second == nullptr)
             {
-                log_trace("<null>");
+                LOG_TRACE("<null>");
                 continue;
             }
 			auto proc = keyval.second->proc;
@@ -273,20 +273,20 @@ namespace slist
 			{
 				if (proc->is_native)
 				{
-					log_trace("<native func>");
+					LOG_TRACE("<native func>");
 				}
 				else 
 				{
-					log_trace("", proc->body);
+					LOG_TRACE2("", proc->body);
 				}
 			}
 			else 
 			{
-				log_trace(keyval.second->value);
+				LOG_TRACE(keyval.second->value);
 			}
-			log_trace(", ");
+			LOG_TRACE(", ");
 		}
-		log_trace("]");
+		LOG_TRACE("]");
 		debug_print_environment(ctx, env->parent);
 	}
 

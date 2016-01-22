@@ -15,7 +15,7 @@ namespace slist
     node_ptr eval(context& ctx, const node_ptr& root)
     {
         ctx.debug_dump_callstack();
-        log_traceln("Eval: ", root);
+        LOG_TRACELN2("Eval: ", root);
 
         if (root == nullptr)
         {
@@ -44,8 +44,8 @@ namespace slist
                 break;
         }
 
-        log_trace("Result of ", root);
-        log_traceln(" -> ", result);
+        LOG_TRACELN2("Result of ", root);
+        LOG_TRACELN2(" -> ", result);
         debug_print_environment(ctx, ctx.active_env);
 
         return result;
@@ -107,7 +107,7 @@ namespace slist
                 {
                     ctx.debug_dump_callstack();
 
-                    log_traceln("Trying to unwind the stack:\n", proc->body);
+                    LOG_TRACELN2("Trying to unwind the stack:\n", proc->body);
                     
                     // Try to unwind the call stack: tail-call elimination
                     int size = static_cast<int>(ctx.callstack.size());
@@ -116,7 +116,7 @@ namespace slist
                     {
                         //auto& item = ctx.callstack[i];
                         auto& prev_item = ctx.callstack[i-1];
-                        log_traceln("    Prev: ", prev_item.node);
+                        LOG_TRACELN2("    Prev: ", prev_item.node);
                         if (prev_item.node->is_tail)
                         {
                             if (prev_item.node->proc == proc)
@@ -134,7 +134,7 @@ namespace slist
                     }
                 }
                 
-                log_traceln("Executing procedure:\n", proc->body);
+                LOG_TRACELN2("Executing procedure:\n", proc->body);
 
                 auto prev_env = ctx.active_env;
                 ctx.active_env = proc->env;
@@ -155,14 +155,7 @@ namespace slist
 
                     proc->env->parent = prev_env;
                     
-//                    // TODO: Merge environments??
-//                    log_traceln("Prev proc env:");
-//                    debug_print_environment(ctx, prev_env);
-//
-//                    log_traceln("Proc env:");
-//                    debug_print_environment(ctx, proc->env);
-                    
-                    log_traceln("STACK OPTIM!!");
+                    LOG_TRACELN("STACK OPTIM!!");
                 }
             }
 
@@ -280,13 +273,13 @@ namespace slist
             }
         }
 
-        // log_traceln("Evaluating Procedure from 'apply':\n", nullptr, proc);
+        // LOG_TRACELN("Evaluating Procedure from 'apply':\n", nullptr, proc);
 
         if (proc->is_macro)
         {
-            // log_traceln("Macro root: ", nullptr, proc);
+            // LOG_TRACELN("Macro root: ", nullptr, proc);
             node_ptr res = eval_procedure(ctx, proc_node, args);
-            // log_traceln("Macro res: ", res);
+            // LOG_TRACELN("Macro res: ", res);
             return eval(ctx, res);
         }
         else 

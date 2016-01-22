@@ -65,16 +65,16 @@ namespace slist
         log("\n", log_level::error);
     }
 
-    void log_trace(const std::string& str, node_ptr n, procedure_ptr f)
+    void log_trace_slow(const std::string& str, node_ptr n, procedure_ptr f)
     {
         log(str, log_level::trace);
         log(n, log_level::trace);
         log(f, log_level::trace);
     }
 
-    void log_traceln(const std::string& str, node_ptr n, procedure_ptr f)
+    void log_traceln_slow(const std::string& str, node_ptr n, procedure_ptr f)
     {
-        log_trace(str, n, f);
+        log_trace_slow(str, n, f);
         log("\n", log_level::trace);
     }
 }

@@ -220,7 +220,7 @@ namespace slist
         res->proc = func;
         res->set_as_tail();
 
-        // log_traceln("Lambda proc:\n", nullptr, func);
+        // LOG_TRACELN("Lambda proc:\n", nullptr, func);
 
         return res;        
     }
@@ -254,7 +254,7 @@ namespace slist
             lambda_node->append(args);
             lambda_node->append(body);
 
-            // log_traceln("Lambda from scratch:\n", lambda_node);
+            // LOG_TRACELN("Lambda from scratch:\n", lambda_node);
 
             node_ptr lambda = native_lambda(ctx, lambda_node);
 
@@ -366,7 +366,7 @@ namespace slist
         node_ptr res(std::make_shared<node>());
         res->proc = func;
 
-        // log_traceln("'let' proc:\n", nullptr, func);
+        // LOG_TRACELN("'let' proc:\n", nullptr, func);
 
         return eval_procedure(ctx, res, nullptr);
     }
@@ -464,7 +464,7 @@ namespace slist
         node_ptr res(std::make_shared<node>());
         res->proc = func;
 
-        // log_traceln("'letrec' proc:\n", nullptr, func);
+        // LOG_TRACELN("'letrec' proc:\n", nullptr, func);
 
         return eval_procedure(ctx, res, nullptr);
     }
