@@ -40,6 +40,7 @@ namespace slist
     node_ptr native_sub       (context& ctx, const node_ptr& root);
     node_ptr native_mul       (context& ctx, const node_ptr& root);
     node_ptr native_div       (context& ctx, const node_ptr& root);
+    node_ptr native_mod       (context& ctx, const node_ptr& root);
     node_ptr native_e         (context& ctx, const node_ptr& root);
     node_ptr native_ne        (context& ctx, const node_ptr& root);
     node_ptr native_lt        (context& ctx, const node_ptr& root);

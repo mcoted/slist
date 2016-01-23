@@ -771,12 +771,12 @@ namespace slist
             int perform_int(const std::string& arg1, const std::string& arg2) const \
             { \
                 using namespace std; \
-                return stoi(arg1) OP stoi(arg2); \
+                return OP<int>()(stoi(arg1), stoi(arg2)); \
             } \
             float perform_float(const std::string& arg1, const std::string& arg2) const \
             { \
                 using namespace std; \
-                return stof(arg1) OP stof(arg2); \
+                return OP<float>()(stof(arg1), stof(arg2)); \
             } \
         } op;
 
@@ -814,10 +814,70 @@ namespace slist
             return result; \
         }
 
-    MAKE_ARITHMETIC_FUNC(native_add, +)
-    MAKE_ARITHMETIC_FUNC(native_sub, -)
-    MAKE_ARITHMETIC_FUNC(native_mul, *)
-    MAKE_ARITHMETIC_FUNC(native_div, /)
+    template<typename T>
+    struct ArithmeticAdd
+    {
+        T operator()(T first, T second)
+        {
+            return first + second;
+        }
+    };
+
+    template<typename T>
+    struct ArithmeticSub
+    {
+        T operator()(T first, T second)
+        {
+            return first - second;
+        }
+    };
+
+    template<typename T>
+    struct ArithmeticMul
+    {
+        T operator()(T first, T second)
+        {
+            return first * second;
+        }
+    };
+
+    template<typename T>
+    struct ArithmeticDiv
+    {
+        T operator()(T first, T second)
+        {
+            return first / second;
+        }
+    };
+
+    template<typename T>
+    struct ArithmeticMod
+    {        
+    };
+
+   template<>
+    struct ArithmeticMod<int>
+    {
+        int operator()(int first, int second)
+        {
+            return first % second;
+        }
+    };
+
+   template<>
+    struct ArithmeticMod<float>
+    {
+        float operator()(float first, float second)
+        {
+            return fmodf(first, second);
+        }
+    };
+
+    MAKE_ARITHMETIC_FUNC(native_add, ArithmeticAdd)
+    MAKE_ARITHMETIC_FUNC(native_sub, ArithmeticSub)
+    MAKE_ARITHMETIC_FUNC(native_mul, ArithmeticMul)
+    MAKE_ARITHMETIC_FUNC(native_div, ArithmeticDiv)
+    MAKE_ARITHMETIC_FUNC(native_mod, ArithmeticMod)
 
     #define MAKE_COMPARISON_OP_FUNC(FUNC_NAME, OP) \
         node_ptr FUNC_NAME(context& ctx, const node_ptr& root) \

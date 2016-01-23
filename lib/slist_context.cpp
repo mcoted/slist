@@ -50,6 +50,7 @@ namespace slist
         register_native("-",       &native_sub);
         register_native("*",       &native_mul);
         register_native("/",       &native_div);
+        register_native("%",       &native_mod);
 
         register_native("=",       &native_e);
         register_native("!=",      &native_ne);
