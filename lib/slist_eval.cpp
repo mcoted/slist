@@ -123,6 +123,7 @@ namespace slist
                             {
                                 prev_item.delayed_proc = proc;
                                 prev_item.delayed_args = args;
+                                LOG_TRACELN2("    Unwinding!: ", prev_item.node);
                                 return nullptr;
                             }
                             --i;
@@ -329,6 +330,7 @@ namespace
             if (val != nullptr && val->proc != nullptr)
             {
                 proc_node = val;
+                proc_node->is_tail = root->is_tail;
                 proc = val->proc;
                 if (proc != nullptr && proc->is_native)
                 {

@@ -6,8 +6,8 @@
 #ifdef DEBUG
 #define LOG_TRACE(STR) log_trace_slow(STR)
 #define LOG_TRACE2(STR, ARG0) log_trace_slow(STR, ARG0)
-#define LOG_TRACELN(STR) LOG_TRACELN_slow(STR)
-#define LOG_TRACELN2(STR, ARG0) LOG_TRACELN_slow(STR, ARG0)
+#define LOG_TRACELN(STR) log_traceln_slow(STR)
+#define LOG_TRACELN2(STR, ARG0) log_traceln_slow(STR, ARG0)
 #else
 #define LOG_TRACE(STR) do {} while (0)
 #define LOG_TRACE2(STR, ARG0) do {} while (0)
