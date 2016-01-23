@@ -92,6 +92,19 @@ SLisp uses [CMake](https://cmake.org) for its build system.
         begin, if, length, empty?, print, println, eq?, equal?, not, pair?, boolean?, 
         integer?, number?, string?, symbol?, +, -, *, /, =, !=, <, >, <=, >=
 
+ * Tail call elimination
+
+    Tail calls are eliminated by the SList runtime, which allows deeply recursive 
+    loops:
+
+        (define (forever x)
+            (begin
+                (println x)
+                (forever (+ x 1))))
+
+        (forever 0) ; Prints every positive integers
+
+
 ### Embedding SList in Your Project
 
 ##### Evaluating Lisp expressions from your C++ code
@@ -192,7 +205,3 @@ Example:
  * 2: Warnings and errors
  * 3: Debug logs
 
-### Future Work
-
- - Tail call optimization
- - ...
